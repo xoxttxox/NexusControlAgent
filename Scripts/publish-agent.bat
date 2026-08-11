@@ -10,6 +10,9 @@ dotnet publish "%PROJECT_ROOT%\NexusControlAgent.csproj" ^
   --runtime win-x64 ^
   --self-contained true ^
   -p:PublishSingleFile=true ^
+  -p:IncludeNativeLibrariesForSelfExtract=true ^
+  -p:EnableCompressionInSingleFile=true ^
+  -p:PublishTrimmed=false ^
   -p:DebugType=None ^
   -p:DebugSymbols=false ^
   --output "%PROJECT_ROOT%\artifacts\publish\win-x64"

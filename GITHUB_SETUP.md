@@ -60,33 +60,45 @@ git push -u origin main
 `DEIN-NAME` muss durch den eigenen GitHub-Benutzernamen oder die Organisation
 ersetzt werden.
 
+Vor dem Build muss derselbe Name in `appsettings.json` unter
+`Updates:RepositoryOwner` eingetragen werden. Ohne diese Angabe bleibt der
+integrierte Updater absichtlich im Zustand **Noch nicht eingerichtet**.
+
 ## Erste GitHub Release
 
 **Tag**
 
 ```text
-v0.10.3
+v0.11.0
 ```
 
 **Titel**
 
 ```text
-Nexus Control Agent 0.10.3
+Nexus Control Agent 0.11.0
 ```
 
-**Datei für die Release-Assets**
+**Dateien für die Release-Assets**
 
 ```text
-NexusControlAgent-Setup-v0.10.3-win-x64.msi
+NexusControlAgent-Setup-v0.11.0-win-x64.msi
+NexusControlAgent-Setup-v0.11.0-win-x64.msi.sha256
 ```
 
-Die Release-Beschreibung kann aus dem Abschnitt `0.10.3` in `CHANGELOG.md`
-übernommen werden. Zusätzlich sollte die SHA-256-Prüfsumme veröffentlicht
-werden:
+Die Release-Beschreibung kann aus dem Abschnitt `0.11.0` in `CHANGELOG.md`
+übernommen werden. `Scripts\build-msi.bat` erzeugt die passende
+`.sha256`-Datei automatisch. Nach einer Signierung erzeugt
+`Scripts\sign-release.ps1` sie erneut, damit sie exakt zum signierten MSI passt.
+Bei Bedarf kann sie auch einzeln erstellt werden:
 
 ```powershell
-Get-FileHash .\artifacts\installer\NexusControlAgent-Setup-v0.10.3-win-x64.msi -Algorithm SHA256
+.\Scripts\New-ReleaseChecksum.ps1 -Path .\artifacts\installer\NexusControlAgent-Setup-v0.11.0-win-x64.msi
 ```
+
+Das Release muss anschließend wirklich **veröffentlicht** werden. Entwürfe
+werden nie gefunden; als „Pre-release“ markierte Versionen werden nur erkannt,
+wenn `Updates:IncludePrereleases` ausdrücklich aktiviert ist. Dateiname und Tag
+müssen exakt zum Schema oben passen.
 
 ## Checkliste vor „Public“
 
@@ -97,7 +109,7 @@ Get-FileHash .\artifacts\installer\NexusControlAgent-Setup-v0.10.3-win-x64.msi -
 - `git status` und den vollständigen Commit-Inhalt prüfen
 - GitHub Private Vulnerability Reporting aktivieren
 - gewünschte Quellcode-Lizenz auswählen und als `LICENSE` hinzufügen
-- Release-Asset und SHA-256-Prüfsumme hochladen
+- MSI und die gleichnamige `.msi.sha256`-Datei als Release-Assets hochladen
 
 Ohne `LICENSE` ist ein öffentlich sichtbares Repository nicht automatisch Open
 Source; die normalen Urheberrechte bleiben bestehen.

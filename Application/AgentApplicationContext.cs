@@ -1,5 +1,6 @@
 using NexusControl.Agent.Configuration;
 using NexusControl.Agent.Forms;
+using NexusControl.Agent.Models;
 using NexusControl.Agent.Pairing;
 using NexusControl.Agent.Services;
 using NexusControl.Agent.UI;
@@ -19,24 +20,33 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
     private readonly Drawing.Icon _trayIconImage;
     private readonly AutoStartService _autoStart;
     private readonly WinForms.ToolStripMenuItem _autoStartMenuItem;
+    private readonly WinForms.ToolStripMenuItem _updateMenuItem;
+    private readonly UpdateService _updates;
+    private readonly Drawing.Font _updateMenuRegularFont;
+    private readonly Drawing.Font _updateMenuBoldFont;
     private bool _exiting;
     private bool _minimizeHintShown;
     private bool _updatingAutoStart;
+    private string? _notifiedUpdateVersion;
+    private Action? _balloonClickAction;
 
     public AgentApplicationContext(
         PairingService pairing,
         DeviceStore devices,
         AgentOptions options,
+        UpdateService updates,
         bool startInTray)
     {
         _autoStart = new AutoStartService();
+        _updates = updates;
         var firewall = new FirewallService(options.Port);
         _window = new AgentWindow(
             pairing,
             devices,
             options,
             _autoStart,
-            firewall);
+            firewall,
+            updates);
         MainForm = _window;
 
         // Der unsichtbare Handle macht InvokeRequired auch beim Tray-Start
@@ -62,6 +72,23 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
                 _window.RotatePairingCode();
                 ShowWindow();
             });
+        _updateMenuItem = new WinForms.ToolStripMenuItem(
+            "Nach Updates suchen",
+            null,
+            (_, _) =>
+            {
+                ShowWindow();
+                _window.ShowUpdateWindow(forceCheck: true);
+            });
+        _updateMenuRegularFont = new Drawing.Font(
+            "Segoe UI",
+            9F,
+            Drawing.FontStyle.Regular);
+        _updateMenuBoldFont = new Drawing.Font(
+            "Segoe UI Semibold",
+            9F,
+            Drawing.FontStyle.Bold);
+        _updateMenuItem.Font = _updateMenuRegularFont;
         _autoStartMenuItem = new WinForms.ToolStripMenuItem(
             "Mit Windows starten")
         {
@@ -83,6 +110,7 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
 
         menu.Items.Add(openMenuItem);
         menu.Items.Add(rotateMenuItem);
+        menu.Items.Add(_updateMenuItem);
         menu.Items.Add(new WinForms.ToolStripSeparator());
         menu.Items.Add(_autoStartMenuItem);
         menu.Items.Add(new WinForms.ToolStripSeparator());
@@ -102,6 +130,18 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
             Visible = true,
         };
         _trayIcon.DoubleClick += (_, _) => ShowWindow();
+        _trayIcon.BalloonTipClicked += (_, _) =>
+        {
+            var action = Interlocked.Exchange(
+                ref _balloonClickAction,
+                null);
+            action?.Invoke();
+        };
+
+        _updates.SnapshotChanged += UpdateSnapshotChanged;
+        _updates.InstallationRequested += RequestExit;
+        UpdateSnapshotChanged(_updates.Snapshot);
+        ShowLastUpdateResult();
 
         _window.HideRequested += (_, _) => HideWindow();
         _window.Resize += (_, _) =>
@@ -148,6 +188,10 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
             _trayIcon.ContextMenuStrip?.Dispose();
             _trayIcon.Dispose();
             _trayIconImage.Dispose();
+            _updateMenuRegularFont.Dispose();
+            _updateMenuBoldFont.Dispose();
+            _updates.SnapshotChanged -= UpdateSnapshotChanged;
+            _updates.InstallationRequested -= RequestExit;
             if (!_window.IsDisposed)
             {
                 _window.Dispose();
@@ -195,6 +239,7 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
         }
 
         _minimizeHintShown = true;
+        _balloonClickAction = ShowWindow;
         _trayIcon.ShowBalloonTip(
             3000,
             "Nexus Control Agent läuft weiter",
@@ -247,6 +292,77 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
         }
 
         _window.RefreshAutoStartState();
+    }
+
+    private void UpdateSnapshotChanged(UpdateSnapshot snapshot)
+    {
+        if (_window.IsDisposed)
+        {
+            return;
+        }
+
+        if (_window.InvokeRequired)
+        {
+            _window.BeginInvoke(
+                new Action<UpdateSnapshot>(UpdateSnapshotChanged),
+                snapshot);
+            return;
+        }
+
+        if (snapshot.Stage == UpdateStage.Available)
+        {
+            _updateMenuItem.Text =
+                $"Update {snapshot.Release?.DisplayVersion} verfügbar";
+            _updateMenuItem.Font = _updateMenuBoldFont;
+            var version = snapshot.Release?.DisplayVersion;
+            if (!string.IsNullOrWhiteSpace(version)
+                && !string.Equals(
+                    _notifiedUpdateVersion,
+                    version,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                _notifiedUpdateVersion = version;
+                _balloonClickAction = () =>
+                {
+                    ShowWindow();
+                    _window.ShowUpdateWindow(forceCheck: false);
+                };
+                _trayIcon.ShowBalloonTip(
+                    5000,
+                    $"Nexus Control {version} ist verfügbar",
+                    "Zum Anzeigen und Installieren des Updates hier klicken.",
+                    WinForms.ToolTipIcon.Info);
+            }
+
+            return;
+        }
+
+        _updateMenuItem.Text = snapshot.IsBusy
+            ? "Update wird vorbereitet …"
+            : "Nach Updates suchen";
+        _updateMenuItem.Font = _updateMenuRegularFont;
+    }
+
+    private void ShowLastUpdateResult()
+    {
+        var result = _updates.ConsumeLastInstallResult();
+        if (result is null)
+        {
+            return;
+        }
+
+        _balloonClickAction = ShowWindow;
+        _trayIcon.ShowBalloonTip(
+            5000,
+            result.Succeeded
+                ? "Nexus Control wurde aktualisiert"
+                : "Nexus Control Update fehlgeschlagen",
+            result.Succeeded
+                ? $"Version {result.Version} wurde erfolgreich installiert."
+                : $"Windows Installer meldete Fehlercode {result.ExitCode}. Details: {result.LogPath}",
+            result.Succeeded
+                ? WinForms.ToolTipIcon.Info
+                : WinForms.ToolTipIcon.Error);
     }
 
     private void ExitAgent()

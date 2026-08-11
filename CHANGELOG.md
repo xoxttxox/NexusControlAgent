@@ -9,6 +9,29 @@ an [Semantic Versioning](https://semver.org/lang/de/).
 
 Derzeit sind keine unveröffentlichten Änderungen eingetragen.
 
+## [0.11.0] – 2026-08-11
+
+### Hinzugefügt
+
+- automatische Updateprüfung über veröffentlichte GitHub Releases beim Start und
+  anschließend in einem einstellbaren Intervall
+- kompaktes Update-Fenster mit Versionsvergleich, Release-Hinweisen,
+  Downloadgröße und Fortschrittsanzeige
+- Update-Hinweis im Kopfbereich des Hauptfensters und im Tray-Menü
+- separater Update-Helfer, der den Agent sauber beendet, das WiX-MSI als
+  Major Upgrade installiert und den Agent danach wieder im Infobereich startet
+- automatische `.sha256`-Release-Datei im MSI-Build und nach der Signierung
+
+### Sicherheit
+
+- feste maximale Downloadgröße und Streaming-Download in eine temporäre Datei
+- verpflichtende SHA-256-Prüfung über GitHub-Asset-Digest oder separates
+  `.sha256`-Asset
+- optional aktivierbare Authenticode- und Herausgeberprüfung für öffentliche,
+  signierte Releases
+- Windows-Installer-Protokoll und sichtbare Erfolg- oder Fehlermeldung nach dem
+  Neustart
+
 ## [0.10.3] – 2026-08-11
 
 ### Geändert

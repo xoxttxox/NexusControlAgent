@@ -28,4 +28,4 @@ if errorlevel 1 (
   exit /b 1
 )
 
-start "" "%PROJECT_ROOT%\bin\Release\net10.0-windows\NexusControlAgent.exe"
+start "" "%PROJECT_ROOT%\bin\Release\net10.0-windows10.0.22621.0\NexusControlAgent.exe"

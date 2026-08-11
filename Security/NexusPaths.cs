@@ -16,6 +16,15 @@ internal static class NexusPaths
         DataDirectory,
         "trusted-devices.lock");
 
+    public static string UpdatesDirectory => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "NexusControl",
+        "Updates");
+
+    public static string UpdateResultPath => Path.Combine(
+        UpdatesDirectory,
+        "last-update-result.json");
+
     public static void EnsureSecureDataDirectory()
     {
         Directory.CreateDirectory(DataDirectory);

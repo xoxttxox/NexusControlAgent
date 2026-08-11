@@ -10,7 +10,7 @@ namespace NexusControl.Agent.Services;
 
 internal sealed class TelemetryService
 {
-    public const string AgentVersion = "0.10.3";
+    public const string AgentVersion = "0.11.0";
 
     private readonly object _gate = new();
     private readonly HardwareMonitorService _hardwareMonitor;

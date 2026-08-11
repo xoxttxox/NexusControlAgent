@@ -77,6 +77,45 @@ if ($startMenuComponent -and $startMenuComponent.Directory -cmatch '^[A-Z0-9_]+$
 }
 
 [xml]$wixProject = Get-Content -LiteralPath $projectFullPath -Raw -Encoding UTF8
+$packageNode = $package.SelectSingleNode('/w:Wix/w:Package', $namespace)
+if (-not $packageNode) {
+    throw 'Das WiX-Package-Element wurde nicht gefunden.'
+}
+
+$packageVersion = [string]$packageNode.Version
+if ($packageVersion -notmatch '^\d+\.\d+\.\d+$') {
+    throw "Die MSI-Version '$packageVersion' muss dem Schema X.Y.Z entsprechen."
+}
+
+$majorUpgrade = $package.SelectSingleNode('/w:Wix/w:Package/w:MajorUpgrade', $namespace)
+if (-not $majorUpgrade) {
+    throw 'MajorUpgrade fehlt; der integrierte Updater könnte keine bestehende Installation ersetzen.'
+}
+
+$upgradeCode = [Guid]::Empty
+if (-not [Guid]::TryParse([string]$packageNode.UpgradeCode, [ref]$upgradeCode) -or
+    $upgradeCode -eq [Guid]::Empty) {
+    throw 'UpgradeCode fehlt oder ist keine gültige, dauerhafte GUID.'
+}
+
+$outputName = [string]$wixProject.Project.PropertyGroup.OutputName
+if ($outputName -ne "NexusControlAgent-Setup-v$packageVersion-win-x64") {
+    throw "WiX OutputName '$outputName' passt nicht zur Paketversion $packageVersion."
+}
+
+$installerProjectDirectory = Split-Path -Parent $projectFullPath
+$agentProjectPath = [System.IO.Path]::GetFullPath(
+    (Join-Path $installerProjectDirectory '..\..\NexusControlAgent.csproj'))
+if (-not (Test-Path -LiteralPath $agentProjectPath -PathType Leaf)) {
+    throw "Agent-Projekt wurde nicht gefunden: $agentProjectPath"
+}
+
+[xml]$agentProject = Get-Content -LiteralPath $agentProjectPath -Raw -Encoding UTF8
+$agentVersion = [string]$agentProject.Project.PropertyGroup.Version
+if ($agentVersion -ne $packageVersion) {
+    throw "Agent-Version $agentVersion und MSI-Version $packageVersion stimmen nicht überein."
+}
+
 $bindPath = @($wixProject.Project.ItemGroup.BindPath) |
     Where-Object { $_.BindName -eq 'PublishedApp' }
 

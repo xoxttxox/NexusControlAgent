@@ -33,3 +33,6 @@ werden.
   vertrauenswürdig sind.
 - Windows, Tailscale und den Nexus Control Agent aktuell halten.
 - öffentliche Builds vor der Verteilung digital signieren.
+- GitHub Releases nur mit dem zum MSI gehörenden `.msi.sha256`-Asset
+  veröffentlichen; für signierte Releases zusätzlich
+  `Updates:RequireTrustedSignature` und den erwarteten Herausgeber aktivieren.

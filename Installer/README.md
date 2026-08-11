@@ -1,4 +1,4 @@
-# Nexus Control Agent – MSI-Installer 0.10.3
+# Nexus Control Agent – MSI-Installer 0.11.0
 
 Der Installer basiert auf WiX Toolset 7 und installiert ausschließlich den
 interaktiven Nexus Control Agent für Windows x64.
@@ -12,7 +12,8 @@ interaktiven Nexus Control Agent für Windows x64.
 Die fertige Datei liegt hier:
 
 ```text
-artifacts\installer\NexusControlAgent-Setup-v0.10.3-win-x64.msi
+artifacts\installer\NexusControlAgent-Setup-v0.11.0-win-x64.msi
+artifacts\installer\NexusControlAgent-Setup-v0.11.0-win-x64.msi.sha256
 ```
 
 ## Installierte Bestandteile
@@ -57,5 +58,15 @@ Code-Signing-Zertifikat signiert werden:
 Danach prüfen:
 
 ```powershell
-signtool verify /pa /v .\artifacts\installer\NexusControlAgent-Setup-v0.10.3-win-x64.msi
+signtool verify /pa /v .\artifacts\installer\NexusControlAgent-Setup-v0.11.0-win-x64.msi
 ```
+
+`sign-release.ps1` erzeugt die `.sha256`-Datei nach dem Signieren erneut. Beide
+Dateien müssen im selben veröffentlichten GitHub Release hochgeladen werden,
+damit der integrierte Agent-Updater das Paket verifizieren kann.
+
+Sobald alle öffentlichen MSI-Dateien signiert sind, sollte in
+`appsettings.json` zusätzlich `Updates:RequireTrustedSignature` auf `true` und
+`Updates:TrustedPublisherSubject` auf einen eindeutigen Teil des Zertifikat-
+Betreffs gesetzt werden. Ein Paket eines anderen Herausgebers wird dann vor der
+Installation abgelehnt.

@@ -27,6 +27,7 @@ oder Entsperrdaten gespeichert.
 - Dateiübertragung bis maximal 100 MB pro Datei
 - Wake-on-LAN-Informationen für gekoppelte Geräte
 - automatischer Start mit Windows und stiller Betrieb im Infobereich
+- automatische GitHub-Release-Updates mit geprüftem MSI-Upgrade
 - lokale Firewall-Einrichtung für den Agent-Port
 - optionale Push-Benachrichtigungen für überwachte Ereignisse
 
@@ -86,7 +87,8 @@ Scripts\start-agent.bat
 
 ## Konfiguration
 
-Die Standardwerte befinden sich in `appsettings.json` unter `Agent`.
+Die Standardwerte befinden sich in `appsettings.json` unter `Agent` und
+`Updates`.
 
 | Einstellung | Standard | Bedeutung |
 | --- | ---: | --- |
@@ -97,6 +99,28 @@ Die Standardwerte befinden sich in `appsettings.json` unter `Agent`.
 | `AllowedClockSkewMinutes` | `2` | Erlaubte Zeitabweichung bei Befehlen |
 | `MaximumMessageSizeBytes` | `65536` | Maximale Größe einer WebSocket-Nachricht |
 | `PushTemperatureThresholdCelsius` | `85` | Temperaturschwelle für Warnungen |
+
+Damit der integrierte Updater das richtige öffentliche Repository prüft, muss
+vor dem Veröffentlichen einmal `Updates:RepositoryOwner` auf den eigenen
+GitHub-Benutzernamen oder die Organisation gesetzt werden. Der Platzhalter
+`DEIN-GITHUB-NAME` deaktiviert die Netzwerkprüfung bewusst, bis diese Angabe
+korrekt ist.
+
+Der Updater erwartet pro Release exakt diese beiden Assets:
+
+```text
+NexusControlAgent-Setup-vX.Y.Z-win-x64.msi
+NexusControlAgent-Setup-vX.Y.Z-win-x64.msi.sha256
+```
+
+Ein Update wird zunächst vollständig heruntergeladen und per SHA-256 geprüft.
+Danach beendet ein separater Helfer den Agent, führt das bestehende WiX-Major-
+Upgrade aus und startet den Agent erneut. Bei einem per-Machine-MSI kann Windows
+dabei die Administratorbestätigung anzeigen.
+
+Die automatische Prüfung startet standardmäßig nach acht Sekunden und danach
+alle vier Stunden. Ein Download ist auf 300 MB und 15 Minuten begrenzt; alle
+Werte lassen sich im Abschnitt `Updates` anpassen.
 
 Für lokale Entwicklungswerte kann .NET User Secrets verwendet werden. Private
 Tokens, Zertifikate und Zugangsdaten dürfen nicht in `appsettings.json` oder in
@@ -122,6 +146,7 @@ Die fertigen Dateien werden nicht in Git eingecheckt, sondern unter
 ```text
 artifacts\publish\win-x64\NexusControlAgent.exe
 artifacts\installer\NexusControlAgent-Setup-vX.Y.Z-win-x64.msi
+artifacts\installer\NexusControlAgent-Setup-vX.Y.Z-win-x64.msi.sha256
 ```
 
 Vor einer öffentlichen Veröffentlichung sollten EXE und MSI mit einem
@@ -140,6 +165,7 @@ Pairing/             Pairing und vertrauenswürdige Geräte
 Security/            Sichere lokale Pfade
 Services/            Telemetrie, Medien, Bildschirm, Dateien und Autostart
 UI/                  Dark-Theme und Standarddialoge
+Updates/             GitHub-Release-Prüfung und MSI-Update-Helfer
 Windows/             Windows-Steuerung und Audio-Integration
 Installer/           WiX-7-Installer und Installer-Assets
 Scripts/             Build-, Installations- und Prüfroutinen

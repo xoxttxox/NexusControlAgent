@@ -11,6 +11,7 @@ using NexusControl.Agent.Networking;
 using NexusControl.Agent.Pairing;
 using NexusControl.Agent.Services;
 using NexusControl.Agent.UI;
+using NexusControl.Agent.Updates;
 using NexusControl.Agent.Windows;
 
 namespace NexusControl.Agent;
@@ -20,6 +21,12 @@ internal static class Program
     [STAThread]
     public static async Task Main(string[] args)
     {
+        if (UpdateInstaller.IsUpdateHelper(args))
+        {
+            Environment.ExitCode = await UpdateInstaller.RunAsync(args);
+            return;
+        }
+
         var autoStartCommand = args.FirstOrDefault(argument =>
             argument.StartsWith(
                 "--configure-autostart=",
@@ -144,6 +151,43 @@ internal static class Program
                         < options.PushTemperatureThresholdCelsius,
                 "Die Push-Temperaturgrenzen sind ungültig.")
             .ValidateOnStart();
+        builder.Services
+            .AddOptions<UpdateOptions>()
+            .Bind(builder.Configuration.GetSection(UpdateOptions.SectionName))
+            .Validate(
+                options => options.InitialCheckDelaySeconds is >= 1 and <= 300,
+                "Updates:InitialCheckDelaySeconds muss zwischen 1 und 300 liegen.")
+            .Validate(
+                options => options.CheckIntervalMinutes is >= 15 and <= 10_080,
+                "Updates:CheckIntervalMinutes muss zwischen 15 und 10080 liegen.")
+            .Validate(
+                options => options.MaximumInstallerSizeMegabytes is >= 20 and <= 1024,
+                "Updates:MaximumInstallerSizeMegabytes muss zwischen 20 und 1024 liegen.")
+            .Validate(
+                options => options.DownloadTimeoutMinutes is >= 1 and <= 120,
+                "Updates:DownloadTimeoutMinutes muss zwischen 1 und 120 liegen.")
+            .Validate(
+                options => !options.Enabled
+                    || options.InstallerAssetNamePattern.Contains(
+                        "{version}",
+                        StringComparison.OrdinalIgnoreCase),
+                "Updates:InstallerAssetNamePattern muss den Platzhalter {version} enthalten.")
+            .Validate(
+                options => !options.Enabled
+                    || (string.Equals(
+                            Path.GetFileName(options.InstallerAssetNamePattern),
+                            options.InstallerAssetNamePattern,
+                            StringComparison.Ordinal)
+                        && options.InstallerAssetNamePattern.EndsWith(
+                            ".msi",
+                            StringComparison.OrdinalIgnoreCase)),
+                "Updates:InstallerAssetNamePattern muss ein einfacher MSI-Dateiname sein.")
+            .Validate(
+                options => !options.RequireTrustedSignature
+                    || !string.IsNullOrWhiteSpace(
+                        options.TrustedPublisherSubject),
+                "Bei aktivierter Signaturprüfung muss Updates:TrustedPublisherSubject gesetzt sein.")
+            .ValidateOnStart();
         builder.Services.AddSingleton<DeviceStore>();
         builder.Services.AddSingleton<PairingService>();
         builder.Services.AddSingleton<HardwareMonitorService>();
@@ -163,11 +207,27 @@ internal static class Program
         {
             client.Timeout = TimeSpan.FromSeconds(12);
             client.DefaultRequestHeaders.UserAgent.ParseAdd(
-                "NexusControlAgent/0.10.3");
+                "NexusControlAgent/0.11.0");
         });
         builder.Services.AddSingleton<PushNotificationService>();
         builder.Services.AddHostedService<PushNotificationService>(serviceProvider =>
             serviceProvider.GetRequiredService<PushNotificationService>());
+        builder.Services.AddHttpClient("GitHubUpdates", client =>
+        {
+            client.BaseAddress = new Uri("https://api.github.com/");
+            client.Timeout = TimeSpan.FromSeconds(30);
+            client.DefaultRequestHeaders.Accept.ParseAdd(
+                "application/vnd.github+json");
+            client.DefaultRequestHeaders.Add(
+                "X-GitHub-Api-Version",
+                "2026-03-10");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(
+                "NexusControlAgent/0.11.0");
+        });
+        builder.Services.AddSingleton<GitHubReleaseClient>();
+        builder.Services.AddSingleton<UpdateService>();
+        builder.Services.AddHostedService<UpdateService>(serviceProvider =>
+            serviceProvider.GetRequiredService<UpdateService>());
 
         var app = builder.Build();
         var pairing = app.Services.GetRequiredService<PairingService>();
@@ -197,6 +257,7 @@ internal static class Program
             TaskCreationOptions.RunContinuationsAsynchronously);
         AgentApplicationContext? desktopContext = null;
         var deviceStore = app.Services.GetRequiredService<DeviceStore>();
+        var updateService = app.Services.GetRequiredService<UpdateService>();
         var desktopThread = new Thread(() =>
         {
             try
@@ -211,6 +272,7 @@ internal static class Program
                     pairing,
                     deviceStore,
                     agentOptions,
+                    updateService,
                     startInTray);
                 desktopContext = context;
                 System.Windows.Forms.Application.Run(context);

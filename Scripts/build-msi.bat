@@ -11,13 +11,14 @@ set "APP_PROJECT=%PROJECT_ROOT%\NexusControlAgent.csproj"
 set "MSI_PROJECT=%PROJECT_ROOT%\Installer\Msi\NexusControlAgent.Installer.wixproj"
 set "PACKAGE_WXS=%PROJECT_ROOT%\Installer\Msi\Package.wxs"
 set "VALIDATE_SCRIPT=%PROJECT_ROOT%\Scripts\validate-installer.ps1"
+set "CHECKSUM_SCRIPT=%PROJECT_ROOT%\Scripts\New-ReleaseChecksum.ps1"
 set "PUBLISH_DIR=%PROJECT_ROOT%\artifacts\publish\win-x64"
 set "INSTALLER_DIR=%PROJECT_ROOT%\artifacts\installer"
 set "LOG_DIR=%PROJECT_ROOT%\artifacts\logs"
 set "MSI_BIN_DIR=%PROJECT_ROOT%\Installer\Msi\bin"
 set "MSI_OBJ_DIR=%PROJECT_ROOT%\Installer\Msi\obj"
-set "MSI_FILE=%INSTALLER_DIR%\NexusControlAgent-Setup-v0.10.3-win-x64.msi"
-set "LOCALIZED_MSI_FILE=%INSTALLER_DIR%\de-DE\NexusControlAgent-Setup-v0.10.3-win-x64.msi"
+set "MSI_FILE=%INSTALLER_DIR%\NexusControlAgent-Setup-v0.11.0-win-x64.msi"
+set "LOCALIZED_MSI_FILE=%INSTALLER_DIR%\de-DE\NexusControlAgent-Setup-v0.11.0-win-x64.msi"
 set "APP_LOG=%LOG_DIR%\desktop-build.log"
 set "MSI_LOG=%LOG_DIR%\msi-build.log"
 
@@ -33,6 +34,7 @@ if not exist "%APP_PROJECT%" goto :missing_project
 if not exist "%MSI_PROJECT%" goto :missing_project
 if not exist "%PACKAGE_WXS%" goto :missing_project
 if not exist "%VALIDATE_SCRIPT%" goto :missing_project
+if not exist "%CHECKSUM_SCRIPT%" goto :missing_project
 
 if exist "%PUBLISH_DIR%" rmdir /s /q "%PUBLISH_DIR%"
 if exist "%INSTALLER_DIR%" rmdir /s /q "%INSTALLER_DIR%"
@@ -101,10 +103,16 @@ echo.
 echo [7/7] Fertiges Paket pruefen...
 for %%I in ("%MSI_FILE%") do set "MSI_SIZE=%%~zI"
 if "!MSI_SIZE!"=="0" goto :wix_failed
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass ^
+  -File "%CHECKSUM_SCRIPT%" ^
+  -Path "%MSI_FILE%"
+if errorlevel 1 goto :checksum_failed
+if not exist "%MSI_FILE%.sha256" goto :checksum_failed
 
 echo.
 echo Fertig:
 echo "%MSI_FILE%"
+echo "%MSI_FILE%.sha256"
 echo.
 echo Enthalten:
 echo   - stiller Desktop-Begleiter auf Port 5188
@@ -144,6 +152,10 @@ goto :failed
 :wix_failed
 echo FEHLER: Das MSI-Paket konnte nicht erstellt werden.
 if exist "%MSI_LOG%" type "%MSI_LOG%"
+goto :failed
+
+:checksum_failed
+echo FEHLER: Die SHA-256-Datei fuer das Release konnte nicht erstellt werden.
 goto :failed
 
 :failed
