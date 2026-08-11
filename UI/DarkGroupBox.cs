@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -21,6 +22,10 @@ internal sealed class DarkGroupBox : GroupBox
             true);
     }
 
+    // Die Farbe wird ausschließlich durch WinFormsTheme gesetzt und soll nicht
+    // vom Designer in InitializeComponent serialisiert werden. Die explizite
+    // Angabe ist seit dem neuen WinForms-Analyzer (WFO1000) erforderlich.
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public Color BorderColor
     {
         get => _borderColor;

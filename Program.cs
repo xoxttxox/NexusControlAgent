@@ -21,6 +21,12 @@ internal static class Program
     [STAThread]
     public static async Task Main(string[] args)
     {
+        // Muss vor jedem möglichen WinForms-Fenster gesetzt werden, also auch
+        // vor Hinweisen für eine bereits laufende Instanz oder Startfehlern.
+        // Die DPI-Einstellung gehört bei modernem WinForms nicht ins Manifest.
+        System.Windows.Forms.Application.SetHighDpiMode(
+            System.Windows.Forms.HighDpiMode.PerMonitorV2);
+
         if (UpdateInstaller.IsUpdateHelper(args))
         {
             Environment.ExitCode = await UpdateInstaller.RunAsync(args);
@@ -262,8 +268,6 @@ internal static class Program
         {
             try
             {
-                System.Windows.Forms.Application.SetHighDpiMode(
-                    System.Windows.Forms.HighDpiMode.PerMonitorV2);
                 System.Windows.Forms.Application.EnableVisualStyles();
                 System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(
                     false);
