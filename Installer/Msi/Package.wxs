@@ -1,0 +1,299 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+     xmlns:firewall="http://wixtoolset.org/schemas/v4/wxs/firewall">
+  <Package
+      Name="Nexus Control Agent"
+      Manufacturer="Nexus Control"
+      Version="0.10.3"
+      Language="1031"
+      UpgradeCode="B12E1F69-C89A-4CE4-B596-453E7B1A34C8"
+      Scope="perMachine"
+      InstallerVersion="500"
+      Compressed="yes">
+
+    <SummaryInformation Description="Nexus Control Agent – Windows-Desktop-Agent" />
+    <MajorUpgrade
+        DowngradeErrorMessage="Eine neuere Version von Nexus Control Agent ist bereits installiert."
+        Schedule="afterInstallInitialize" />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <Icon Id="NexusControlIcon" SourceFile="..\Assets\NexusControlInstaller.ico" />
+    <Property Id="ARPPRODUCTICON" Value="NexusControlIcon" />
+    <Property Id="ARPHELPLINK" Value="https://nexuscontrol.app/support" />
+    <Property Id="ARPURLINFOABOUT" Value="https://nexuscontrol.app" />
+
+    <!-- Texte auf der Abschlussseite. -->
+    <Property
+        Id="WIXUI_EXITDIALOGOPTIONALTEXT"
+        Value="Nexus Control Agent wurde erfolgreich installiert." />
+    <Property
+        Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT"
+        Value="Nexus Control Agent jetzt starten" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+
+    <Launch
+        Condition="VersionNT64"
+        Message="Nexus Control Agent benötigt eine 64-Bit-Version von Windows 10 oder Windows 11." />
+
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="Nexus Control Agent" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="CommonAppDataFolder">
+      <Directory Id="NexusControlDataFolder" Name="NexusControl" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="NexusControlProgramMenuDir" Name="Nexus Control" />
+    </StandardDirectory>
+
+    <Feature Id="MainFeature" Title="Nexus Control Agent" Level="1" Display="expand" AllowAbsent="no">
+      <ComponentGroupRef Id="PublishedFiles" />
+      <ComponentRef Id="StartMenuShortcutComponent" />
+      <ComponentRef Id="InstallFolderRegistryComponent" />
+      <ComponentRef Id="LegacyUnlockCleanupComponent" />
+
+      <Feature
+          Id="AutoStartFeature"
+          Title="Desktop-Begleiter automatisch starten"
+          Description="Startet interaktive Funktionen bei der Anmeldung unsichtbar im Infobereich."
+          Level="1"
+          Display="expand">
+        <ComponentRef Id="AutoStartMarkerComponent" />
+      </Feature>
+
+      <Feature
+          Id="DesktopShortcutFeature"
+          Title="Desktop-Verknüpfung erstellen"
+          Description="Erstellt eine Verknüpfung auf dem Desktop des aktuellen Benutzers."
+          Level="1"
+          Display="expand">
+        <ComponentRef Id="DesktopShortcutComponent" />
+      </Feature>
+    </Feature>
+
+    <ComponentGroup Id="PublishedFiles" Directory="INSTALLFOLDER">
+      <!-- Die Haupt-EXE erhält eine feste Id für sichere CustomActions. -->
+      <Component Id="MainExecutableComponent" Guid="*">
+        <File
+            Id="NexusControlAgentExe"
+            Source="!(bindpath.PublishedApp)\NexusControlAgent.exe"
+            KeyPath="yes">
+          <firewall:FirewallException
+              Id="DesktopAgentLocalFirewall"
+              Name="Nexus Control Agent TCP 5188"
+              Description="Erlaubt den Nexus-Control-Desktop-Begleiter ausschließlich aus dem lokalen Subnetz."
+              Port="5188"
+              Protocol="tcp"
+              Scope="localSubnet"
+              Profile="all"
+              Action="allow"
+              Enabled="yes" />
+          <firewall:FirewallException
+              Id="DesktopAgentTailscaleFirewall"
+              Name="Nexus Control Agent - Tailscale"
+              Description="Erlaubt den Nexus-Control-Desktop-Begleiter über Tailscale."
+              Port="5188"
+              Protocol="tcp"
+              Profile="all"
+              Action="allow"
+              Enabled="yes">
+            <firewall:RemoteAddress Value="100.64.0.0/10" />
+          </firewall:FirewallException>
+        </File>
+      </Component>
+      <Files Include="!(bindpath.PublishedApp)\**">
+        <Exclude Files="!(bindpath.PublishedApp)\NexusControlAgent.exe" />
+      </Files>
+    </ComponentGroup>
+
+    <Component Id="InstallFolderRegistryComponent" Directory="INSTALLFOLDER" Guid="*">
+      <RegistryValue
+          Root="HKLM"
+          Key="Software\Nexus Control\Nexus Control Agent"
+          Name="InstallPath"
+          Type="string"
+          Value="[INSTALLFOLDER]"
+          KeyPath="yes" />
+    </Component>
+
+    <!--
+      Reine Upgrade-Bereinigung für Installationen bis einschließlich 0.7.1.
+      Version 0.8.0 installiert weder Dienst noch Credential Provider und
+      enthält selbst keinerlei Windows-Entsperrfunktion.
+    -->
+    <Component
+        Id="LegacyUnlockCleanupComponent"
+        Directory="INSTALLFOLDER"
+        Guid="*"
+        Bitness="always64">
+      <ServiceControl
+          Id="RemoveLegacyCoreService"
+          Name="NexusControlCore"
+          Stop="install"
+          Remove="install"
+          Wait="yes" />
+
+      <RemoveRegistryKey
+          Id="RemoveLegacyCredentialProviderClass"
+          Root="HKLM"
+          Key="Software\Classes\CLSID\{9A0D3A8B-2E6F-4C48-A7D1-6B5F2A9E7C31}"
+          Action="removeOnInstall" />
+      <RemoveRegistryKey
+          Id="RemoveLegacyCredentialProviderRegistration"
+          Root="HKLM"
+          Key="Software\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{9A0D3A8B-2E6F-4C48-A7D1-6B5F2A9E7C31}"
+          Action="removeOnInstall" />
+
+      <RemoveRegistryValue
+          Id="RemoveLegacyUnlockUserSid"
+          Root="HKLM"
+          Key="Software\Nexus Control\Nexus Control Agent"
+          Name="UnlockUserSid" />
+      <RemoveRegistryValue
+          Id="RemoveLegacyUnlockUserName"
+          Root="HKLM"
+          Key="Software\Nexus Control\Nexus Control Agent"
+          Name="UnlockUserName" />
+      <RemoveRegistryValue
+          Id="RemoveLegacyUnlockConfiguredAt"
+          Root="HKLM"
+          Key="Software\Nexus Control\Nexus Control Agent"
+          Name="UnlockConfiguredAt" />
+      <RemoveRegistryValue
+          Id="RemoveLegacyAdministratorRequired"
+          Root="HKLM"
+          Key="Software\Nexus Control\Nexus Control Agent"
+          Name="AdministratorRequired" />
+
+      <RemoveFile
+          Id="RemoveLegacyUnlockCredential"
+          Directory="NexusControlDataFolder"
+          Name="unlock-credential.bin"
+          On="install" />
+      <RemoveFile
+          Id="RemoveLegacyUnlockApproval"
+          Directory="NexusControlDataFolder"
+          Name="unlock-approval.bin"
+          On="install" />
+      <RemoveFile
+          Id="RemoveLegacyUnlockKeys"
+          Directory="NexusControlDataFolder"
+          Name="unlock-keys.json"
+          On="install" />
+
+      <RegistryValue
+          Root="HKLM"
+          Key="Software\Nexus Control\Nexus Control Agent"
+          Name="LegacyUnlockRemoved"
+          Type="integer"
+          Value="1"
+          KeyPath="yes" />
+    </Component>
+
+    <!--
+      Diese Registry-Markierung wird nur installiert, wenn die optionale
+      Autostart-Funktion ausgewählt wurde. Die App richtet den geplanten Task
+      beim ersten Start mit Administratorrechten ein. Dadurch kann ein Fehler
+      der Aufgabenplanung die MSI-Installation nicht mehr zurückrollen.
+    -->
+    <Component Id="AutoStartMarkerComponent" Directory="INSTALLFOLDER" Guid="*">
+      <RegistryValue
+          Root="HKLM"
+          Key="Software\Nexus Control\Nexus Control Agent"
+          Name="AutoStartInstalled"
+          Type="integer"
+          Value="1"
+          KeyPath="yes" />
+    </Component>
+
+    <Component Id="StartMenuShortcutComponent" Directory="NexusControlProgramMenuDir" Guid="*">
+      <Shortcut
+          Id="StartMenuShortcut"
+          Name="Nexus Control Agent"
+          Description="Nexus Control Agent öffnen"
+          Target="[INSTALLFOLDER]NexusControlAgent.exe"
+          WorkingDirectory="INSTALLFOLDER"
+          Icon="NexusControlIcon" />
+      <RemoveFolder Id="RemoveProgramMenuFolder" Directory="NexusControlProgramMenuDir" On="uninstall" />
+      <RegistryValue
+          Root="HKCU"
+          Key="Software\Nexus Control\Nexus Control Agent\Installer"
+          Name="StartMenuShortcut"
+          Type="integer"
+          Value="1"
+          KeyPath="yes" />
+    </Component>
+
+    <StandardDirectory Id="DesktopFolder">
+      <Component Id="DesktopShortcutComponent" Guid="*">
+        <Shortcut
+            Id="DesktopShortcut"
+            Name="Nexus Control Agent"
+            Description="Nexus Control Agent öffnen"
+            Target="[INSTALLFOLDER]NexusControlAgent.exe"
+            WorkingDirectory="INSTALLFOLDER"
+            Icon="NexusControlIcon" />
+        <RegistryValue
+            Root="HKCU"
+            Key="Software\Nexus Control\Nexus Control Agent\Installer"
+            Name="DesktopShortcut"
+            Type="integer"
+            Value="1"
+            KeyPath="yes" />
+      </Component>
+    </StandardDirectory>
+
+    <!--
+      Installation: Kein fehlerkritischer Autostart-Custom-Action mehr. Der
+      Agent liest beim ersten Start die Registry-Markierung und erstellt den
+      Task selbst. Das verhindert den generischen MSI-Fehler 1603.
+
+      Deinstallation: Die Task-Löschung ist nur Best Effort und darf eine
+      erfolgreiche Deinstallation niemals blockieren.
+    -->
+    <CustomAction
+        Id="DisableAutoStart"
+        FileRef="NexusControlAgentExe"
+        ExeCommand="--configure-autostart=uninstall"
+        Execute="deferred"
+        Impersonate="no"
+        Return="ignore" />
+
+    <InstallExecuteSequence>
+      <Custom Action="DisableAutoStart" Before="RemoveFiles" Condition="REMOVE~=&quot;ALL&quot;" />
+    </InstallExecuteSequence>
+
+    <!--
+      Optionaler Start nach erfolgreicher Installation. WixShellExec verwendet
+      ShellExecute, berücksichtigt dadurch das Administrator-Manifest und
+      wartet nicht auf den dauerhaft laufenden Agent-Prozess.
+    -->
+    <Property Id="WixShellExecTarget" Value="[#NexusControlAgentExe]" />
+    <CustomAction
+        Id="LaunchAgent"
+        BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)"
+        DllEntry="WixShellExec"
+        Execute="immediate"
+        Impersonate="yes"
+        Return="ignore" />
+
+    <UI>
+      <Publish
+          Dialog="ExitDialog"
+          Control="Finish"
+          Event="DoAction"
+          Value="LaunchAgent"
+          Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
+    </UI>
+
+    <!-- Deutsche Standardtexte inklusive Fehler- und Fortschrittstexte. -->
+    <UIRef Id="WixUI_ErrorProgressText" />
+    <ui:WixUI Id="WixUI_FeatureTree" InstallDirectory="INSTALLFOLDER" />
+
+    <!-- Eigene deutsche Lizenz und Nexus-Control-Branding. -->
+    <WixVariable Id="WixUILicenseRtf" Value="..\Assets\license-de-DE.rtf" />
+    <WixVariable Id="WixUIBannerBmp" Value="..\Assets\banner.png" />
+    <WixVariable Id="WixUIDialogBmp" Value="..\Assets\dialog.png" />
+  </Package>
+</Wix>

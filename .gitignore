@@ -1,0 +1,17 @@
+.vs/
+.idea/
+bin/
+obj/
+artifacts/
+TestResults/
+appsettings.Development.json
+secrets.json
+*.binlog
+*.log
+*.pfx
+*.p12
+*.user
+*.suo
+*.cache
+Thumbs.db
+Desktop.ini

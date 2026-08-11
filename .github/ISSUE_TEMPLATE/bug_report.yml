@@ -1,0 +1,78 @@
+name: Fehlerbericht
+description: Einen reproduzierbaren Fehler im Nexus Control Agent melden
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für die Meldung. Bitte entferne Tokens, private IP-Adressen und persönliche Daten aus Logs und Screenshots.
+
+  - type: input
+    id: agent-version
+    attributes:
+      label: Agent-Version
+      placeholder: 0.10.3
+    validations:
+      required: true
+
+  - type: input
+    id: windows-version
+    attributes:
+      label: Windows-Version
+      placeholder: Windows 11 24H2
+    validations:
+      required: true
+
+  - type: dropdown
+    id: installation
+    attributes:
+      label: Installation
+      options:
+        - MSI-Installer
+        - selbst veröffentlichte EXE
+        - Visual Studio / dotnet run
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Fehlerbeschreibung
+      description: Was funktioniert nicht?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Schritte zum Nachstellen
+      placeholder: |
+        1. Agent starten
+        2. ...
+        3. Fehler tritt auf
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Erwartetes Verhalten
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Bereinigte Logs oder Screenshots
+      description: Keine Tokens, privaten IP-Adressen oder persönlichen Daten hochladen.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Prüfung
+      options:
+        - label: Ich habe nach vorhandenen Issues gesucht.
+          required: true
+        - label: Ich habe sensible Daten aus Logs und Screenshots entfernt.
+          required: true

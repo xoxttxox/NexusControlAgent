@@ -1,0 +1,20 @@
+<Project Sdk="WixToolset.Sdk/7.0.0">
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <Platform>x64</Platform>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <OutputName>NexusControlAgent-Setup-v0.10.3-win-x64</OutputName>
+    <OutputPath>..\..\artifacts\installer\</OutputPath>
+    <Cultures>de-DE</Cultures>
+
+    <!-- Absolute path to the already published application files. -->
+    <PublishDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\artifacts\publish\win-x64'))</PublishDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <BindPath Include="$(PublishDir)" BindName="PublishedApp" />
+    <PackageReference Include="WixToolset.Firewall.wixext" Version="7.0.0" />
+    <PackageReference Include="WixToolset.UI.wixext" Version="7.0.0" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="7.0.0" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,16 @@
+<Project>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <!--
+      Der Agent verwaltet die gemeinsamen .NET-Namespaces kontrolliert in
+      GlobalUsings.cs. WinForms- und Drawing-Typen werden in den UI-Dateien
+      ausdrücklich importiert, damit keine Namenskollisionen entstehen.
+    -->
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Deterministic>true</Deterministic>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+</Project>

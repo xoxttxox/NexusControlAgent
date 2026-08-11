@@ -1,0 +1,46 @@
+name: Funktionswunsch
+description: Eine neue Funktion oder Verbesserung vorschlagen
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Ausgangssituation
+      description: Welches konkrete Problem soll gelöst werden?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Gewünschte Lösung
+      description: Wie sollte sich die Funktion aus Sicht des Benutzers verhalten?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativen
+      description: Welche anderen Lösungen wurden bereits geprüft?
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Bereich
+      options:
+        - label: Desktop-Agent
+        - label: Pairing oder Netzwerk
+        - label: Telemetrie
+        - label: Medien oder Audio
+        - label: Bildschirm oder Remote-Steuerung
+        - label: Installer oder Build
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Prüfung
+      options:
+        - label: Ich habe nach vorhandenen Issues und Funktionswünschen gesucht.
+          required: true

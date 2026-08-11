@@ -1,0 +1,69 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.22621.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <RootNamespace>NexusControl.Agent</RootNamespace>
+    <AssemblyName>NexusControlAgent</AssemblyName>
+    <!-- Der ASP.NET-Agent behält seinen eigenen STA-Startpunkt für WinForms. -->
+    <StartupObject>NexusControl.Agent.Program</StartupObject>
+    <Version>0.10.3</Version>
+    <Authors>Nexus Control</Authors>
+    <Description>Windows companion for Nexus Control with secure pairing, telemetry, remote control, media, screen streaming, and file transfer.</Description>
+    <UserSecretsId>nexus-control-agent-development</UserSecretsId>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\NexusControlAgent.ico</ApplicationIcon>
+    <UseSystemDrawing>true</UseSystemDrawing>
+    <UseWindowsForms>true</UseWindowsForms>
+
+    <!--
+      The SDK's recursive default globs must not pull installer or generated
+      output files into the desktop application.
+    -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);Installer\**;artifacts\**</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\NexusControlAgent.ico" />
+    <Resource Include="Assets\NexusControlAgent.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
+    <PackageReference Include="QRCoder" Version="1.8.0" />
+    <PackageReference Include="System.Management" Version="10.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Scripts\install-firewall.ps1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Forms\AgentWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\AgentWindow.Designer.cs">
+      <DependentUpon>AgentWindow.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="Forms\AgentWindow.resx">
+      <DependentUpon>AgentWindow.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>
