@@ -8,7 +8,7 @@
     <AssemblyName>NexusControlAgent</AssemblyName>
     <!-- Der ASP.NET-Agent behält seinen eigenen STA-Startpunkt für WinForms. -->
     <StartupObject>NexusControl.Agent.Program</StartupObject>
-    <Version>0.11.0</Version>
+    <Version>0.11.1</Version>
     <Authors>Nexus Control</Authors>
     <Description>Windows companion for Nexus Control with secure pairing, telemetry, remote control, media, screen streaming, and file transfer.</Description>
     <UserSecretsId>nexus-control-agent-development</UserSecretsId>
@@ -73,6 +73,12 @@
     <EmbeddedResource Update="Forms\UpdateWindow.resx">
       <DependentUpon>UpdateWindow.cs</DependentUpon>
     </EmbeddedResource>
+    <Compile Update="Forms\StartupUpdateWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\StartupUpdateWindow.Designer.cs">
+      <DependentUpon>StartupUpdateWindow.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>

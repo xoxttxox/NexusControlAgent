@@ -12,6 +12,12 @@ internal sealed class UpdateOptions
 
     public bool IncludePrereleases { get; set; }
 
+    public bool ShowStartupCheck { get; set; } = true;
+
+    public bool AutomaticInstallOnStartup { get; set; } = true;
+
+    public int StartupCheckTimeoutSeconds { get; set; } = 8;
+
     public int InitialCheckDelaySeconds { get; set; } = 8;
 
     public int CheckIntervalMinutes { get; set; } = 240;

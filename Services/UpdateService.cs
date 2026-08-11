@@ -105,6 +105,10 @@ internal sealed class UpdateService : BackgroundService
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
+            Publish(new UpdateSnapshot(
+                UpdateStage.Error,
+                "Die Updateprüfung wurde abgebrochen.",
+                Error: "Das Zeitlimit für die Updateprüfung wurde erreicht."));
             throw;
         }
         catch (Exception error)
@@ -135,9 +139,13 @@ internal sealed class UpdateService : BackgroundService
                     "Es steht derzeit kein neueres Update zur Installation bereit.");
             }
 
+            // Jeder Versuch bekommt einen eigenen Ordner. Dadurch können weder
+            // ein früherer Updater noch Windows Installer oder ein Virenscanner
+            // die neue Download-Datei durch einen alten Dateihandle blockieren.
             var updateDirectory = Path.Combine(
                 NexusPaths.UpdatesDirectory,
-                release.DisplayVersion);
+                release.DisplayVersion,
+                $"{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid():N}");
             var installerPath = Path.Combine(
                 updateDirectory,
                 release.InstallerFileName);
@@ -224,12 +232,21 @@ internal sealed class UpdateService : BackgroundService
             await Task.Delay(
                 TimeSpan.FromSeconds(_options.InitialCheckDelaySeconds),
                 stoppingToken);
-            while (!stoppingToken.IsCancellationRequested)
+
+            // Die sichtbare Startprüfung läuft vor dem eigentlichen Hoststart.
+            // Nur wenn sie deaktiviert oder übersprungen wurde, ist der Zustand
+            // hier noch Idle und die erste Hintergrundprüfung wird nachgeholt.
+            if (Snapshot.Stage == UpdateStage.Idle)
             {
                 await CheckNowAsync(stoppingToken);
+            }
+
+            while (!stoppingToken.IsCancellationRequested)
+            {
                 await Task.Delay(
                     TimeSpan.FromMinutes(_options.CheckIntervalMinutes),
                     stoppingToken);
+                await CheckNowAsync(stoppingToken);
             }
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)

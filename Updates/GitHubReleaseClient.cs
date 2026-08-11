@@ -67,7 +67,7 @@ internal sealed partial class GitHubReleaseClient
         if (version is null)
         {
             throw new InvalidOperationException(
-                $"Der Release-Tag '{release.TagName}' ist keine gültige Version. Erwartet wird zum Beispiel v0.11.0.");
+                $"Der Release-Tag '{release.TagName}' ist keine gültige Version. Erwartet wird zum Beispiel v0.11.1.");
         }
 
         var installerName = options.GetInstallerAssetName(version);

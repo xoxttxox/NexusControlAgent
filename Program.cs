@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NexusControl.Agent.Application;
 using NexusControl.Agent.Configuration;
+using NexusControl.Agent.Forms;
 using NexusControl.Agent.Networking;
 using NexusControl.Agent.Pairing;
 using NexusControl.Agent.Services;
@@ -161,6 +162,9 @@ internal static class Program
             .AddOptions<UpdateOptions>()
             .Bind(builder.Configuration.GetSection(UpdateOptions.SectionName))
             .Validate(
+                options => options.StartupCheckTimeoutSeconds is >= 3 and <= 60,
+                "Updates:StartupCheckTimeoutSeconds muss zwischen 3 und 60 liegen.")
+            .Validate(
                 options => options.InitialCheckDelaySeconds is >= 1 and <= 300,
                 "Updates:InitialCheckDelaySeconds muss zwischen 1 und 300 liegen.")
             .Validate(
@@ -213,7 +217,7 @@ internal static class Program
         {
             client.Timeout = TimeSpan.FromSeconds(12);
             client.DefaultRequestHeaders.UserAgent.ParseAdd(
-                "NexusControlAgent/0.11.0");
+                "NexusControlAgent/0.11.1");
         });
         builder.Services.AddSingleton<PushNotificationService>();
         builder.Services.AddHostedService<PushNotificationService>(serviceProvider =>
@@ -228,14 +232,36 @@ internal static class Program
                 "X-GitHub-Api-Version",
                 "2026-03-10");
             client.DefaultRequestHeaders.UserAgent.ParseAdd(
-                "NexusControlAgent/0.11.0");
+                "NexusControlAgent/0.11.1");
         });
         builder.Services.AddSingleton<GitHubReleaseClient>();
         builder.Services.AddSingleton<UpdateService>();
         builder.Services.AddHostedService<UpdateService>(serviceProvider =>
             serviceProvider.GetRequiredService<UpdateService>());
 
-        var app = builder.Build();
+        await using var app = builder.Build();
+        var updateService = app.Services.GetRequiredService<UpdateService>();
+        var updateOptions = app.Services
+            .GetRequiredService<IOptions<UpdateOptions>>()
+            .Value;
+
+        System.Windows.Forms.Application.EnableVisualStyles();
+        System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
+        if (updateOptions.ShowStartupCheck)
+        {
+            using var startupUpdateWindow = new StartupUpdateWindow(
+                updateService,
+                updateOptions);
+            startupUpdateWindow.ShowDialog();
+            if (startupUpdateWindow.InstallationStarted)
+            {
+                // Der externe Helfer wartet bereits auf genau diesen Prozess.
+                // Ohne gestarteten Webhost können alle Dateien sofort sauber
+                // durch das MSI ersetzt werden.
+                return;
+            }
+        }
+
         var pairing = app.Services.GetRequiredService<PairingService>();
         var telemetry = app.Services.GetRequiredService<TelemetryService>();
         var agentOptions = app.Services
@@ -263,15 +289,10 @@ internal static class Program
             TaskCreationOptions.RunContinuationsAsynchronously);
         AgentApplicationContext? desktopContext = null;
         var deviceStore = app.Services.GetRequiredService<DeviceStore>();
-        var updateService = app.Services.GetRequiredService<UpdateService>();
         var desktopThread = new Thread(() =>
         {
             try
             {
-                System.Windows.Forms.Application.EnableVisualStyles();
-                System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(
-                    false);
-
                 using var context = new AgentApplicationContext(
                     pairing,
                     deviceStore,

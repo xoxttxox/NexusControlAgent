@@ -69,30 +69,30 @@ integrierte Updater absichtlich im Zustand **Noch nicht eingerichtet**.
 **Tag**
 
 ```text
-v0.11.0
+v0.11.1
 ```
 
 **Titel**
 
 ```text
-Nexus Control Agent 0.11.0
+Nexus Control Agent 0.11.1
 ```
 
 **Dateien für die Release-Assets**
 
 ```text
-NexusControlAgent-Setup-v0.11.0-win-x64.msi
-NexusControlAgent-Setup-v0.11.0-win-x64.msi.sha256
+NexusControlAgent-Setup-v0.11.1-win-x64.msi
+NexusControlAgent-Setup-v0.11.1-win-x64.msi.sha256
 ```
 
-Die Release-Beschreibung kann aus dem Abschnitt `0.11.0` in `CHANGELOG.md`
+Die Release-Beschreibung kann aus dem Abschnitt `0.11.1` in `CHANGELOG.md`
 übernommen werden. `Scripts\build-msi.bat` erzeugt die passende
 `.sha256`-Datei automatisch. Nach einer Signierung erzeugt
 `Scripts\sign-release.ps1` sie erneut, damit sie exakt zum signierten MSI passt.
 Bei Bedarf kann sie auch einzeln erstellt werden:
 
 ```powershell
-.\Scripts\New-ReleaseChecksum.ps1 -Path .\artifacts\installer\NexusControlAgent-Setup-v0.11.0-win-x64.msi
+.\Scripts\New-ReleaseChecksum.ps1 -Path .\artifacts\installer\NexusControlAgent-Setup-v0.11.1-win-x64.msi
 ```
 
 Das Release muss anschließend wirklich **veröffentlicht** werden. Entwürfe

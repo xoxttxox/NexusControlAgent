@@ -99,6 +99,10 @@ Die Standardwerte befinden sich in `appsettings.json` unter `Agent` und
 | `AllowedClockSkewMinutes` | `2` | Erlaubte Zeitabweichung bei Befehlen |
 | `MaximumMessageSizeBytes` | `65536` | Maximale Größe einer WebSocket-Nachricht |
 | `PushTemperatureThresholdCelsius` | `85` | Temperaturschwelle für Warnungen |
+| `Updates:ShowStartupCheck` | `true` | Zeigt die kleine Prüfung vor dem Agent-Start |
+| `Updates:AutomaticInstallOnStartup` | `true` | Installiert gefundene Updates beim Start automatisch |
+| `Updates:StartupCheckTimeoutSeconds` | `8` | Maximale Wartezeit bei fehlendem Internet |
+| `Updates:CheckIntervalMinutes` | `240` | Weitere Prüfungen während der Agent läuft |
 
 Damit der integrierte Updater das richtige öffentliche Repository prüft, muss
 vor dem Veröffentlichen einmal `Updates:RepositoryOwner` auf den eigenen
@@ -118,9 +122,13 @@ Danach beendet ein separater Helfer den Agent, führt das bestehende WiX-Major-
 Upgrade aus und startet den Agent erneut. Bei einem per-Machine-MSI kann Windows
 dabei die Administratorbestätigung anzeigen.
 
-Die automatische Prüfung startet standardmäßig nach acht Sekunden und danach
-alle vier Stunden. Ein Download ist auf 300 MB und 15 Minuten begrenzt; alle
-Werte lassen sich im Abschnitt `Updates` anpassen.
+Beim Programmstart erscheint zuerst eine kleine Updateanzeige. Sie sucht sofort
+nach einem neueren Release und installiert ein gefundenes Update automatisch,
+bevor Server, Tray-Icon und Hauptfenster gestartet werden. Ist GitHub nicht
+erreichbar, läuft der Agent nach spätestens acht Sekunden normal weiter. Während
+des Betriebs wird anschließend alle vier Stunden erneut geprüft. Ein Download
+ist auf 300 MB und 15 Minuten begrenzt; alle Werte lassen sich im Abschnitt
+`Updates` anpassen.
 
 Für lokale Entwicklungswerte kann .NET User Secrets verwendet werden. Private
 Tokens, Zertifikate und Zugangsdaten dürfen nicht in `appsettings.json` oder in

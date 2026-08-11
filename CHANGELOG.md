@@ -9,6 +9,23 @@ an [Semantic Versioning](https://semver.org/lang/de/).
 
 Derzeit sind keine unveröffentlichten Änderungen eingetragen.
 
+## [0.11.1] – 2026-08-11
+
+### Hinzugefügt
+
+- kleine vorgeschaltete WinForms-Updateanzeige im Discord-Stil, bevor Server,
+  Tray-Icon und Hauptfenster gestartet werden
+- automatische Installation eines gefundenen Updates direkt beim Start
+- kurzer Offline-Timeout; der Agent startet auch ohne erreichbares GitHub weiter
+
+### Behoben
+
+- jeder Updateversuch verwendet einen eigenen temporären Ordner und einen
+  eindeutigen Helfer, sodass alte oder noch gesperrte Dateien den Download nicht
+  mehr blockieren
+- Update-Helfer wartet zusätzlich auf einen lesbaren MSI-Installer, bevor
+  Windows Installer gestartet wird
+
 ## [0.11.0] – 2026-08-11
 
 ### Hinzugefügt

@@ -40,8 +40,8 @@ internal static class UpdateInstaller
         Directory.CreateDirectory(updateDirectory);
         var helperPath = Path.Combine(
             updateDirectory,
-            $"NexusControlUpdater-{targetVersion}.exe");
-        File.Copy(currentExecutable, helperPath, overwrite: true);
+            $"NexusControlUpdater-{targetVersion}-{Guid.NewGuid():N}.exe");
+        CopyHelperWithRetry(currentExecutable, helperPath);
 
         var logPath = Path.Combine(
             updateDirectory,
@@ -90,6 +90,9 @@ internal static class UpdateInstaller
         {
             await WaitForAgentExitAsync(waitPid, cancellationToken);
             await Task.Delay(750, cancellationToken);
+            await WaitForReadableInstallerAsync(
+                installerPath,
+                cancellationToken);
 
             Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
             var installerStartInfo = new ProcessStartInfo
@@ -189,6 +192,48 @@ internal static class UpdateInstaller
         catch (ArgumentException)
         {
             // Der Hauptprozess wurde bereits beendet.
+        }
+    }
+
+    private static void CopyHelperWithRetry(
+        string sourcePath,
+        string destinationPath)
+    {
+        const int maximumAttempts = 5;
+        for (var attempt = 1; attempt <= maximumAttempts; attempt++)
+        {
+            try
+            {
+                File.Copy(sourcePath, destinationPath, overwrite: false);
+                return;
+            }
+            catch (IOException) when (attempt < maximumAttempts)
+            {
+                Thread.Sleep(200 * attempt);
+            }
+        }
+    }
+
+    private static async Task WaitForReadableInstallerAsync(
+        string installerPath,
+        CancellationToken cancellationToken)
+    {
+        const int maximumAttempts = 30;
+        for (var attempt = 1; attempt <= maximumAttempts; attempt++)
+        {
+            try
+            {
+                await using var stream = new FileStream(
+                    installerPath,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.Read);
+                return;
+            }
+            catch (IOException) when (attempt < maximumAttempts)
+            {
+                await Task.Delay(250, cancellationToken);
+            }
         }
     }
 
