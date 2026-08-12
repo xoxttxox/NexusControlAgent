@@ -73,7 +73,7 @@ internal sealed partial class StartupUpdateWindow : Form
         catch (Exception)
         {
             await ContinueWithoutUpdateAsync(
-                "Updateprüfung nicht möglich",
+                "Update nicht möglich",
                 "Der Agent wird trotzdem gestartet …",
                 1200);
         }
@@ -163,7 +163,7 @@ internal sealed partial class StartupUpdateWindow : Form
 
             case UpdateStage.Error:
                 await ContinueWithoutUpdateAsync(
-                    "Updateprüfung nicht möglich",
+                    "Update nicht möglich",
                     "Der Agent wird trotzdem gestartet …",
                     1200);
                 break;
@@ -270,7 +270,7 @@ internal sealed partial class StartupUpdateWindow : Form
                 break;
 
             case UpdateStage.Error:
-                statusTitleLabel.Text = "Updateprüfung nicht möglich";
+                statusTitleLabel.Text = "Update nicht möglich";
                 detailLabel.Text = "Der Agent wird trotzdem gestartet …";
                 SetProgress(0);
                 break;

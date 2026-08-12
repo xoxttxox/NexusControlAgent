@@ -217,7 +217,7 @@ internal static class Program
         {
             client.Timeout = TimeSpan.FromSeconds(12);
             client.DefaultRequestHeaders.UserAgent.ParseAdd(
-                "NexusControlAgent/0.11.1");
+                "NexusControlAgent/0.11.2");
         });
         builder.Services.AddSingleton<PushNotificationService>();
         builder.Services.AddHostedService<PushNotificationService>(serviceProvider =>
@@ -232,7 +232,7 @@ internal static class Program
                 "X-GitHub-Api-Version",
                 "2026-03-10");
             client.DefaultRequestHeaders.UserAgent.ParseAdd(
-                "NexusControlAgent/0.11.1");
+                "NexusControlAgent/0.11.2");
         });
         builder.Services.AddSingleton<GitHubReleaseClient>();
         builder.Services.AddSingleton<UpdateService>();

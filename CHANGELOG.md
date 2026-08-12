@@ -9,6 +9,20 @@ an [Semantic Versioning](https://semver.org/lang/de/).
 
 Derzeit sind keine unveröffentlichten Änderungen eingetragen.
 
+## [0.11.2] – 2026-08-12
+
+### Geändert
+
+- Projekt-, Agent-, MSI- und Release-Version einheitlich auf 0.11.2 angehoben.
+
+### Behoben
+
+- Download- und Prüfsummenstreams werden vor dem Verschieben oder Löschen des
+  MSI-Installers garantiert geschlossen; dadurch blockiert der Updater seine
+  eigene Datei unter Windows nicht mehr.
+- kurzes Wiederholen beim finalen Verschieben verhindert sporadische Fehler,
+  wenn Windows Defender oder ein anderer Virenscanner die neue Datei prüft.
+
 ## [0.11.1] – 2026-08-11
 
 ### Hinzugefügt

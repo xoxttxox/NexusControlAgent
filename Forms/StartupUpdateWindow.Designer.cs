@@ -83,7 +83,7 @@ partial class StartupUpdateWindow
         installedVersionLabel.Size = new Size(125, 30);
         installedVersionLabel.TabIndex = 1;
         installedVersionLabel.Tag = "muted";
-        installedVersionLabel.Text = "Version 0.11.1";
+        installedVersionLabel.Text = "Version 0.11.2";
         installedVersionLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // statusTitleLabel

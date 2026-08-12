@@ -67,7 +67,7 @@ internal sealed partial class GitHubReleaseClient
         if (version is null)
         {
             throw new InvalidOperationException(
-                $"Der Release-Tag '{release.TagName}' ist keine gültige Version. Erwartet wird zum Beispiel v0.11.1.");
+                $"Der Release-Tag '{release.TagName}' ist keine gültige Version. Erwartet wird zum Beispiel v0.11.2.");
         }
 
         var installerName = options.GetInstallerAssetName(version);
@@ -157,74 +157,82 @@ internal sealed partial class GitHubReleaseClient
 
         Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
         var temporaryPath = destinationPath + ".download";
-        File.Delete(temporaryPath);
 
         try
         {
-            await using var source = await response.Content.ReadAsStreamAsync(
-                cancellationToken);
-            await using var destination = new FileStream(
-                temporaryPath,
-                FileMode.CreateNew,
-                FileAccess.Write,
-                FileShare.None,
-                81_920,
-                FileOptions.Asynchronous | FileOptions.SequentialScan);
-
-            var buffer = ArrayPool<byte>.Shared.Rent(81_920);
-            try
+            // Die Streams müssen vollständig geschlossen sein, bevor Windows
+            // die temporäre Datei umbenennen kann. Eine using-Deklaration auf
+            // Try-Block-Ebene würde den Handle bis nach File.Move offen halten.
+            await using (var source = await response.Content.ReadAsStreamAsync(
+                             cancellationToken))
+            await using (var destination = new FileStream(
+                             temporaryPath,
+                             FileMode.CreateNew,
+                             FileAccess.Write,
+                             FileShare.None,
+                             81_920,
+                             FileOptions.Asynchronous
+                                 | FileOptions.SequentialScan))
             {
-                long totalBytes = 0;
-                var lastProgress = -1;
-                while (true)
+                var buffer = ArrayPool<byte>.Shared.Rent(81_920);
+                try
                 {
-                    var bytesRead = await source.ReadAsync(
-                        buffer.AsMemory(0, buffer.Length),
-                        cancellationToken);
-                    if (bytesRead == 0)
+                    long totalBytes = 0;
+                    var lastProgress = -1;
+                    while (true)
                     {
-                        break;
+                        var bytesRead = await source.ReadAsync(
+                            buffer.AsMemory(0, buffer.Length),
+                            cancellationToken);
+                        if (bytesRead == 0)
+                        {
+                            break;
+                        }
+
+                        totalBytes += bytesRead;
+                        if (totalBytes > maximumBytes)
+                        {
+                            throw new InvalidDataException(
+                                "Der heruntergeladene Installer überschreitet das erlaubte Größenlimit.");
+                        }
+
+                        await destination.WriteAsync(
+                            buffer.AsMemory(0, bytesRead),
+                            cancellationToken);
+                        var expectedBytes = contentLength is > 0
+                            ? contentLength.Value
+                            : release.InstallerSizeBytes;
+                        var progress = expectedBytes <= 0
+                            ? 0
+                            : Math.Clamp(
+                                (int)Math.Round(
+                                    totalBytes * 100D / expectedBytes),
+                                0,
+                                100);
+                        if (progress != lastProgress)
+                        {
+                            lastProgress = progress;
+                            progressChanged(progress);
+                        }
                     }
 
-                    totalBytes += bytesRead;
-                    if (totalBytes > maximumBytes)
-                    {
-                        throw new InvalidDataException(
-                            "Der heruntergeladene Installer überschreitet das erlaubte Größenlimit.");
-                    }
-
-                    await destination.WriteAsync(
-                        buffer.AsMemory(0, bytesRead),
-                        cancellationToken);
-                    var expectedBytes = contentLength is > 0
-                        ? contentLength.Value
-                        : release.InstallerSizeBytes;
-                    var progress = expectedBytes <= 0
-                        ? 0
-                        : Math.Clamp(
-                            (int)Math.Round(totalBytes * 100D / expectedBytes),
-                            0,
-                            100);
-                    if (progress != lastProgress)
-                    {
-                        lastProgress = progress;
-                        progressChanged(progress);
-                    }
+                    await destination.FlushAsync(cancellationToken);
                 }
-
-                await destination.FlushAsync(cancellationToken);
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(buffer);
+                }
             }
 
-            File.Move(temporaryPath, destinationPath, overwrite: true);
+            await MoveCompletedDownloadAsync(
+                temporaryPath,
+                destinationPath,
+                cancellationToken);
             progressChanged(100);
         }
         catch
         {
-            File.Delete(temporaryPath);
+            TryDeleteFile(temporaryPath);
             throw;
         }
     }
@@ -301,6 +309,45 @@ internal sealed partial class GitHubReleaseClient
             }
 
             builder.Append(buffer, 0, charactersRead);
+        }
+    }
+
+    private static async Task MoveCompletedDownloadAsync(
+        string temporaryPath,
+        string destinationPath,
+        CancellationToken cancellationToken)
+    {
+        const int maximumAttempts = 10;
+        for (var attempt = 1; attempt <= maximumAttempts; attempt++)
+        {
+            try
+            {
+                File.Move(temporaryPath, destinationPath, overwrite: true);
+                return;
+            }
+            catch (IOException) when (attempt < maximumAttempts)
+            {
+                // Defender und andere Virenscanner öffnen neue MSI-Dateien
+                // gelegentlich unmittelbar nach dem Download für einen Scan.
+                await Task.Delay(150 * attempt, cancellationToken);
+            }
+        }
+    }
+
+    private static void TryDeleteFile(string path)
+    {
+        try
+        {
+            File.Delete(path);
+        }
+        catch (IOException)
+        {
+            // Der eindeutige Update-Ordner wird später bestmöglich aufgeräumt.
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // Eine temporär gesperrte Teildatei darf den echten Fehler nicht
+            // durch eine zweite Ausnahme verdecken.
         }
     }
 

@@ -109,7 +109,7 @@ partial class UpdateWindow
         installedVersionLabel.Size = new Size(190, 48);
         installedVersionLabel.TabIndex = 1;
         installedVersionLabel.Tag = "muted";
-        installedVersionLabel.Text = "Installiert: 0.11.1";
+        installedVersionLabel.Text = "Installiert: 0.11.2";
         installedVersionLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // contentLayout

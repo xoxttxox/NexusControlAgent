@@ -271,20 +271,27 @@ internal sealed class UpdateService : BackgroundService
 
         if (!string.IsNullOrWhiteSpace(expectedHash))
         {
-            await using var installer = new FileStream(
-                installerPath,
-                FileMode.Open,
-                FileAccess.Read,
-                FileShare.Read,
-                81_920,
-                FileOptions.Asynchronous | FileOptions.SequentialScan);
-            var actualHash = Convert.ToHexString(
-                await SHA256.HashDataAsync(installer, cancellationToken));
-            if (!CryptographicOperations.FixedTimeEquals(
-                    Convert.FromHexString(actualHash),
-                    Convert.FromHexString(expectedHash)))
+            byte[] actualHash;
+            await using (var installer = new FileStream(
+                             installerPath,
+                             FileMode.Open,
+                             FileAccess.Read,
+                             FileShare.Read,
+                             81_920,
+                             FileOptions.Asynchronous
+                                 | FileOptions.SequentialScan))
             {
-                File.Delete(installerPath);
+                actualHash = await SHA256.HashDataAsync(
+                    installer,
+                    cancellationToken);
+            }
+
+            var expectedHashBytes = Convert.FromHexString(expectedHash);
+            if (!CryptographicOperations.FixedTimeEquals(
+                    actualHash,
+                    expectedHashBytes))
+            {
+                TryDeleteInvalidInstaller(installerPath);
                 throw new InvalidDataException(
                     "Die SHA-256-Prüfsumme des Installers stimmt nicht. Der Download wurde verworfen.");
             }
@@ -323,6 +330,24 @@ internal sealed class UpdateService : BackgroundService
                 // Ein geschlossenes UI darf weder andere Anzeigen noch den
                 // Update-Hintergrunddienst beenden.
             }
+        }
+    }
+
+    private static void TryDeleteInvalidInstaller(string installerPath)
+    {
+        try
+        {
+            File.Delete(installerPath);
+        }
+        catch (IOException)
+        {
+            // Die Datei wird niemals gestartet. Ein Virenscanner darf die
+            // verständliche Prüfsummenmeldung nicht durch einen Lock-Fehler
+            // ersetzen; der eindeutige Ordner wird später aufgeräumt.
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // Siehe oben: Sicherheitsprüfung bleibt fehlgeschlagen.
         }
     }
 

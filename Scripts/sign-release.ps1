@@ -9,8 +9,8 @@ $ErrorActionPreference = "Stop"
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $appPath = Join-Path $projectRoot "artifacts\publish\win-x64\NexusControlAgent.exe"
 $wixProject = Join-Path $projectRoot "Installer\Msi\NexusControlAgent.Installer.wixproj"
-$msiPath = Join-Path $projectRoot "artifacts\installer\NexusControlAgent-Setup-v0.11.1-win-x64.msi"
-$localizedMsiPath = Join-Path $projectRoot "artifacts\installer\de-DE\NexusControlAgent-Setup-v0.11.1-win-x64.msi"
+$msiPath = Join-Path $projectRoot "artifacts\installer\NexusControlAgent-Setup-v0.11.2-win-x64.msi"
+$localizedMsiPath = Join-Path $projectRoot "artifacts\installer\de-DE\NexusControlAgent-Setup-v0.11.2-win-x64.msi"
 $checksumScript = Join-Path $PSScriptRoot "New-ReleaseChecksum.ps1"
 
 $signtool = Get-Command signtool.exe -ErrorAction SilentlyContinue
