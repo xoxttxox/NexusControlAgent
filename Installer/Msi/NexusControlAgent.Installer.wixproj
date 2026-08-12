@@ -3,7 +3,7 @@
     <OutputType>Package</OutputType>
     <Platform>x64</Platform>
     <InstallerPlatform>x64</InstallerPlatform>
-    <OutputName>NexusControlAgent-Setup-v0.11.2-win-x64</OutputName>
+    <OutputName>NexusControlAgent-Setup-v0.11.3-win-x64</OutputName>
     <OutputPath>..\..\artifacts\installer\</OutputPath>
     <Cultures>de-DE</Cultures>
 

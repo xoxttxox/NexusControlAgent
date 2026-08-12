@@ -7,12 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NexusControl.Agent.Application;
 using NexusControl.Agent.Configuration;
-using NexusControl.Agent.Forms;
 using NexusControl.Agent.Networking;
 using NexusControl.Agent.Pairing;
 using NexusControl.Agent.Services;
 using NexusControl.Agent.UI;
-using NexusControl.Agent.Updates;
 using NexusControl.Agent.Windows;
 
 namespace NexusControl.Agent;
@@ -27,12 +25,6 @@ internal static class Program
         // Die DPI-Einstellung gehört bei modernem WinForms nicht ins Manifest.
         System.Windows.Forms.Application.SetHighDpiMode(
             System.Windows.Forms.HighDpiMode.PerMonitorV2);
-
-        if (UpdateInstaller.IsUpdateHelper(args))
-        {
-            Environment.ExitCode = await UpdateInstaller.RunAsync(args);
-            return;
-        }
 
         var autoStartCommand = args.FirstOrDefault(argument =>
             argument.StartsWith(
@@ -158,46 +150,6 @@ internal static class Program
                         < options.PushTemperatureThresholdCelsius,
                 "Die Push-Temperaturgrenzen sind ungültig.")
             .ValidateOnStart();
-        builder.Services
-            .AddOptions<UpdateOptions>()
-            .Bind(builder.Configuration.GetSection(UpdateOptions.SectionName))
-            .Validate(
-                options => options.StartupCheckTimeoutSeconds is >= 3 and <= 60,
-                "Updates:StartupCheckTimeoutSeconds muss zwischen 3 und 60 liegen.")
-            .Validate(
-                options => options.InitialCheckDelaySeconds is >= 1 and <= 300,
-                "Updates:InitialCheckDelaySeconds muss zwischen 1 und 300 liegen.")
-            .Validate(
-                options => options.CheckIntervalMinutes is >= 15 and <= 10_080,
-                "Updates:CheckIntervalMinutes muss zwischen 15 und 10080 liegen.")
-            .Validate(
-                options => options.MaximumInstallerSizeMegabytes is >= 20 and <= 1024,
-                "Updates:MaximumInstallerSizeMegabytes muss zwischen 20 und 1024 liegen.")
-            .Validate(
-                options => options.DownloadTimeoutMinutes is >= 1 and <= 120,
-                "Updates:DownloadTimeoutMinutes muss zwischen 1 und 120 liegen.")
-            .Validate(
-                options => !options.Enabled
-                    || options.InstallerAssetNamePattern.Contains(
-                        "{version}",
-                        StringComparison.OrdinalIgnoreCase),
-                "Updates:InstallerAssetNamePattern muss den Platzhalter {version} enthalten.")
-            .Validate(
-                options => !options.Enabled
-                    || (string.Equals(
-                            Path.GetFileName(options.InstallerAssetNamePattern),
-                            options.InstallerAssetNamePattern,
-                            StringComparison.Ordinal)
-                        && options.InstallerAssetNamePattern.EndsWith(
-                            ".msi",
-                            StringComparison.OrdinalIgnoreCase)),
-                "Updates:InstallerAssetNamePattern muss ein einfacher MSI-Dateiname sein.")
-            .Validate(
-                options => !options.RequireTrustedSignature
-                    || !string.IsNullOrWhiteSpace(
-                        options.TrustedPublisherSubject),
-                "Bei aktivierter Signaturprüfung muss Updates:TrustedPublisherSubject gesetzt sein.")
-            .ValidateOnStart();
         builder.Services.AddSingleton<DeviceStore>();
         builder.Services.AddSingleton<PairingService>();
         builder.Services.AddSingleton<HardwareMonitorService>();
@@ -217,50 +169,15 @@ internal static class Program
         {
             client.Timeout = TimeSpan.FromSeconds(12);
             client.DefaultRequestHeaders.UserAgent.ParseAdd(
-                "NexusControlAgent/0.11.2");
+                "NexusControlAgent/0.11.3");
         });
         builder.Services.AddSingleton<PushNotificationService>();
         builder.Services.AddHostedService<PushNotificationService>(serviceProvider =>
             serviceProvider.GetRequiredService<PushNotificationService>());
-        builder.Services.AddHttpClient("GitHubUpdates", client =>
-        {
-            client.BaseAddress = new Uri("https://api.github.com/");
-            client.Timeout = TimeSpan.FromSeconds(30);
-            client.DefaultRequestHeaders.Accept.ParseAdd(
-                "application/vnd.github+json");
-            client.DefaultRequestHeaders.Add(
-                "X-GitHub-Api-Version",
-                "2026-03-10");
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(
-                "NexusControlAgent/0.11.2");
-        });
-        builder.Services.AddSingleton<GitHubReleaseClient>();
-        builder.Services.AddSingleton<UpdateService>();
-        builder.Services.AddHostedService<UpdateService>(serviceProvider =>
-            serviceProvider.GetRequiredService<UpdateService>());
-
         await using var app = builder.Build();
-        var updateService = app.Services.GetRequiredService<UpdateService>();
-        var updateOptions = app.Services
-            .GetRequiredService<IOptions<UpdateOptions>>()
-            .Value;
 
         System.Windows.Forms.Application.EnableVisualStyles();
         System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
-        if (updateOptions.ShowStartupCheck)
-        {
-            using var startupUpdateWindow = new StartupUpdateWindow(
-                updateService,
-                updateOptions);
-            startupUpdateWindow.ShowDialog();
-            if (startupUpdateWindow.InstallationStarted)
-            {
-                // Der externe Helfer wartet bereits auf genau diesen Prozess.
-                // Ohne gestarteten Webhost können alle Dateien sofort sauber
-                // durch das MSI ersetzt werden.
-                return;
-            }
-        }
 
         var pairing = app.Services.GetRequiredService<PairingService>();
         var telemetry = app.Services.GetRequiredService<TelemetryService>();
@@ -297,7 +214,6 @@ internal static class Program
                     pairing,
                     deviceStore,
                     agentOptions,
-                    updateService,
                     startInTray);
                 desktopContext = context;
                 System.Windows.Forms.Application.Run(context);

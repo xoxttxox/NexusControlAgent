@@ -60,45 +60,29 @@ git push -u origin main
 `DEIN-NAME` muss durch den eigenen GitHub-Benutzernamen oder die Organisation
 ersetzt werden.
 
-Vor dem Build muss derselbe Name in `appsettings.json` unter
-`Updates:RepositoryOwner` eingetragen werden. Ohne diese Angabe bleibt der
-integrierte Updater absichtlich im Zustand **Noch nicht eingerichtet**.
-
 ## Erste GitHub Release
 
 **Tag**
 
 ```text
-v0.11.2
+v0.11.3
 ```
 
 **Titel**
 
 ```text
-Nexus Control Agent 0.11.2
+Nexus Control Agent 0.11.3
 ```
 
 **Dateien für die Release-Assets**
 
 ```text
-NexusControlAgent-Setup-v0.11.2-win-x64.msi
-NexusControlAgent-Setup-v0.11.2-win-x64.msi.sha256
+NexusControlAgent-Setup-v0.11.3-win-x64.msi
 ```
 
-Die Release-Beschreibung kann aus dem Abschnitt `0.11.2` in `CHANGELOG.md`
-übernommen werden. `Scripts\build-msi.bat` erzeugt die passende
-`.sha256`-Datei automatisch. Nach einer Signierung erzeugt
-`Scripts\sign-release.ps1` sie erneut, damit sie exakt zum signierten MSI passt.
-Bei Bedarf kann sie auch einzeln erstellt werden:
-
-```powershell
-.\Scripts\New-ReleaseChecksum.ps1 -Path .\artifacts\installer\NexusControlAgent-Setup-v0.11.2-win-x64.msi
-```
-
-Das Release muss anschließend wirklich **veröffentlicht** werden. Entwürfe
-werden nie gefunden; als „Pre-release“ markierte Versionen werden nur erkannt,
-wenn `Updates:IncludePrereleases` ausdrücklich aktiviert ist. Dateiname und Tag
-müssen exakt zum Schema oben passen.
+Die Release-Beschreibung kann aus dem Abschnitt `0.11.3` in `CHANGELOG.md`
+übernommen werden. Der Agent besitzt keinen integrierten Updater; Benutzer laden
+und installieren neue MSI-Versionen manuell.
 
 ## Checkliste vor „Public“
 
@@ -109,7 +93,7 @@ müssen exakt zum Schema oben passen.
 - `git status` und den vollständigen Commit-Inhalt prüfen
 - GitHub Private Vulnerability Reporting aktivieren
 - gewünschte Quellcode-Lizenz auswählen und als `LICENSE` hinzufügen
-- MSI und die gleichnamige `.msi.sha256`-Datei als Release-Assets hochladen
+- MSI als Release-Asset hochladen
 
 Ohne `LICENSE` ist ein öffentlich sichtbares Repository nicht automatisch Open
 Source; die normalen Urheberrechte bleiben bestehen.

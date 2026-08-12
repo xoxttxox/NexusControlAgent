@@ -13,7 +13,6 @@ partial class AgentWindow
     private TableLayoutPanel appLayout = null!;
     private Panel headerPanel = null!;
     private Label localAgentLabel = null!;
-    private Button updateButton = null!;
     private Label onlineStatusLabel = null!;
     private TableLayoutPanel contentLayout = null!;
     private DarkGroupBox connectionGroupBox = null!;
@@ -51,7 +50,6 @@ partial class AgentWindow
     private ToolStripStatusLabel statusLabel = null!;
     private ToolStripStatusLabel versionStatusLabel = null!;
     private System.Windows.Forms.Timer refreshTimer = null!;
-    private ToolTip updateToolTip = null!;
 
     protected override void Dispose(bool disposing)
     {
@@ -71,7 +69,6 @@ partial class AgentWindow
         appLayout = new TableLayoutPanel();
         headerPanel = new Panel();
         localAgentLabel = new Label();
-        updateButton = new Button();
         onlineStatusLabel = new Label();
         contentLayout = new TableLayoutPanel();
         connectionGroupBox = new DarkGroupBox();
@@ -109,7 +106,6 @@ partial class AgentWindow
         statusLabel = new ToolStripStatusLabel();
         versionStatusLabel = new ToolStripStatusLabel();
         refreshTimer = new System.Windows.Forms.Timer(components);
-        updateToolTip = new ToolTip(components);
         appLayout.SuspendLayout();
         headerPanel.SuspendLayout();
         contentLayout.SuspendLayout();
@@ -150,7 +146,6 @@ partial class AgentWindow
         // 
         headerPanel.BackColor = Color.FromArgb(28, 31, 36);
         headerPanel.Controls.Add(localAgentLabel);
-        headerPanel.Controls.Add(updateButton);
         headerPanel.Controls.Add(onlineStatusLabel);
         headerPanel.Dock = DockStyle.Fill;
         headerPanel.Location = new Point(0, 0);
@@ -171,21 +166,6 @@ partial class AgentWindow
         localAgentLabel.Text = "Lokaler PC-Agent";
         localAgentLabel.TextAlign = ContentAlignment.MiddleLeft;
         // 
-        // updateButton
-        // 
-        updateButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        updateButton.Location = new Point(292, 3);
-        updateButton.Margin = new Padding(0);
-        updateButton.Name = "updateButton";
-        updateButton.Size = new Size(96, 22);
-        updateButton.TabIndex = 1;
-        updateButton.Tag = "primary";
-        updateButton.Text = "↓  Update";
-        updateToolTip.SetToolTip(updateButton, "Eine neue Nexus-Control-Version ist verfügbar.");
-        updateButton.UseVisualStyleBackColor = false;
-        updateButton.Visible = false;
-        updateButton.Click += UpdateButtonClick;
-        // 
         // onlineStatusLabel
         // 
         onlineStatusLabel.Dock = DockStyle.Right;
@@ -194,7 +174,7 @@ partial class AgentWindow
         onlineStatusLabel.Name = "onlineStatusLabel";
         onlineStatusLabel.Padding = new Padding(0, 0, 10, 0);
         onlineStatusLabel.Size = new Size(90, 28);
-        onlineStatusLabel.TabIndex = 2;
+        onlineStatusLabel.TabIndex = 1;
         onlineStatusLabel.Tag = "success";
         onlineStatusLabel.Text = "●  Online";
         onlineStatusLabel.TextAlign = ContentAlignment.MiddleRight;
@@ -680,7 +660,7 @@ partial class AgentWindow
         // 
         versionStatusLabel.Name = "versionStatusLabel";
         versionStatusLabel.Size = new Size(65, 19);
-        versionStatusLabel.Text = "Version 0.11.2";
+        versionStatusLabel.Text = "Version 0.11.3";
         versionStatusLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // refreshTimer

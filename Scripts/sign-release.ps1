@@ -9,9 +9,8 @@ $ErrorActionPreference = "Stop"
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $appPath = Join-Path $projectRoot "artifacts\publish\win-x64\NexusControlAgent.exe"
 $wixProject = Join-Path $projectRoot "Installer\Msi\NexusControlAgent.Installer.wixproj"
-$msiPath = Join-Path $projectRoot "artifacts\installer\NexusControlAgent-Setup-v0.11.2-win-x64.msi"
-$localizedMsiPath = Join-Path $projectRoot "artifacts\installer\de-DE\NexusControlAgent-Setup-v0.11.2-win-x64.msi"
-$checksumScript = Join-Path $PSScriptRoot "New-ReleaseChecksum.ps1"
+$msiPath = Join-Path $projectRoot "artifacts\installer\NexusControlAgent-Setup-v0.11.3-win-x64.msi"
+$localizedMsiPath = Join-Path $projectRoot "artifacts\installer\de-DE\NexusControlAgent-Setup-v0.11.3-win-x64.msi"
 
 $signtool = Get-Command signtool.exe -ErrorAction SilentlyContinue
 if (-not $signtool) {
@@ -64,9 +63,4 @@ foreach ($path in @($appPath, $msiPath)) {
     }
 }
 
-& $checksumScript -Path $msiPath
-if ($LASTEXITCODE -ne 0) {
-    throw "Die SHA-256-Datei konnte nicht erstellt werden."
-}
-
-Write-Host "Desktop-Begleiter und MSI wurden erfolgreich signiert, geprüft und mit SHA-256 versehen."
+Write-Host "Desktop-Begleiter und MSI wurden erfolgreich signiert und geprüft."

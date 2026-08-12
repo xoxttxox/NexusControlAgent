@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using NexusControl.Agent.Configuration;
-using NexusControl.Agent.Models;
 using NexusControl.Agent.Networking;
 using NexusControl.Agent.Pairing;
 using NexusControl.Agent.Services;
@@ -20,7 +19,6 @@ internal sealed partial class AgentWindow : Form
     private readonly AgentOptions _options;
     private readonly AutoStartService _autoStart;
     private readonly FirewallService _firewall;
-    private readonly UpdateService _updates;
     private DateTimeOffset _lastNetworkRefresh = DateTimeOffset.MinValue;
     private string? _lastQrPayload;
     private bool _syncingAutoStart;
@@ -38,7 +36,6 @@ internal sealed partial class AgentWindow : Form
         _options = null!;
         _autoStart = null!;
         _firewall = null!;
-        _updates = null!;
         InitializeComponent();
         WinFormsTheme.Apply(this);
     }
@@ -48,23 +45,19 @@ internal sealed partial class AgentWindow : Form
         DeviceStore devices,
         AgentOptions options,
         AutoStartService autoStart,
-        FirewallService firewall,
-        UpdateService updates)
+        FirewallService firewall)
     {
         _pairing = pairing;
         _devices = devices;
         _options = options;
         _autoStart = autoStart;
         _firewall = firewall;
-        _updates = updates;
 
         InitializeComponent();
         versionStatusLabel.Text = $"Version {TelemetryService.AgentVersion}";
         serverPortValueLabel.Text = _options.Port.ToString();
         TrySetApplicationIcon();
         WinFormsTheme.Apply(this);
-        _updates.SnapshotChanged += UpdateSnapshotChanged;
-        ApplyUpdateSnapshot(_updates.Snapshot);
 
         RefreshAutoStartState();
         RefreshStatus(forceNetworkRefresh: true);
@@ -72,27 +65,6 @@ internal sealed partial class AgentWindow : Form
     }
 
     public event EventHandler? HideRequested;
-
-    public void ShowUpdateWindow(bool forceCheck)
-    {
-        var existingWindow = System.Windows.Forms.Application.OpenForms
-            .OfType<UpdateWindow>()
-            .FirstOrDefault();
-        if (existingWindow is not null)
-        {
-            existingWindow.Activate();
-            existingWindow.BringToFront();
-            if (forceCheck)
-            {
-                _ = _updates.CheckNowAsync();
-            }
-
-            return;
-        }
-
-        using var updateWindow = new UpdateWindow(_updates, forceCheck);
-        updateWindow.ShowDialog(this);
-    }
 
     public void RotatePairingCode()
     {
@@ -124,16 +96,6 @@ internal sealed partial class AgentWindow : Form
 
         _firewallCheckStarted = true;
         await EnsureFirewallConfiguredAsync();
-    }
-
-    protected override void OnFormClosed(FormClosedEventArgs eventArgs)
-    {
-        if (_updates is not null)
-        {
-            _updates.SnapshotChanged -= UpdateSnapshotChanged;
-        }
-
-        base.OnFormClosed(eventArgs);
     }
 
     private async Task EnsureFirewallConfiguredAsync()
@@ -221,63 +183,9 @@ internal sealed partial class AgentWindow : Form
         HideRequested?.Invoke(this, EventArgs.Empty);
     }
 
-    private void UpdateButtonClick(object? sender, EventArgs eventArgs)
-    {
-        ShowUpdateWindow(forceCheck: false);
-    }
-
     private void RefreshTimerTick(object? sender, EventArgs eventArgs)
     {
         RefreshStatus();
-    }
-
-    private void UpdateSnapshotChanged(UpdateSnapshot snapshot)
-    {
-        if (IsDisposed || Disposing)
-        {
-            return;
-        }
-
-        if (InvokeRequired)
-        {
-            BeginInvoke(new Action<UpdateSnapshot>(UpdateSnapshotChanged), snapshot);
-            return;
-        }
-
-        ApplyUpdateSnapshot(snapshot);
-    }
-
-    private void ApplyUpdateSnapshot(UpdateSnapshot snapshot)
-    {
-        switch (snapshot.Stage)
-        {
-            case UpdateStage.Available:
-                updateButton.Visible = true;
-                updateButton.Enabled = true;
-                updateButton.Text = "↓  Update";
-                updateToolTip.SetToolTip(
-                    updateButton,
-                    $"Version {snapshot.Release?.DisplayVersion} ist verfügbar.");
-                break;
-
-            case UpdateStage.Downloading:
-                updateButton.Visible = true;
-                updateButton.Enabled = false;
-                updateButton.Text = $"{snapshot.ProgressPercent}%";
-                break;
-
-            case UpdateStage.Verifying:
-            case UpdateStage.Installing:
-                updateButton.Visible = true;
-                updateButton.Enabled = false;
-                updateButton.Text = "Update …";
-                break;
-
-            default:
-                updateButton.Visible = false;
-                updateButton.Enabled = false;
-                break;
-        }
     }
 
     private void TrySetApplicationIcon()

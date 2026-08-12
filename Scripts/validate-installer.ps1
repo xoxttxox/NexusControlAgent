@@ -89,7 +89,7 @@ if ($packageVersion -notmatch '^\d+\.\d+\.\d+$') {
 
 $majorUpgrade = $package.SelectSingleNode('/w:Wix/w:Package/w:MajorUpgrade', $namespace)
 if (-not $majorUpgrade) {
-    throw 'MajorUpgrade fehlt; der integrierte Updater könnte keine bestehende Installation ersetzen.'
+    throw 'MajorUpgrade fehlt; eine bestehende Installation könnte nicht sauber aktualisiert werden.'
 }
 
 $upgradeCode = [Guid]::Empty

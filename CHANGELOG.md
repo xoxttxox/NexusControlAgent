@@ -9,6 +9,19 @@ an [Semantic Versioning](https://semver.org/lang/de/).
 
 Derzeit sind keine unveröffentlichten Änderungen eingetragen.
 
+## [0.11.3] – 2026-08-12
+
+### Entfernt
+
+- integrierten GitHub-Updater einschließlich Startprüfung, Hintergrunddienst,
+  Download, MSI-Helfer und lokaler Update-Ergebnisdateien vollständig entfernt
+- Update-Fenster, Update-Button im Hauptfenster, Update-Eintrag im Tray-Menü und
+  zugehörige Benachrichtigungen entfernt
+- gesamten `Updates`-Abschnitt aus `appsettings.json` entfernt
+- automatische `.msi.sha256`-Erzeugung aus Build- und Signierablauf entfernt
+
+Neue Versionen werden als normales MSI manuell installiert.
+
 ## [0.11.2] – 2026-08-12
 
 ### Geändert
