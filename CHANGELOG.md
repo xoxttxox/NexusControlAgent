@@ -1,167 +1,167 @@
-# Änderungsverlauf
+# Changelog
 
-Alle wichtigen Änderungen am Nexus Control Agent werden in dieser Datei
-dokumentiert. Die Struktur orientiert sich an
-[Keep a Changelog](https://keepachangelog.com/de/1.1.0/) und die Versionierung
-an [Semantic Versioning](https://semver.org/lang/de/).
+All notable changes to Nexus Control Agent are documented in this file.
+The format is based on
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
+follows [Semantic Versioning](https://semver.org/).
 
 ## [0.11.4] – 2026-08-13
 
-### Hinzugefügt
+### Added
 
-- eigener Button **Protokoll** unten neben **Diagnose** und **Ausblenden**
-- kleines lokales Protokollfenster mit Live-Aktualisierung, Kopieren und
-  sicherem Leeren
-- begrenzte Historie für Smartphone-Verbindungen, Pairing, ausgeführte Befehle
-  sowie erfolgreiche, abgelehnte und fehlgeschlagene Aktionen
-- kompakte lokale Verwaltung gekoppelter Smartphones mit Gerätename, Plattform,
-  Live-Status, letzter Aktivität, Pausieren und sicherem Entfernen
-- einzeln konfigurierbare Freigaben für PC-Steuerung, Touchpad und Tastatur,
-  Prozesse, Medien und Lautstärke, Bildschirmübertragung, Dateien und
-  Energiebefehle
-- lokale Verbindungsdiagnose für Agent-Port, Netzwerkadressen, Firewall,
-  gekoppelte Geräte, stillen Windows-Autostart und Tailscale
-- kopierbarer, bereinigter Diagnosebericht ohne Geräte- oder Push-Tokens
+- added a dedicated **Activity Log** button at the bottom next to
+  **Diagnostics** and **Hide**
+- added a compact local activity log window with live updates, copy support,
+  and safe log clearing
+- added a limited history for smartphone connections, pairing events, executed
+  commands, and successful, denied, or failed actions
+- added compact local management for paired smartphones, including device name,
+  platform, live status, last activity, pausing, and secure removal
+- added individually configurable permissions for PC control, touchpad and
+  keyboard input, processes, media and volume, screen streaming, files, and
+  power commands
+- added local connection diagnostics for the Agent port, network addresses,
+  firewall, paired devices, silent Windows startup, and Tailscale
+- added a copyable, sanitized diagnostic report without device or push tokens
 
-### Geändert
+### Changed
 
-- die grüne Gerätezahl öffnet jetzt die Geräteverwaltung
-- der bisherige Button **Aktualisieren** öffnet jetzt die Diagnose; der normale
-  Status wird weiterhin automatisch aktualisiert
-- Kopfzeile zeigt zusätzlich aktive Geräte und den Verbindungsmodus LAN oder
-  Tailscale
-- lokale Adressliste verwendet keine dauerhaft blaue Auswahlmarkierung mehr
+- the green device count now opens device management
+- the previous **Refresh** button now opens **Diagnostics**; regular status
+  information continues to update automatically
+- the header now also displays active devices and the current connection mode,
+  either LAN or Tailscale
+- the local address list no longer uses a permanent blue selection highlight
 
-### Sicherheit
+### Security
 
-- Protokolle enthalten ausschließlich Zeitpunkt, bereinigten Gerätenamen,
-  Plattform, feste Aktionsbezeichnung und Ergebnis; Kennwörter, Tokens,
-  Befehlsparameter, Texteingaben, Dateinamen und Dateiinhalte werden nicht
-  gespeichert
-- hochfrequente Mausbewegungen und Scrollereignisse werden bewusst nicht
-  protokolliert
-- Berechtigungen werden an Steuerbefehlen sowie Datei-, Bildschirm-, Medien-
-  und Prozessdaten serverseitig geprüft
-- das Pausieren oder Entfernen eines Geräts beendet dessen laufende Verbindung
-  und verhindert neue Befehle
-- alte Gerätedateien werden automatisch mit kompatiblen Standardberechtigungen in
-  das erweiterte lokale Format übernommen
+- activity logs contain only the timestamp, sanitized device name, platform,
+  predefined action name, and result; passwords, tokens, command parameters,
+  text input, filenames, and file contents are not stored
+- high-frequency mouse movement and scrolling events are intentionally excluded
+  from logging
+- permissions are enforced server-side for control commands as well as file,
+  screen, media, and process data
+- pausing or removing a device terminates its active connection and prevents
+  new commands
+- legacy device files are automatically migrated to the extended local format
+  using compatible default permissions
 
-### Behoben
+### Fixed
 
-- Hinweis- und Fehlerdialoge zeigen keine dauerhaft eingeblendete helle
-  Scrollleiste mehr.
-- Die Dialoghöhe passt sich nun automatisch an den umgebrochenen Meldungstext
-  an, damit der Inhalt ohne unnötige Scrollfläche lesbar bleibt.
-- bestehende Windows-Autostart-Aufgaben werden beim Start auf den erforderlichen
-  `--tray`-Parameter geprüft und bei Bedarf automatisch repariert; dadurch
-  öffnet sich das Agent-Fenster nach der Windows-Anmeldung nicht mehr.
+- information and error dialogs no longer display a permanently visible bright
+  scrollbar
+- dialog height now automatically adjusts to wrapped message text so content
+  remains readable without unnecessary scrolling
+- existing Windows startup tasks are checked for the required `--tray`
+  parameter when the Agent starts and are automatically repaired when needed;
+  this prevents the Agent window from opening after Windows sign-in
 
 ## [0.11.3] – 2026-08-12
 
-### Entfernt
+### Removed
 
-- integrierten GitHub-Updater einschließlich Startprüfung, Hintergrunddienst,
-  Download, MSI-Helfer und lokaler Update-Ergebnisdateien vollständig entfernt
-- Update-Fenster, Update-Button im Hauptfenster, Update-Eintrag im Tray-Menü und
-  zugehörige Benachrichtigungen entfernt
-- gesamten `Updates`-Abschnitt aus `appsettings.json` entfernt
-- automatische `.msi.sha256`-Erzeugung aus Build- und Signierablauf entfernt
+- completely removed the integrated GitHub updater, including the startup check,
+  background service, download logic, MSI helper, and local update result files
+- removed the update window, update button in the main window, update entry in
+  the tray menu, and related notifications
+- removed the entire `Updates` section from `appsettings.json`
+- removed automatic `.msi.sha256` generation from the build and signing workflow
 
-Neue Versionen werden als normales MSI manuell installiert.
+New versions are installed manually as regular MSI packages.
 
 ## [0.11.2] – 2026-08-12
 
-### Geändert
+### Changed
 
-- Projekt-, Agent-, MSI- und Release-Version einheitlich auf 0.11.2 angehoben.
+- updated the project, Agent, MSI, and release versions consistently to 0.11.2
 
-### Behoben
+### Fixed
 
-- Download- und Prüfsummenstreams werden vor dem Verschieben oder Löschen des
-  MSI-Installers garantiert geschlossen; dadurch blockiert der Updater seine
-  eigene Datei unter Windows nicht mehr.
-- kurzes Wiederholen beim finalen Verschieben verhindert sporadische Fehler,
-  wenn Windows Defender oder ein anderer Virenscanner die neue Datei prüft.
+- download and checksum streams are now guaranteed to close before the MSI
+  installer is moved or deleted, preventing the updater from locking its own
+  file on Windows
+- added a short retry during the final move to prevent sporadic failures when
+  Windows Defender or another antivirus product is scanning the new file
 
 ## [0.11.1] – 2026-08-11
 
-### Hinzugefügt
+### Added
 
-- kleine vorgeschaltete WinForms-Updateanzeige im Discord-Stil, bevor Server,
-  Tray-Icon und Hauptfenster gestartet werden
-- automatische Installation eines gefundenen Updates direkt beim Start
-- kurzer Offline-Timeout; der Agent startet auch ohne erreichbares GitHub weiter
+- added a compact Discord-style WinForms update screen shown before the server,
+  tray icon, and main window are started
+- added automatic installation of a detected update directly at startup
+- added a short offline timeout so the Agent still starts when GitHub is
+  unavailable
 
-### Behoben
+### Fixed
 
-- jeder Updateversuch verwendet einen eigenen temporären Ordner und einen
-  eindeutigen Helfer, sodass alte oder noch gesperrte Dateien den Download nicht
-  mehr blockieren
-- Update-Helfer wartet zusätzlich auf einen lesbaren MSI-Installer, bevor
-  Windows Installer gestartet wird
+- each update attempt now uses its own temporary directory and a unique helper,
+  preventing old or still-locked files from blocking the download
+- the update helper now also waits until the MSI installer is readable before
+  starting Windows Installer
 
 ## [0.11.0] – 2026-08-11
 
-### Hinzugefügt
+### Added
 
-- automatische Updateprüfung über veröffentlichte GitHub Releases beim Start und
-  anschließend in einem einstellbaren Intervall
-- kompaktes Update-Fenster mit Versionsvergleich, Release-Hinweisen,
-  Downloadgröße und Fortschrittsanzeige
-- Update-Hinweis im Kopfbereich des Hauptfensters und im Tray-Menü
-- separater Update-Helfer, der den Agent sauber beendet, das WiX-MSI als
-  Major Upgrade installiert und den Agent danach wieder im Infobereich startet
-- automatische `.sha256`-Release-Datei im MSI-Build und nach der Signierung
+- added automatic update checks against published GitHub Releases at startup and
+  subsequently at a configurable interval
+- added a compact update window with version comparison, release notes, download
+  size, and progress indication
+- added an update notice to the main window header and tray menu
+- added a separate update helper that cleanly shuts down the Agent, installs the
+  WiX MSI as a Major Upgrade, and then restarts the Agent in the system tray
+- added automatic `.sha256` release file generation during the MSI build and
+  after signing
 
-### Sicherheit
+### Security
 
-- feste maximale Downloadgröße und Streaming-Download in eine temporäre Datei
-- verpflichtende SHA-256-Prüfung über GitHub-Asset-Digest oder separates
-  `.sha256`-Asset
-- optional aktivierbare Authenticode- und Herausgeberprüfung für öffentliche,
-  signierte Releases
-- Windows-Installer-Protokoll und sichtbare Erfolg- oder Fehlermeldung nach dem
-  Neustart
+- added a fixed maximum download size and streaming downloads to a temporary file
+- added mandatory SHA-256 verification through the GitHub asset digest or a
+  separate `.sha256` asset
+- added optional Authenticode and publisher verification for public, signed
+  releases
+- added Windows Installer logging and a visible success or error message after
+  restart
 
 ## [0.10.3] – 2026-08-11
 
-### Geändert
+### Changed
 
-- Rahmen der Verbindungs-, Pairing- und Verhaltensbereiche an das dunkle
-  Nexus-Theme angepasst.
-- Rahmen der Adressliste verwendet jetzt ebenfalls die zentrale Theme-Farbe.
-- Button **Aktualisieren** verbreitert, damit die Beschriftung vollständig
-  sichtbar bleibt.
+- updated the borders of the connection, pairing, and behavior sections to match
+  the dark Nexus theme
+- the address list border now also uses the central theme color
+- widened the **Refresh** button so its label remains fully visible
 
 ## [0.10.2] – 2026-08-11
 
-### Behoben
+### Fixed
 
-- Der Agent-Shutdown übergibt den Fünf-Sekunden-Timeout jetzt korrekt über eine
-  `CancellationTokenSource` an `StopAsync`.
-- Compilerfehler durch die Übergabe eines `TimeSpan` an `StopAsync` beseitigt.
+- Agent shutdown now correctly passes the five-second timeout to `StopAsync`
+  through a `CancellationTokenSource`
+- fixed compiler errors caused by passing a `TimeSpan` to `StopAsync`
 
 ## [0.10.1] – 2026-08-11
 
-### Geändert
+### Changed
 
-- Projektordner und Namespaces konsistent zusammengeführt.
-- API-Routen aus `Program.cs` in eine eigene Netzwerkkomponente ausgelagert.
-- nicht verwendeten und veralteten Code entfernt.
-- Dokumentation und Build-Skripte auf die bereinigte Struktur umgestellt.
+- consolidated project folders and namespaces consistently
+- moved API routes from `Program.cs` into a dedicated networking component
+- removed unused and obsolete code
+- updated documentation and build scripts for the cleaned-up structure
 
-### Behoben
+### Fixed
 
-- Nullable-Kontext für automatisch generierten WinForms-Code korrigiert.
-- falsche Namespace-Auflösung für `Application.EnableVisualStyles` korrigiert.
+- corrected the nullable context for automatically generated WinForms code
+- fixed incorrect namespace resolution for `Application.EnableVisualStyles`
 
 ## [0.10.0] – 2026-08-11
 
-### Geändert
+### Changed
 
-- Desktop-Oberfläche vollständig auf WinForms umgestellt.
-- WPF- und XAML-Abhängigkeiten aus dem Agent entfernt.
-- kompaktes, nicht vergrößerbares 500 × 500-Pixel-Fenster eingeführt.
-- Betrieb im Infobereich, Pairing, Server und Firewall-Einrichtung in einem
-  gemeinsamen Agent-Prozess zusammengeführt.
+- migrated the desktop UI completely to WinForms
+- removed WPF and XAML dependencies from the Agent
+- introduced a compact, non-resizable 500 × 500 pixel window
+- consolidated system tray operation, pairing, server hosting, and firewall
+  setup into a single Agent process

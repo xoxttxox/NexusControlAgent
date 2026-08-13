@@ -1,211 +1,204 @@
 # Nexus Control Agent
 
-**Der Windows-Begleiter für Nexus Control.**
+**The Windows companion for Nexus Control.**
 
 ![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)
 ![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet&logoColor=white)
 ![UI](https://img.shields.io/badge/UI-WinForms-2D7DDB)
 
-Nexus Control Agent verbindet die mobile Nexus-Control-App mit einem
-Windows-PC. Der Agent läuft kompakt im Windows-Infobereich und stellt die
-lokalen Funktionen bereit, die für Statusanzeige, PC-Steuerung,
-Medienbedienung, Bildschirmübertragung und Dateiübertragung benötigt werden.
+Nexus Control Agent connects the Nexus Control mobile app to a Windows PC.
+The Agent runs compactly in the Windows system tray and provides the local
+functionality required for system status, PC control, media control, screen
+streaming, and file transfers.
 
-Die Verbindung ist für das private Netzwerk und optional für den verschlüsselten
-Fernzugriff über Tailscale ausgelegt. Es werden keine Windows-Kennwörter, PINs
-oder Entsperrdaten gespeichert.
+The connection is designed for private networks and optionally for encrypted
+remote access through Tailscale. No Windows passwords, PINs, or unlock
+credentials are stored.
 
-## Funktionen
+## Features
 
-- QR-Code- und Zahlencode-Pairing mit zeitlich begrenzten Codes
-- vertrauenswürdige Geräte mit gehashten, zufällig erzeugten Gerätetokens
-- lokale Geräteverwaltung mit Name, Plattform, Online-Status, Pausieren,
-  Entfernen und einzelnen Funktionsberechtigungen
-- Verbindungsdiagnose für Agent-Port, lokale Adressen, Firewall, gekoppelte
-  Geräte, Autostart und Tailscale
-- eigener **Protokoll**-Button für eine begrenzte lokale Historie von
-  Verbindungen, Pairing und ausgeführten Aktionen
-- PC-Status für CPU, GPU, RAM, Laufwerke, Netzwerk und verfügbare Temperaturen
-- Sperren, Standby, Neustart und Herunterfahren des PCs
-- Remote-Maus, Tastatur, Mediensteuerung und Windows-Lautstärke
-- aktive Windows-Mediensitzungen, beispielsweise Browser, Spotify oder YouTube
-- Bildschirmübertragung mit Auswahl mehrerer Monitore
-- Dateiübertragung bis maximal 100 MB pro Datei
-- Wake-on-LAN-Informationen für gekoppelte Geräte
-- automatischer Start mit Windows und stiller Betrieb im Infobereich
-- lokale Firewall-Einrichtung für den Agent-Port
-- optionale Push-Benachrichtigungen für überwachte Ereignisse
+- QR code and numeric code pairing with time-limited codes
+- trusted devices using hashed, randomly generated device tokens
+- local device management with device name, platform, online status, pausing,
+  removal, and individual feature permissions
+- connection diagnostics for the Agent port, local addresses, firewall, paired
+  devices, Windows startup, and Tailscale
+- dedicated **Activity Log** button for a limited local history of connections,
+  pairing events, and executed actions
+- PC status for CPU, GPU, RAM, drives, network, and available temperature sensors
+- lock, sleep, restart, and shut down the PC
+- remote mouse, keyboard, media controls, and Windows volume
+- active Windows media sessions such as browsers, Spotify, or YouTube
+- screen streaming with multi-monitor selection
+- file transfers up to a maximum of 100 MB per file
+- Wake-on-LAN information for paired devices
+- automatic startup with Windows and silent operation in the system tray
+- local firewall configuration for the Agent port
+- optional push notifications for monitored events
 
-## Voraussetzungen
+## Requirements
 
-### Für die Installation
+### Installation
 
-- Windows 10 oder Windows 11
-- ein PC und Smartphone im selben privaten Netzwerk oder im selben
-  Tailscale-Netz
-- Administratorrechte für Installation, Firewall und Windows-Steuerbefehle
+- Windows 10 or Windows 11
+- a PC and smartphone on the same private network or the same Tailscale network
+- administrator privileges for installation, firewall configuration, and
+  Windows control commands
 
-Das veröffentlichte Windows-x64-Paket ist selbstständig und benötigt keine
-separat installierte .NET-Laufzeit.
+The published Windows x64 package is self-contained and does not require a
+separately installed .NET runtime.
 
-### Für die Entwicklung
+### Development
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-- Visual Studio mit den Workloads **.NET-Desktopentwicklung** und
-  **ASP.NET und Webentwicklung**
-- für den MSI-Build: WiX Toolset 7 über das enthaltene Installer-Projekt
+- Visual Studio with the **.NET desktop development** and
+  **ASP.NET and web development** workloads
+- for MSI builds: WiX Toolset 7 through the included installer project
 
-## Installation und Pairing
+## Installation and Pairing
 
-1. Das aktuelle MSI-Paket aus den GitHub Releases herunterladen.
-2. `NexusControlAgent-Setup-vX.Y.Z-win-x64.msi` starten.
-3. Die gewünschten Installer-Optionen auswählen und die Firewall-Abfrage
-   bestätigen.
-4. Den Nexus Control Agent über das Startmenü öffnen.
-5. In der mobilen Nexus-Control-App **PC hinzufügen** auswählen.
-6. Den QR-Code scannen oder den sechsstelligen Pairing-Code eingeben.
+1. Download the latest MSI package from GitHub Releases.
+2. Run `NexusControlAgent-Setup-vX.Y.Z-win-x64.msi`.
+3. Select the desired installer options and confirm the firewall prompt.
+4. Open Nexus Control Agent from the Start menu.
+5. In the Nexus Control mobile app, select **Add PC**.
+6. Scan the QR code or enter the six-digit pairing code.
 
-Nach erfolgreichem Pairing bleibt der Agent im Infobereich aktiv. Das kleine
-Fenster kann jederzeit ausgeblendet werden, ohne den Agent zu beenden.
-Beim automatischen Start nach der Windows-Anmeldung bleibt das Hauptfenster
-geschlossen. Es lässt sich per Doppelklick auf das Tray-Symbol oder über
-**Nexus Control öffnen** im Tray-Menü anzeigen. Ein manueller Start über das
-Startmenü öffnet das Fenster weiterhin normal.
+After successful pairing, the Agent remains active in the system tray. The
+compact window can be hidden at any time without shutting down the Agent.
+When started automatically after Windows sign-in, the main window remains
+closed. It can be opened by double-clicking the tray icon or selecting
+**Open Nexus Control** from the tray menu. Starting the Agent manually from the
+Start menu continues to open the window normally.
 
-Die grüne Gerätezahl im Bereich **Verbindung** öffnet die lokale
-Geräteverwaltung. Dort können gekoppelte Smartphones umbenannt, pausiert,
-entfernt und getrennt für PC-Steuerung, Touchpad, Prozesse, Medien,
-Bildschirmübertragung, Dateien und Energiebefehle freigegeben werden. Der Button
-**Diagnose** führt die lokalen Verbindungstests aus und kann einen bereinigten
-Bericht ohne Tokens kopieren.
+The green device count in the **Connection** section opens local device
+management. Paired smartphones can be renamed, paused, removed, and granted
+separate permissions for PC control, touchpad input, processes, media, screen
+streaming, files, and power commands. The **Diagnostics** button runs local
+connection tests and can copy a sanitized report without tokens.
 
-Der Button **Protokoll** öffnet ein separates kleines Fenster mit den letzten
-lokalen Verbindungen und Aktionen. Es aktualisiert sich automatisch, kann
-kopiert oder vollständig geleert werden und verändert die kompakte
-Hauptansicht nicht.
+The **Activity Log** button opens a separate compact window containing recent
+local connections and actions. It updates automatically, can be copied or
+cleared completely, and does not change the compact main window layout.
 
 > [!IMPORTANT]
-> Port `5188` darf nicht direkt aus dem Internet weitergeleitet werden. Für den
-> Zugriff außerhalb des Heimnetzes sollte Tailscale verwendet werden.
+> Port `5188` must never be forwarded directly from the public internet. Use
+> Tailscale for access from outside the local network.
 
-## Lokal entwickeln
+## Local Development
 
-Repository klonen und anschließend `NexusControlAgent.sln` in Visual Studio
-öffnen. Als Startprojekt muss **NexusControlAgent** ausgewählt sein.
+Clone the repository and open `NexusControlAgent.sln` in Visual Studio.
+**NexusControlAgent** must be selected as the startup project.
 
-Alternativ in einer Windows-Konsole:
+Alternatively, use a Windows terminal:
 
 ```powershell
 dotnet restore .\NexusControlAgent.csproj
 dotnet build .\NexusControlAgent.csproj --configuration Release
 ```
 
-Der mitgelieferte Schnellstart führt den Build aus und startet danach den Agent:
+The included quick-start script builds the project and then starts the Agent:
 
 ```text
 Scripts\start-agent.bat
 ```
 
-## Konfiguration
+## Configuration
 
-Die Standardwerte befinden sich in `appsettings.json` unter `Agent`.
+Default values are located under `Agent` in `appsettings.json`.
 
-| Einstellung | Standard | Bedeutung |
+| Setting | Default | Description |
 | --- | ---: | --- |
-| `Port` | `5188` | Lokaler HTTP- und WebSocket-Port |
-| `PairingCodeLifetimeMinutes` | `10` | Gültigkeitsdauer eines Pairing-Codes |
-| `MaximumPairingAttempts` | `8` | Erlaubte Versuche pro Pairing-Code |
-| `TelemetryIntervalMilliseconds` | `2000` | Intervall der normalen Telemetrie |
-| `AllowedClockSkewMinutes` | `2` | Erlaubte Zeitabweichung bei Befehlen |
-| `MaximumMessageSizeBytes` | `65536` | Maximale Größe einer WebSocket-Nachricht |
-| `PushTemperatureThresholdCelsius` | `85` | Temperaturschwelle für Warnungen |
+| `Port` | `5188` | Local HTTP and WebSocket port |
+| `PairingCodeLifetimeMinutes` | `10` | Lifetime of a pairing code |
+| `MaximumPairingAttempts` | `8` | Allowed attempts per pairing code |
+| `TelemetryIntervalMilliseconds` | `2000` | Interval for standard telemetry |
+| `AllowedClockSkewMinutes` | `2` | Allowed clock skew for commands |
+| `MaximumMessageSizeBytes` | `65536` | Maximum size of a WebSocket message |
+| `PushTemperatureThresholdCelsius` | `85` | Temperature threshold for warnings |
 
-Für lokale Entwicklungswerte kann .NET User Secrets verwendet werden. Private
-Tokens, Zertifikate und Zugangsdaten dürfen nicht in `appsettings.json` oder in
-Git eingecheckt werden.
+.NET User Secrets can be used for local development values. Private tokens,
+certificates, and credentials must not be stored in `appsettings.json` or
+committed to Git.
 
-## Veröffentlichen
+## Publishing
 
-Selbstständige Windows-x64-App erstellen:
+Create a self-contained Windows x64 application:
 
 ```text
 Scripts\publish-agent.bat
 ```
 
-App und deutsches WiX-7-MSI erstellen:
+Build the application and the German WiX 7 MSI:
 
 ```text
 Scripts\build-msi.bat
 ```
 
-Die fertigen Dateien werden nicht in Git eingecheckt, sondern unter
-`artifacts\` erzeugt:
+The generated files are not committed to Git. They are created under
+`artifacts\`:
 
 ```text
 artifacts\publish\win-x64\NexusControlAgent.exe
 artifacts\installer\NexusControlAgent-Setup-vX.Y.Z-win-x64.msi
 ```
 
-Vor einer öffentlichen Veröffentlichung sollten EXE und MSI mit einem
-vertrauenswürdigen Code-Signing-Zertifikat signiert werden. Hinweise dazu
-stehen in `Installer/README.md`.
+Before a public release, the EXE and MSI should be signed with a trusted
+code-signing certificate. See `Installer/README.md` for additional information.
 
-## Projektstruktur
+## Project Structure
 
 ```text
-Application/         WinForms-Lifecycle und Infobereich
-Configuration/       Einstellungen und Validierung
-Forms/               Hauptfenster, Designer und Ressourcen
-Models/              API-, Telemetrie- und Nachrichtenmodelle
-Networking/          HTTP, WebSocket und Netzwerkprüfung
-Pairing/             Pairing und vertrauenswürdige Geräte
-Security/            Sichere lokale Pfade
-Services/            Telemetrie, Medien, Bildschirm, Dateien und Autostart
-UI/                  Dark-Theme und Standarddialoge
-Windows/             Windows-Steuerung und Audio-Integration
-Installer/           WiX-7-Installer und Installer-Assets
-Scripts/             Build-, Installations- und Prüfroutinen
+Application/         WinForms lifecycle and system tray
+Configuration/       Settings and validation
+Forms/               Main window, designer files, and resources
+Models/              API, telemetry, and message models
+Networking/          HTTP, WebSocket, and network validation
+Pairing/             Pairing and trusted devices
+Security/            Secure local paths
+Services/            Telemetry, media, screen, files, and startup
+UI/                  Dark theme and standard dialogs
+Windows/             Windows control and audio integration
+Installer/           WiX 7 installer and installer assets
+Scripts/             Build, installation, and validation routines
 ```
 
-## Sicherheit und Datenschutz
+## Security and Privacy
 
-- Pairing-Codes sind zeitlich begrenzt und werden bei zu vielen Fehlversuchen
-  erneuert.
-- Gerätetokens werden lokal nur als SHA-256-Hash gespeichert.
-- Funktionsberechtigungen werden nicht nur in der Oberfläche angezeigt, sondern
-  direkt an HTTP- und WebSocket-Befehlen geprüft.
-- Das lokale Protokoll speichert nur Zeitpunkt, bereinigten Gerätenamen,
-  Plattform, eine feste Aktionsbezeichnung und das Ergebnis. Kennwörter, Tokens,
-  Befehlsparameter, Texteingaben, Dateinamen und Dateiinhalte werden nicht
-  gespeichert.
-- Pausierte Geräte werden sofort abgewiesen und bestehende Sitzungen beendet.
-- Befehle werden durch Zeitfenster, Whitelists und Rate-Limits geprüft.
-- Verbindungen werden nur aus Loopback, privaten Netzwerken und Tailscale-Netzen
-  akzeptiert.
-- Es gibt keine Windows-Entsperrfunktion und keine Speicherung von Kennwörtern
-  oder PINs.
-- Der Agent installiert keinen Windows-Kerndienst und keinen Credential Provider.
+- Pairing codes are time-limited and are regenerated after too many failed
+  attempts.
+- Device tokens are stored locally only as SHA-256 hashes.
+- Feature permissions are not only displayed in the UI; they are enforced
+  directly for HTTP and WebSocket commands.
+- The local activity log stores only the timestamp, sanitized device name,
+  platform, predefined action name, and result. Passwords, tokens, command
+  parameters, text input, filenames, and file contents are not stored.
+- Paused devices are rejected immediately and existing sessions are terminated.
+- Commands are validated using time windows, allowlists, and rate limits.
+- Connections are accepted only from loopback, private networks, and Tailscale
+  networks.
+- There is no Windows unlock feature, and no passwords or PINs are stored.
+- The Agent does not install a Windows kernel service or Credential Provider.
 
-Sicherheitsprobleme bitte nicht öffentlich als normales Issue melden. Der
-verantwortungsvolle Meldeweg ist in [SECURITY.md](SECURITY.md) beschrieben.
+Please do not report security issues publicly as regular GitHub issues. The
+responsible disclosure process is described in [SECURITY.md](SECURITY.md).
 
-## Mitwirken
+## Contributing
 
-Fehlerberichte und Verbesserungsvorschläge sind willkommen. Vor größeren
-Änderungen bitte zuerst ein Issue erstellen. Weitere Hinweise stehen in
+Bug reports and improvement suggestions are welcome. For larger changes, please
+open an issue first. Additional guidance is available in
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Weitere Dokumente
+## Additional Documentation
 
-- [Änderungsverlauf](CHANGELOG.md)
-- [Mitwirken](CONTRIBUTING.md)
-- [Sicherheitsrichtlinie](SECURITY.md)
-- [GitHub-Veröffentlichung](GITHUB_SETUP.md)
-- [Installer-Dokumentation](Installer/README.md)
+- [Changelog](CHANGELOG.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security Policy](SECURITY.md)
+- [GitHub Publishing](GITHUB_SETUP.md)
+- [Installer Documentation](Installer/README.md)
 
-## Lizenz
+## License
 
-Für den Quellcode wurde noch keine Open-Source-Lizenz festgelegt. Solange keine
-`LICENSE`-Datei vorhanden ist, bleiben alle Rechte vorbehalten. Vor einer
-öffentlichen Freigabe zur Weiterverwendung sollte bewusst eine passende Lizenz
-ausgewählt werden.
+No open-source license has been selected for the source code yet. As long as no
+`LICENSE` file is present, all rights are reserved. Before publicly allowing
+reuse, an appropriate license should be selected deliberately.

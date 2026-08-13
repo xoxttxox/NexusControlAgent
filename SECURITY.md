@@ -1,43 +1,40 @@
-# Sicherheitsrichtlinie
+# Security Policy
 
-## Unterstützte Versionen
+## Supported Versions
 
-Sicherheitskorrekturen werden grundsätzlich für die aktuellste veröffentlichte
-Version des Nexus Control Agent bereitgestellt. Vor einer Meldung sollte geprüft
-werden, ob das Problem mit der neuesten Release weiterhin auftritt.
+Security fixes are generally provided for the latest published version of
+Nexus Control Agent. Before submitting a report, please verify that the issue
+still occurs with the latest release.
 
-## Sicherheitsproblem melden
+## Reporting a Security Vulnerability
 
-Sicherheitslücken bitte nicht als öffentliches GitHub Issue veröffentlichen.
-Verwende stattdessen im GitHub-Repository unter **Security** die Funktion
-**Report a vulnerability**. Dafür muss Private Vulnerability Reporting in den
-Repository-Einstellungen aktiviert sein.
+Please do not disclose security vulnerabilities through a public GitHub issue.
+Instead, use **Report a vulnerability** under the repository's **Security**
+section. Private Vulnerability Reporting must be enabled in the repository
+settings for this option to be available.
 
-Eine gute Meldung enthält:
+A useful report should include:
 
-- betroffene Agent-Version und Windows-Version
-- Beschreibung der Schwachstelle und ihrer Auswirkungen
-- nachvollziehbare Schritte oder einen minimalen Proof of Concept
-- vorhandene Schutzmaßnahmen oder Voraussetzungen für einen Angriff
-- mögliche Lösungsidee, falls bekannt
+- the affected Agent version and Windows version
+- a description of the vulnerability and its impact
+- reproducible steps or a minimal proof of concept
+- existing mitigations or prerequisites required for exploitation
+- a possible remediation approach, if known
 
-Bitte keine echten Gerätetokens, Push-Tokens, Kennwörter, privaten Schlüssel
-oder persönlichen Daten mitsenden. Testdaten müssen vor dem Hochladen bereinigt
-werden.
+Do not include real device tokens, push tokens, passwords, private keys, or
+personal data. Test data must be sanitized before it is uploaded.
 
-## Sicherer Betrieb
+## Secure Operation
 
-- Port `5188` niemals direkt aus dem öffentlichen Internet erreichbar machen.
-- Für Fernzugriff ein privates Tailscale-Netz verwenden.
-- Pairing nur mit Geräten durchführen, die dem Benutzer gehören und
-  vertrauenswürdig sind.
-- In der lokalen Geräteverwaltung nur die wirklich benötigten Funktionen pro
-  Smartphone freigeben und verlorene Geräte sofort pausieren oder entfernen.
-- Diagnoseberichte enthalten keine Tokens; sie sollten trotzdem vor einer
-  öffentlichen Veröffentlichung auf PC-Name und lokale IP-Adressen geprüft
-  werden.
-- Das lokale Aktivitätsprotokoll enthält keine Kennwörter, Tokens,
-  Befehlsparameter, Texteingaben, Dateinamen oder Dateiinhalte und kann direkt
-  im Protokollfenster geleert werden.
-- Windows, Tailscale und den Nexus Control Agent aktuell halten.
-- öffentliche Builds vor der Verteilung digital signieren.
+- Never expose port `5188` directly to the public internet.
+- Use a private Tailscale network for remote access.
+- Pair only with devices that belong to the user and are trusted.
+- In local device management, grant each smartphone only the permissions it
+  actually requires, and immediately pause or remove lost devices.
+- Diagnostic reports do not contain tokens, but they should still be reviewed
+  for the PC name and local IP addresses before being published publicly.
+- The local activity log does not contain passwords, tokens, command parameters,
+  text input, filenames, or file contents and can be cleared directly from the
+  activity log window.
+- Keep Windows, Tailscale, and Nexus Control Agent up to date.
+- Digitally sign public builds before distribution.
