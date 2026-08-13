@@ -19,8 +19,11 @@ internal sealed partial class AgentWindow : Form
     private readonly AgentOptions _options;
     private readonly AutoStartService _autoStart;
     private readonly FirewallService _firewall;
+    private readonly ConnectionDiagnosticsService _connectionDiagnostics;
+    private readonly ActivityLogService _activityLog;
     private DateTimeOffset _lastNetworkRefresh = DateTimeOffset.MinValue;
     private string? _lastQrPayload;
+    private string _connectionMode = "LAN";
     private bool _syncingAutoStart;
     private bool _firewallCheckStarted;
 
@@ -36,8 +39,11 @@ internal sealed partial class AgentWindow : Form
         _options = null!;
         _autoStart = null!;
         _firewall = null!;
+        _connectionDiagnostics = null!;
+        _activityLog = null!;
         InitializeComponent();
         WinFormsTheme.Apply(this);
+        ConfigureToolTips();
     }
 
     public AgentWindow(
@@ -45,19 +51,27 @@ internal sealed partial class AgentWindow : Form
         DeviceStore devices,
         AgentOptions options,
         AutoStartService autoStart,
-        FirewallService firewall)
+        FirewallService firewall,
+        ActivityLogService activityLog)
     {
         _pairing = pairing;
         _devices = devices;
         _options = options;
         _autoStart = autoStart;
         _firewall = firewall;
+        _activityLog = activityLog;
+        _connectionDiagnostics = new ConnectionDiagnosticsService(
+            options.Port,
+            devices,
+            firewall,
+            autoStart);
 
         InitializeComponent();
         versionStatusLabel.Text = $"Version {TelemetryService.AgentVersion}";
         serverPortValueLabel.Text = _options.Port.ToString();
         TrySetApplicationIcon();
         WinFormsTheme.Apply(this);
+        ConfigureToolTips();
 
         RefreshAutoStartState();
         RefreshStatus(forceNetworkRefresh: true);
@@ -142,14 +156,28 @@ internal sealed partial class AgentWindow : Form
             NexusDialogKind.Warning);
     }
 
-    private void EndpointsListBoxDoubleClick(
+    private void EndpointsListBoxMouseDoubleClick(
         object? sender,
-        EventArgs eventArgs)
+        MouseEventArgs eventArgs)
     {
-        if (endpointsListBox.SelectedItem is string endpoint)
+        var index = endpointsListBox.IndexFromPoint(eventArgs.Location);
+        if (
+            index != ListBox.NoMatches
+            && endpointsListBox.Items[index] is string endpoint)
         {
             CopyText(endpoint);
         }
+    }
+
+    private void TrustedDevicesValueLabelClick(
+        object? sender,
+        EventArgs eventArgs)
+    {
+        using var dialog = new DeviceManagementDialog(
+            _devices,
+            _activityLog);
+        dialog.ShowDialog(this);
+        RefreshStatus(forceNetworkRefresh: true);
     }
 
     private void PairingCodeTextBoxDoubleClick(
@@ -176,6 +204,15 @@ internal sealed partial class AgentWindow : Form
     private void RefreshButtonClick(object? sender, EventArgs eventArgs)
     {
         RefreshStatus(forceNetworkRefresh: true);
+        using var dialog = new ConnectionDiagnosticsDialog(
+            _connectionDiagnostics);
+        dialog.ShowDialog(this);
+    }
+
+    private void ProtocolButtonClick(object? sender, EventArgs eventArgs)
+    {
+        using var dialog = new ActivityLogDialog(_activityLog);
+        dialog.ShowDialog(this);
     }
 
     private void HideButtonClick(object? sender, EventArgs eventArgs)
@@ -205,6 +242,28 @@ internal sealed partial class AgentWindow : Form
         }
     }
 
+    private void ConfigureToolTips()
+    {
+        var toolTip = new ToolTip(components!)
+        {
+            AutomaticDelay = 350,
+            AutoPopDelay = 6_000,
+            ShowAlways = true,
+        };
+        toolTip.SetToolTip(
+            trustedDevicesValueLabel,
+            "Gekoppelte Smartphones verwalten");
+        toolTip.SetToolTip(
+            refreshButton,
+            "Verbindungsdiagnose öffnen");
+        toolTip.SetToolTip(
+            protocolButton,
+            "Lokale Verbindungen und Aktionen anzeigen");
+        toolTip.SetToolTip(
+            endpointsListBox,
+            "Adresse doppelklicken, um sie zu kopieren");
+    }
+
     private void RefreshStatus(bool forceNetworkRefresh = false)
     {
         if (
@@ -213,18 +272,29 @@ internal sealed partial class AgentWindow : Form
                 >= TimeSpan.FromSeconds(5))
         {
             _pairing.Configure(NetworkUtilities.GetReachableIPv4Addresses());
+            var tailscaleAvailable =
+                NetworkUtilities.GetTailscaleIPv4Addresses().Count > 0;
             remoteAccessValueLabel.Text =
-                NetworkUtilities.GetTailscaleIPv4Addresses().Count > 0
+                tailscaleAvailable
                     ? "Tailscale verfügbar"
                     : "Nur lokales Netzwerk";
+            _connectionMode = tailscaleAvailable ? "Tailscale" : "LAN";
             _lastNetworkRefresh = DateTimeOffset.UtcNow;
         }
 
         var snapshot = _pairing.GetSnapshot();
+        var trustedDevices = _devices.ListDevices();
+        var onlineDevices = trustedDevices.Count(device => device.IsOnline);
         primaryAddressValueLabel.Text = snapshot.PreferredEndpoint;
-        trustedDevicesValueLabel.Text = _devices.Count == 1
-            ? "1 Gerät"
-            : $"{_devices.Count} Geräte";
+        trustedDevicesValueLabel.Text = trustedDevices.Count == 1
+            ? "1 Gerät  ›"
+            : $"{trustedDevices.Count} Geräte  ›";
+        onlineStatusLabel.Text = onlineDevices switch
+        {
+            0 => $"Online · kein Gerät verbunden · {_connectionMode}",
+            1 => $"Online · 1 Gerät verbunden · {_connectionMode}",
+            _ => $"Online · {onlineDevices} Geräte verbunden · {_connectionMode}",
+        };
         UpdateEndpointList(snapshot.Endpoints);
 
         pairingCodeTextBox.Text = snapshot.Code.Length == 6

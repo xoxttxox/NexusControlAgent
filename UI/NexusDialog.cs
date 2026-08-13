@@ -15,6 +15,14 @@ internal enum NexusDialogKind
 /// </summary>
 internal static class NexusDialog
 {
+    private const int DialogWidth = 440;
+    private const int MinimumDialogHeight = 180;
+    private const int HorizontalPadding = 32;
+    private const int IconColumnWidth = 42;
+    private const int ButtonRowHeight = 34;
+    private const int MessageBottomMargin = 10;
+    private const int VerticalPadding = 32;
+
     public static DialogResult ShowStandalone(
         string text,
         string caption,
@@ -40,10 +48,51 @@ internal static class NexusDialog
         IWin32Window? owner,
         string text,
         string caption,
-        NexusDialogKind kind)
+        NexusDialogKind kind) =>
+        ShowCore(
+            owner,
+            text,
+            caption,
+            kind,
+            confirmation: false,
+            confirmText: "OK");
+
+    public static DialogResult Confirm(
+        IWin32Window? owner,
+        string text,
+        string caption,
+        NexusDialogKind kind,
+        string confirmText = "Bestätigen") =>
+        ShowCore(
+            owner,
+            text,
+            caption,
+            kind,
+            confirmation: true,
+            confirmText: confirmText);
+
+    private static DialogResult ShowCore(
+        IWin32Window? owner,
+        string text,
+        string caption,
+        NexusDialogKind kind,
+        bool confirmation,
+        string confirmText)
     {
         var useOwner = owner is not null
             && (owner is not Control ownerControl || ownerControl.Visible);
+        using var dialogFont = new Font("Segoe UI", 9F);
+        var screen = useOwner
+            ? Screen.FromHandle(owner!.Handle)
+            : Screen.PrimaryScreen;
+        var maximumDialogHeight = Math.Max(
+            MinimumDialogHeight,
+            (screen?.WorkingArea.Height ?? 720) - 96);
+        var dialogHeight = CalculateDialogHeight(
+            text,
+            dialogFont,
+            maximumDialogHeight);
+
         using var dialog = new Form
         {
             Text = caption,
@@ -55,8 +104,8 @@ internal static class NexusDialog
             MinimizeBox = false,
             MaximizeBox = false,
             AutoScaleMode = AutoScaleMode.Dpi,
-            ClientSize = new Size(440, 205),
-            Font = new Font("Segoe UI", 9F),
+            ClientSize = new Size(DialogWidth, dialogHeight),
+            Font = dialogFont,
             BackColor = WinFormsTheme.Background,
             ForeColor = WinFormsTheme.TextPrimary,
         };
@@ -88,40 +137,86 @@ internal static class NexusDialog
         };
         layout.Controls.Add(iconBox, 0, 0);
 
-        var messageBox = new TextBox
+        var messageLabel = new Label
         {
             Dock = DockStyle.Fill,
-            Multiline = true,
-            ReadOnly = true,
-            BorderStyle = BorderStyle.None,
-            ScrollBars = ScrollBars.Vertical,
-            TabStop = false,
+            AutoSize = false,
+            UseMnemonic = false,
+            TextAlign = ContentAlignment.TopLeft,
             Text = text,
             BackColor = WinFormsTheme.Background,
             ForeColor = WinFormsTheme.TextPrimary,
-            Tag = "plain",
             Margin = new Padding(0, 0, 0, 10),
         };
-        layout.Controls.Add(messageBox, 1, 0);
+        layout.Controls.Add(messageLabel, 1, 0);
+
+        var buttonPanel = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.RightToLeft,
+            WrapContents = false,
+            Margin = new Padding(0),
+            BackColor = WinFormsTheme.Background,
+        };
+        layout.Controls.Add(buttonPanel, 1, 1);
 
         var okButton = new Button
         {
-            Text = "OK",
+            Text = confirmation ? confirmText : "OK",
             Width = 88,
             Height = 28,
-            Anchor = AnchorStyles.Top | AnchorStyles.Right,
             DialogResult = DialogResult.OK,
             Tag = "primary",
             Margin = new Padding(0),
         };
-        layout.Controls.Add(okButton, 1, 1);
+        buttonPanel.Controls.Add(okButton);
+
+        Button? cancelButton = null;
+        if (confirmation)
+        {
+            cancelButton = new Button
+            {
+                Text = "Abbrechen",
+                Width = 88,
+                Height = 28,
+                DialogResult = DialogResult.Cancel,
+                Margin = new Padding(8, 0, 0, 0),
+            };
+            buttonPanel.Controls.Add(cancelButton);
+        }
+
         dialog.AcceptButton = okButton;
-        dialog.CancelButton = okButton;
+        dialog.CancelButton = cancelButton ?? okButton;
 
         WinFormsTheme.Apply(dialog);
         return useOwner
             ? dialog.ShowDialog(owner!)
             : dialog.ShowDialog();
+    }
+
+    private static int CalculateDialogHeight(
+        string text,
+        Font font,
+        int maximumDialogHeight)
+    {
+        var availableTextWidth =
+            DialogWidth - HorizontalPadding - IconColumnWidth;
+        var measuredText = TextRenderer.MeasureText(
+            string.IsNullOrWhiteSpace(text) ? " " : text,
+            font,
+            new Size(availableTextWidth, int.MaxValue),
+            TextFormatFlags.WordBreak
+            | TextFormatFlags.TextBoxControl
+            | TextFormatFlags.NoPrefix);
+
+        var requiredHeight = measuredText.Height
+            + MessageBottomMargin
+            + ButtonRowHeight
+            + VerticalPadding;
+        return Math.Clamp(
+            requiredHeight,
+            MinimumDialogHeight,
+            maximumDialogHeight);
     }
 
     private static Icon GetIcon(NexusDialogKind kind) => kind switch

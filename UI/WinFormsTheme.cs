@@ -19,6 +19,8 @@ internal static class WinFormsTheme
     public static readonly Color Accent = Color.FromArgb(45, 125, 219);
     public static readonly Color AccentHover = Color.FromArgb(59, 140, 232);
     public static readonly Color Success = Color.FromArgb(66, 201, 135);
+    public static readonly Color Warning = Color.FromArgb(238, 174, 76);
+    public static readonly Color Error = Color.FromArgb(235, 87, 87);
 
     private const int ImmersiveDarkMode = 20;
     private const int ImmersiveDarkModeLegacy = 19;
@@ -76,6 +78,12 @@ internal static class WinFormsTheme
                 textBox.BorderStyle = plainText
                     ? BorderStyle.None
                     : BorderStyle.FixedSingle;
+                break;
+
+            case ComboBox comboBox:
+                comboBox.BackColor = Input;
+                comboBox.ForeColor = TextPrimary;
+                comboBox.FlatStyle = FlatStyle.Flat;
                 break;
 
             case ListBox listBox:

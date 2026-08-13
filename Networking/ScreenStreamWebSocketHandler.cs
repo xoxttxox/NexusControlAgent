@@ -3,6 +3,8 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using NexusControl.Agent.Models;
+using NexusControl.Agent.Pairing;
 using NexusControl.Agent.Services;
 
 namespace NexusControl.Agent.Networking;
@@ -16,13 +18,16 @@ internal sealed class ScreenStreamWebSocketHandler
 
     private readonly ScreenStreamTicketService _tickets;
     private readonly ScreenCaptureService _screenCapture;
+    private readonly DeviceStore _deviceStore;
 
     public ScreenStreamWebSocketHandler(
         ScreenStreamTicketService tickets,
-        ScreenCaptureService screenCapture)
+        ScreenCaptureService screenCapture,
+        DeviceStore deviceStore)
     {
         _tickets = tickets;
         _screenCapture = screenCapture;
+        _deviceStore = deviceStore;
     }
 
     public async Task HandleAsync(HttpContext context)
@@ -37,6 +42,13 @@ internal sealed class ScreenStreamWebSocketHandler
         if (!_tickets.TryConsume(ticket, out var grant) || grant is null)
         {
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return;
+        }
+        if (!_deviceStore.HasPermission(
+                grant.DeviceId,
+                DevicePermission.Screen))
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
             return;
         }
 
@@ -136,6 +148,22 @@ internal sealed class ScreenStreamWebSocketHandler
             socket.State == WebSocketState.Open
             && !cancellationToken.IsCancellationRequested)
         {
+            if (!_deviceStore.HasPermission(
+                    grant.DeviceId,
+                    DevicePermission.Screen))
+            {
+                await SendJsonAsync(
+                    socket,
+                    new
+                    {
+                        type = "error",
+                        message =
+                            "Die Bildschirmübertragung wurde für dieses Gerät deaktiviert.",
+                    },
+                    cancellationToken);
+                return;
+            }
+
             var frame = _screenCapture.CaptureStreamJpeg(display, profile);
             await socket.SendAsync(
                 frame.Bytes.AsMemory(),

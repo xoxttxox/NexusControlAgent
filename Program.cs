@@ -150,6 +150,7 @@ internal static class Program
                         < options.PushTemperatureThresholdCelsius,
                 "Die Push-Temperaturgrenzen sind ungültig.")
             .ValidateOnStart();
+        builder.Services.AddSingleton<ActivityLogService>();
         builder.Services.AddSingleton<DeviceStore>();
         builder.Services.AddSingleton<PairingService>();
         builder.Services.AddSingleton<HardwareMonitorService>();
@@ -169,7 +170,7 @@ internal static class Program
         {
             client.Timeout = TimeSpan.FromSeconds(12);
             client.DefaultRequestHeaders.UserAgent.ParseAdd(
-                "NexusControlAgent/0.11.3");
+                "NexusControlAgent/0.11.4");
         });
         builder.Services.AddSingleton<PushNotificationService>();
         builder.Services.AddHostedService<PushNotificationService>(serviceProvider =>
@@ -181,13 +182,19 @@ internal static class Program
 
         var pairing = app.Services.GetRequiredService<PairingService>();
         var telemetry = app.Services.GetRequiredService<TelemetryService>();
+        var activityLog = app.Services.GetRequiredService<ActivityLogService>();
         var agentOptions = app.Services
             .GetRequiredService<IOptions<AgentOptions>>()
             .Value;
         var addresses = NetworkUtilities.GetReachableIPv4Addresses();
         pairing.Configure(addresses);
 
-        AgentApi.MapEndpoints(app, pairing, telemetry, agentOptions);
+        AgentApi.MapEndpoints(
+            app,
+            pairing,
+            telemetry,
+            activityLog,
+            agentOptions);
 
         try
         {
@@ -213,6 +220,7 @@ internal static class Program
                 using var context = new AgentApplicationContext(
                     pairing,
                     deviceStore,
+                    activityLog,
                     agentOptions,
                     startInTray);
                 desktopContext = context;

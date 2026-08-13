@@ -17,6 +17,7 @@ internal static class AgentApi
         WebApplication app,
         PairingService pairing,
         TelemetryService telemetry,
+        ActivityLogService activityLog,
         AgentOptions agentOptions)
     {
         app.Use(async (context, next) =>
@@ -79,6 +80,7 @@ internal static class AgentApi
             if (!pairing.TryPair(
                     request.Code,
                     request.DeviceName,
+                    request.Platform,
                     out var credentials,
                     out var error)
                 || credentials is null)
@@ -193,13 +195,26 @@ internal static class AgentApi
                 {
                     return Results.Unauthorized();
                 }
+                var requestingIdentity = devices.GetAuditIdentity(
+                    currentDeviceId);
                 if (!devices.RemoveDevice(deviceId))
                 {
+                    activityLog.Record(
+                        requestingIdentity.DeviceName,
+                        requestingIdentity.Platform,
+                        "Gerätefreigabe entfernen",
+                        ActivityLogResult.Failed);
                     return Results.NotFound(new
                     {
                         message = "Die Gerätefreigabe wurde nicht gefunden.",
                     });
                 }
+
+                activityLog.Record(
+                    requestingIdentity.DeviceName,
+                    requestingIdentity.Platform,
+                    "Gerätefreigabe entfernt",
+                    ActivityLogResult.Success);
 
                 return Results.Ok(new
                 {
@@ -307,9 +322,14 @@ internal static class AgentApi
                 DeviceStore devices,
                 ScreenCaptureService screenCapture) =>
             {
-                if (!TryAuthorize(context, devices, out _))
+                var authorizationError = GetAuthorizationError(
+                    context,
+                    devices,
+                    DevicePermission.Screen,
+                    out _);
+                if (authorizationError is not null)
                 {
-                    return Results.Unauthorized();
+                    return authorizationError;
                 }
 
                 try
@@ -342,14 +362,27 @@ internal static class AgentApi
                 ScreenCaptureService screenCapture,
                 ScreenStreamTicketService tickets) =>
             {
-                if (!TryAuthorize(context, devices, out var currentDeviceId))
+                var authorizationError = GetAuthorizationError(
+                    context,
+                    devices,
+                    DevicePermission.Screen,
+                    out var currentDeviceId,
+                    activityLog,
+                    "Bildschirmübertragung starten");
+                if (authorizationError is not null)
                 {
-                    return Results.Unauthorized();
+                    return authorizationError;
                 }
 
                 var displays = screenCapture.GetDisplays();
                 if (!displays.Any(display => display.Id == request.DisplayId))
                 {
+                    RecordActivity(
+                        devices,
+                        activityLog,
+                        currentDeviceId,
+                        "Bildschirmübertragung starten",
+                        ActivityLogResult.Failed);
                     return Results.BadRequest(new
                     {
                         message = "Der ausgewählte Bildschirm ist nicht verfügbar.",
@@ -367,6 +400,13 @@ internal static class AgentApi
                     $"{socketScheme}://{context.Request.Host}/ws/screen" +
                     $"?ticket={Uri.EscapeDataString(ticket.Value)}";
 
+                RecordActivity(
+                    devices,
+                    activityLog,
+                    currentDeviceId,
+                    "Bildschirmübertragung starten",
+                    ActivityLogResult.Success);
+
                 return Results.Ok(new
                 {
                     webSocketUrl = socketUrl,
@@ -383,9 +423,14 @@ internal static class AgentApi
                 DeviceStore devices,
                 ScreenCaptureService screenCapture) =>
             {
-                if (!TryAuthorize(context, devices, out _))
+                var authorizationError = GetAuthorizationError(
+                    context,
+                    devices,
+                    DevicePermission.Screen,
+                    out _);
+                if (authorizationError is not null)
                 {
-                    return Results.Unauthorized();
+                    return authorizationError;
                 }
 
                 try
@@ -427,9 +472,14 @@ internal static class AgentApi
                 DeviceStore devices,
                 FileTransferService files) =>
             {
-                if (!TryAuthorize(context, devices, out _))
+                var authorizationError = GetAuthorizationError(
+                    context,
+                    devices,
+                    DevicePermission.Files,
+                    out _);
+                if (authorizationError is not null)
                 {
-                    return Results.Unauthorized();
+                    return authorizationError;
                 }
 
                 return Results.Ok(new
@@ -446,12 +496,25 @@ internal static class AgentApi
                 DeviceStore devices,
                 FileTransferService files) =>
             {
-                if (!TryAuthorize(context, devices, out _))
+                var authorizationError = GetAuthorizationError(
+                    context,
+                    devices,
+                    DevicePermission.Files,
+                    out var currentDeviceId,
+                    activityLog,
+                    "Datei hochladen");
+                if (authorizationError is not null)
                 {
-                    return Results.Unauthorized();
+                    return authorizationError;
                 }
                 if (!context.Request.HasFormContentType)
                 {
+                    RecordActivity(
+                        devices,
+                        activityLog,
+                        currentDeviceId,
+                        "Datei hochladen",
+                        ActivityLogResult.Failed);
                     return Results.BadRequest(new
                     {
                         message = "Es wurde keine Datei übermittelt.",
@@ -465,6 +528,12 @@ internal static class AgentApi
                     var upload = form.Files.GetFile("file");
                     if (upload is null)
                     {
+                        RecordActivity(
+                            devices,
+                            activityLog,
+                            currentDeviceId,
+                            "Datei hochladen",
+                            ActivityLogResult.Failed);
                         return Results.BadRequest(new
                         {
                             message = "Das Upload-Feld „file“ fehlt.",
@@ -480,11 +549,23 @@ internal static class AgentApi
                             : requestedName,
                         upload.Length,
                         context.RequestAborted);
+                    RecordActivity(
+                        devices,
+                        activityLog,
+                        currentDeviceId,
+                        "Datei hochladen",
+                        ActivityLogResult.Success);
                     return Results.Ok(saved);
                 }
                 catch (Exception error) when (
                     error is InvalidOperationException or IOException)
                 {
+                    RecordActivity(
+                        devices,
+                        activityLog,
+                        currentDeviceId,
+                        "Datei hochladen",
+                        ActivityLogResult.Failed);
                     return Results.BadRequest(new { message = error.Message });
                 }
             });
@@ -496,19 +577,39 @@ internal static class AgentApi
                 DeviceStore devices,
                 FileTransferService files) =>
             {
-                if (!TryAuthorize(context, devices, out _))
+                var authorizationError = GetAuthorizationError(
+                    context,
+                    devices,
+                    DevicePermission.Files,
+                    out var currentDeviceId,
+                    activityLog,
+                    "Datei herunterladen");
+                if (authorizationError is not null)
                 {
-                    return Results.Unauthorized();
+                    return authorizationError;
                 }
 
                 var resolved = files.Resolve(context.Request.Query["name"].ToString());
                 if (resolved is null)
                 {
+                    RecordActivity(
+                        devices,
+                        activityLog,
+                        currentDeviceId,
+                        "Datei herunterladen",
+                        ActivityLogResult.Failed);
                     return Results.NotFound(new
                     {
                         message = "Die Datei wurde im Nexus-Ordner nicht gefunden.",
                     });
                 }
+
+                RecordActivity(
+                    devices,
+                    activityLog,
+                    currentDeviceId,
+                    "Datei herunterladen",
+                    ActivityLogResult.Success);
 
                 return Results.File(
                     resolved.Value.Path,
@@ -550,6 +651,57 @@ internal static class AgentApi
             return devices.IsAuthorized(deviceId, token);
         }
 
+        static IResult? GetAuthorizationError(
+            HttpContext context,
+            DeviceStore devices,
+            DevicePermission requiredPermission,
+            out string deviceId,
+            ActivityLogService? activityLog = null,
+            string? action = null)
+        {
+            if (!TryAuthorize(context, devices, out deviceId))
+            {
+                return Results.Unauthorized();
+            }
+            if (!devices.HasPermission(deviceId, requiredPermission))
+            {
+                if (activityLog is not null && !string.IsNullOrWhiteSpace(action))
+                {
+                    RecordActivity(
+                        devices,
+                        activityLog,
+                        deviceId,
+                        action,
+                        ActivityLogResult.Rejected);
+                }
+                return Results.Json(
+                    new
+                    {
+                        message =
+                            "Diese Funktion ist für das gekoppelte Gerät nicht freigegeben.",
+                        errorCode = "permission_denied",
+                    },
+                    statusCode: StatusCodes.Status403Forbidden);
+            }
+
+            return null;
+        }
+
+        static void RecordActivity(
+            DeviceStore devices,
+            ActivityLogService activityLog,
+            string deviceId,
+            string action,
+            ActivityLogResult result)
+        {
+            var identity = devices.GetAuditIdentity(deviceId);
+            activityLog.Record(
+                identity.DeviceName,
+                identity.Platform,
+                action,
+                result);
+        }
+
         static bool ScreenCaptureIsReady(ScreenCaptureService screenCapture)
         {
             try
@@ -573,4 +725,3 @@ internal static class AgentApi
                     StringComparison.Ordinal));
     }
 }
-

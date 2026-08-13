@@ -12,6 +12,10 @@ internal static class NexusPaths
         DataDirectory,
         "trusted-devices.json");
 
+    public static string ActivityLogPath => Path.Combine(
+        DataDirectory,
+        "activity-history.jsonl");
+
     public static string DeviceStoreLockPath => Path.Combine(
         DataDirectory,
         "trusted-devices.lock");

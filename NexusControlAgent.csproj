@@ -8,7 +8,7 @@
     <AssemblyName>NexusControlAgent</AssemblyName>
     <!-- Der ASP.NET-Agent behält seinen eigenen STA-Startpunkt für WinForms. -->
     <StartupObject>NexusControl.Agent.Program</StartupObject>
-    <Version>0.11.3</Version>
+    <Version>0.11.4</Version>
     <Authors>Nexus Control</Authors>
     <Description>Windows companion for Nexus Control with secure pairing, telemetry, remote control, media, screen streaming, and file transfer.</Description>
     <UserSecretsId>nexus-control-agent-development</UserSecretsId>
@@ -63,6 +63,33 @@
     </Compile>
     <EmbeddedResource Update="Forms\AgentWindow.resx">
       <DependentUpon>AgentWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Forms\DeviceManagementDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\DeviceManagementDialog.Designer.cs">
+      <DependentUpon>DeviceManagementDialog.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="Forms\DeviceManagementDialog.resx">
+      <DependentUpon>DeviceManagementDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Forms\ConnectionDiagnosticsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\ConnectionDiagnosticsDialog.Designer.cs">
+      <DependentUpon>ConnectionDiagnosticsDialog.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="Forms\ConnectionDiagnosticsDialog.resx">
+      <DependentUpon>ConnectionDiagnosticsDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Forms\ActivityLogDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\ActivityLogDialog.Designer.cs">
+      <DependentUpon>ActivityLogDialog.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="Forms\ActivityLogDialog.resx">
+      <DependentUpon>ActivityLogDialog.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
 

@@ -8,8 +8,14 @@ namespace NexusControl.Agent.Pairing;
 
 internal sealed class DeviceStore
 {
-    private readonly object _gate = new();
+    private static readonly TimeSpan OnlineWindow = TimeSpan.FromSeconds(8);
+    private static readonly TimeSpan ActivitySaveInterval =
+        TimeSpan.FromSeconds(30);
+
+    private readonly Lock _gate = new();
     private readonly string _path;
+    private readonly Dictionary<string, DateTimeOffset> _lastSavedActivity =
+        new(StringComparer.Ordinal);
     private DeviceStoreDocument _document;
 
     public DeviceStore()
@@ -27,15 +33,25 @@ internal sealed class DeviceStore
             File.Copy(legacyPath, _path, overwrite: false);
         }
         _document = Load();
+        _document.Devices ??= [];
+        _document.Version = 2;
+        foreach (var device in _document.Devices)
+        {
+            device.DeviceName = NormalizeDeviceName(device.DeviceName);
+            device.Platform = NormalizePlatform(device.Platform, device.DeviceName);
+            _lastSavedActivity[device.DeviceId] = device.LastSeenAt;
+        }
     }
 
-    public PairingCredentials AddDevice(string? requestedName)
+    public PairingCredentials AddDevice(
+        string? requestedName,
+        string? requestedPlatform)
     {
-        var deviceId = $"iphone-{Guid.NewGuid():N}";
+        var deviceId = $"device-{Guid.NewGuid():N}";
         var token = Base64Url(RandomNumberGenerator.GetBytes(32));
-        var name = string.IsNullOrWhiteSpace(requestedName)
-            ? "iPhone"
-            : requestedName.Trim()[..Math.Min(requestedName.Trim().Length, 80)];
+        var name = NormalizeDeviceName(requestedName);
+        var platform = NormalizePlatform(requestedPlatform, name);
+        var now = DateTimeOffset.UtcNow;
 
         lock (_gate)
         {
@@ -43,10 +59,14 @@ internal sealed class DeviceStore
             {
                 DeviceId = deviceId,
                 DeviceName = name,
+                Platform = platform,
                 TokenHash = HashToken(token),
-                CreatedAt = DateTimeOffset.UtcNow,
-                LastSeenAt = DateTimeOffset.UtcNow,
+                CreatedAt = now,
+                LastSeenAt = now,
+                RemoteAccessEnabled = true,
+                Permissions = DevicePermission.All,
             });
+            _lastSavedActivity[deviceId] = now;
             Save();
         }
 
@@ -68,6 +88,10 @@ internal sealed class DeviceStore
             {
                 return false;
             }
+            if (!stored.RemoteAccessEnabled)
+            {
+                return false;
+            }
 
             try
             {
@@ -84,9 +108,14 @@ internal sealed class DeviceStore
             }
 
             var now = DateTimeOffset.UtcNow;
-            if (now - stored.LastSeenAt >= TimeSpan.FromSeconds(30))
+            stored.LastSeenAt = now;
+            if (
+                !_lastSavedActivity.TryGetValue(
+                    stored.DeviceId,
+                    out var lastSaved)
+                || now - lastSaved >= ActivitySaveInterval)
             {
-                stored.LastSeenAt = now;
+                _lastSavedActivity[stored.DeviceId] = now;
                 Save();
             }
             return true;
@@ -94,22 +123,103 @@ internal sealed class DeviceStore
     }
 
     public IReadOnlyList<TrustedDeviceInfo> ListDevices(
-        string currentDeviceId)
+        string? currentDeviceId = null)
     {
         lock (_gate)
         {
+            var now = DateTimeOffset.UtcNow;
             return _document.Devices
                 .OrderByDescending(device => device.LastSeenAt)
                 .Select(device => new TrustedDeviceInfo(
                     device.DeviceId,
                     device.DeviceName,
+                    device.Platform,
                     device.CreatedAt,
                     device.LastSeenAt,
                     string.Equals(
                         device.DeviceId,
                         currentDeviceId,
-                        StringComparison.Ordinal)))
+                        StringComparison.Ordinal),
+                    device.RemoteAccessEnabled
+                        && now - device.LastSeenAt <= OnlineWindow,
+                    device.RemoteAccessEnabled,
+                    DevicePermissionsSnapshot.FromFlags(
+                        device.Permissions & DevicePermission.All)))
                 .ToArray();
+        }
+    }
+
+    public bool UpdateDevice(
+        string deviceId,
+        string? requestedName,
+        bool remoteAccessEnabled,
+        DevicePermission permissions)
+    {
+        if (string.IsNullOrWhiteSpace(deviceId))
+        {
+            return false;
+        }
+
+        lock (_gate)
+        {
+            var stored = _document.Devices.FirstOrDefault(
+                device => string.Equals(
+                    device.DeviceId,
+                    deviceId,
+                    StringComparison.Ordinal));
+            if (stored is null)
+            {
+                return false;
+            }
+
+            stored.DeviceName = NormalizeDeviceName(requestedName);
+            stored.RemoteAccessEnabled = remoteAccessEnabled;
+            stored.Permissions = permissions & DevicePermission.All;
+            Save();
+            return true;
+        }
+    }
+
+    public bool HasPermission(
+        string deviceId,
+        DevicePermission permission)
+    {
+        if (string.IsNullOrWhiteSpace(deviceId))
+        {
+            return false;
+        }
+
+        lock (_gate)
+        {
+            var stored = _document.Devices.FirstOrDefault(
+                device => string.Equals(
+                    device.DeviceId,
+                    deviceId,
+                    StringComparison.Ordinal));
+            return stored?.RemoteAccessEnabled == true
+                && (stored.Permissions & permission) == permission;
+        }
+    }
+
+    public DeviceAuditIdentity GetAuditIdentity(string? deviceId)
+    {
+        if (string.IsNullOrWhiteSpace(deviceId))
+        {
+            return DeviceAuditIdentity.Unknown;
+        }
+
+        lock (_gate)
+        {
+            var stored = _document.Devices.FirstOrDefault(
+                device => string.Equals(
+                    device.DeviceId,
+                    deviceId,
+                    StringComparison.Ordinal));
+            return stored is null
+                ? DeviceAuditIdentity.Unknown
+                : new DeviceAuditIdentity(
+                    stored.DeviceName,
+                    stored.Platform);
         }
     }
 
@@ -132,6 +242,7 @@ internal sealed class DeviceStore
                 return false;
             }
 
+            _lastSavedActivity.Remove(deviceId);
             Save();
             return true;
         }
@@ -192,7 +303,8 @@ internal sealed class DeviceStore
         {
             return _document.Devices
                 .Where(device =>
-                    device.PushNotificationsEnabled
+                    device.RemoteAccessEnabled
+                    && device.PushNotificationsEnabled
                     && !string.IsNullOrWhiteSpace(device.ExpoPushToken))
                 .Select(device => new PushNotificationTarget(
                     device.DeviceId,
@@ -211,7 +323,8 @@ internal sealed class DeviceStore
                     item.DeviceId,
                     deviceId,
                     StringComparison.Ordinal));
-            return stored?.PushNotificationsEnabled == true
+            return stored?.RemoteAccessEnabled == true
+                && stored.PushNotificationsEnabled
                 && !string.IsNullOrWhiteSpace(stored.ExpoPushToken);
         }
     }
@@ -227,7 +340,8 @@ internal sealed class DeviceStore
                     item.DeviceId,
                     deviceId,
                     StringComparison.Ordinal));
-            return stored?.PushNotificationsEnabled == true
+            return stored?.RemoteAccessEnabled == true
+                && stored.PushNotificationsEnabled
                 && string.Equals(
                     stored.ExpoPushToken,
                     expoPushToken,
@@ -284,6 +398,49 @@ internal sealed class DeviceStore
             .Replace('+', '-')
             .Replace('/', '_');
 
+    private static string NormalizeDeviceName(string? requestedName)
+    {
+        var value = string.IsNullOrWhiteSpace(requestedName)
+            ? "Smartphone"
+            : requestedName.Trim();
+        return value[..Math.Min(value.Length, 80)];
+    }
+
+    private static string NormalizePlatform(
+        string? requestedPlatform,
+        string deviceName)
+    {
+        var value = requestedPlatform?.Trim();
+        if (
+            string.IsNullOrWhiteSpace(value)
+            || string.Equals(
+                value,
+                "Mobilgerät",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            value = deviceName.Contains(
+                "iPhone",
+                StringComparison.OrdinalIgnoreCase)
+                || deviceName.Contains(
+                    "iPad",
+                    StringComparison.OrdinalIgnoreCase)
+                ? "iOS"
+                : deviceName.Contains(
+                    "Android",
+                    StringComparison.OrdinalIgnoreCase)
+                    || deviceName.Contains(
+                        "Galaxy",
+                        StringComparison.OrdinalIgnoreCase)
+                    || deviceName.Contains(
+                        "Pixel",
+                        StringComparison.OrdinalIgnoreCase)
+                    ? "Android"
+                    : "Mobilgerät";
+        }
+
+        return value[..Math.Min(value.Length, 40)];
+    }
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -292,7 +449,7 @@ internal sealed class DeviceStore
 
     private sealed class DeviceStoreDocument
     {
-        public int Version { get; set; } = 1;
+        public int Version { get; set; } = 2;
         public List<StoredDevice> Devices { get; set; } = [];
     }
 
@@ -300,9 +457,13 @@ internal sealed class DeviceStore
     {
         public string DeviceId { get; set; } = "";
         public string DeviceName { get; set; } = "";
+        public string Platform { get; set; } = "";
         public string TokenHash { get; set; } = "";
         public string? ExpoPushToken { get; set; }
         public bool PushNotificationsEnabled { get; set; }
+        public bool RemoteAccessEnabled { get; set; } = true;
+        public DevicePermission Permissions { get; set; } =
+            DevicePermission.All;
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset LastSeenAt { get; set; }
     }
@@ -312,3 +473,11 @@ internal sealed record PushNotificationTarget(
     string DeviceId,
     string DeviceName,
     string ExpoPushToken);
+
+internal sealed record DeviceAuditIdentity(
+    string DeviceName,
+    string Platform)
+{
+    public static DeviceAuditIdentity Unknown { get; } =
+        new("Unbekanntes Gerät", "Unbekannt");
+}

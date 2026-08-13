@@ -31,5 +31,13 @@ werden.
 - Für Fernzugriff ein privates Tailscale-Netz verwenden.
 - Pairing nur mit Geräten durchführen, die dem Benutzer gehören und
   vertrauenswürdig sind.
+- In der lokalen Geräteverwaltung nur die wirklich benötigten Funktionen pro
+  Smartphone freigeben und verlorene Geräte sofort pausieren oder entfernen.
+- Diagnoseberichte enthalten keine Tokens; sie sollten trotzdem vor einer
+  öffentlichen Veröffentlichung auf PC-Name und lokale IP-Adressen geprüft
+  werden.
+- Das lokale Aktivitätsprotokoll enthält keine Kennwörter, Tokens,
+  Befehlsparameter, Texteingaben, Dateinamen oder Dateiinhalte und kann direkt
+  im Protokollfenster geleert werden.
 - Windows, Tailscale und den Nexus Control Agent aktuell halten.
 - öffentliche Builds vor der Verteilung digital signieren.

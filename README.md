@@ -19,6 +19,12 @@ oder Entsperrdaten gespeichert.
 
 - QR-Code- und Zahlencode-Pairing mit zeitlich begrenzten Codes
 - vertrauenswürdige Geräte mit gehashten, zufällig erzeugten Gerätetokens
+- lokale Geräteverwaltung mit Name, Plattform, Online-Status, Pausieren,
+  Entfernen und einzelnen Funktionsberechtigungen
+- Verbindungsdiagnose für Agent-Port, lokale Adressen, Firewall, gekoppelte
+  Geräte, Autostart und Tailscale
+- eigener **Protokoll**-Button für eine begrenzte lokale Historie von
+  Verbindungen, Pairing und ausgeführten Aktionen
 - PC-Status für CPU, GPU, RAM, Laufwerke, Netzwerk und verfügbare Temperaturen
 - Sperren, Standby, Neustart und Herunterfahren des PCs
 - Remote-Maus, Tastatur, Mediensteuerung und Windows-Lautstärke
@@ -61,6 +67,22 @@ separat installierte .NET-Laufzeit.
 
 Nach erfolgreichem Pairing bleibt der Agent im Infobereich aktiv. Das kleine
 Fenster kann jederzeit ausgeblendet werden, ohne den Agent zu beenden.
+Beim automatischen Start nach der Windows-Anmeldung bleibt das Hauptfenster
+geschlossen. Es lässt sich per Doppelklick auf das Tray-Symbol oder über
+**Nexus Control öffnen** im Tray-Menü anzeigen. Ein manueller Start über das
+Startmenü öffnet das Fenster weiterhin normal.
+
+Die grüne Gerätezahl im Bereich **Verbindung** öffnet die lokale
+Geräteverwaltung. Dort können gekoppelte Smartphones umbenannt, pausiert,
+entfernt und getrennt für PC-Steuerung, Touchpad, Prozesse, Medien,
+Bildschirmübertragung, Dateien und Energiebefehle freigegeben werden. Der Button
+**Diagnose** führt die lokalen Verbindungstests aus und kann einen bereinigten
+Bericht ohne Tokens kopieren.
+
+Der Button **Protokoll** öffnet ein separates kleines Fenster mit den letzten
+lokalen Verbindungen und Aktionen. Es aktualisiert sich automatisch, kann
+kopiert oder vollständig geleert werden und verändert die kompakte
+Hauptansicht nicht.
 
 > [!IMPORTANT]
 > Port `5188` darf nicht direkt aus dem Internet weitergeleitet werden. Für den
@@ -150,6 +172,13 @@ Scripts/             Build-, Installations- und Prüfroutinen
 - Pairing-Codes sind zeitlich begrenzt und werden bei zu vielen Fehlversuchen
   erneuert.
 - Gerätetokens werden lokal nur als SHA-256-Hash gespeichert.
+- Funktionsberechtigungen werden nicht nur in der Oberfläche angezeigt, sondern
+  direkt an HTTP- und WebSocket-Befehlen geprüft.
+- Das lokale Protokoll speichert nur Zeitpunkt, bereinigten Gerätenamen,
+  Plattform, eine feste Aktionsbezeichnung und das Ergebnis. Kennwörter, Tokens,
+  Befehlsparameter, Texteingaben, Dateinamen und Dateiinhalte werden nicht
+  gespeichert.
+- Pausierte Geräte werden sofort abgewiesen und bestehende Sitzungen beendet.
 - Befehle werden durch Zeitfenster, Whitelists und Rate-Limits geprüft.
 - Verbindungen werden nur aus Loopback, privaten Netzwerken und Tailscale-Netzen
   akzeptiert.

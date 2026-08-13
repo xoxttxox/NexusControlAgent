@@ -2,13 +2,15 @@ using System.Security.Cryptography;
 using Microsoft.Extensions.Options;
 using NexusControl.Agent.Configuration;
 using NexusControl.Agent.Models;
+using NexusControl.Agent.Services;
 
 namespace NexusControl.Agent.Pairing;
 
 internal sealed class PairingService
 {
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
     private readonly DeviceStore _deviceStore;
+    private readonly ActivityLogService _activityLog;
     private readonly AgentOptions _options;
     private string _code = "";
     private DateTimeOffset _expiresAt;
@@ -18,9 +20,11 @@ internal sealed class PairingService
 
     public PairingService(
         DeviceStore deviceStore,
+        ActivityLogService activityLog,
         IOptions<AgentOptions> options)
     {
         _deviceStore = deviceStore;
+        _activityLog = activityLog;
         _options = options.Value;
         _port = _options.Port;
         RotateCode();
@@ -37,6 +41,7 @@ internal sealed class PairingService
     public bool TryPair(
         string code,
         string? deviceName,
+        string? platform,
         out PairingCredentials? credentials,
         out string error)
     {
@@ -45,6 +50,11 @@ internal sealed class PairingService
             if (DateTimeOffset.UtcNow >= _expiresAt)
             {
                 RotateCode();
+                _activityLog.Record(
+                    null,
+                    null,
+                    "Pairing-Code prüfen",
+                    ActivityLogResult.Rejected);
                 credentials = null;
                 error =
                     "Der Pairing-Code ist abgelaufen. Erstelle im Agent-Fenster einen neuen Code.";
@@ -59,17 +69,34 @@ internal sealed class PairingService
                 if (_failedAttempts >= _options.MaximumPairingAttempts)
                 {
                     RotateCode();
+                    _activityLog.Record(
+                        null,
+                        null,
+                        "Pairing-Code prüfen",
+                        ActivityLogResult.Rejected);
                     credentials = null;
                     error = "Zu viele Fehlversuche. Ein neuer Code wurde erstellt.";
                     return false;
                 }
 
+                _activityLog.Record(
+                    null,
+                    null,
+                    "Pairing-Code prüfen",
+                    ActivityLogResult.Rejected);
                 credentials = null;
                 error = "Der 6-stellige Pairing-Code ist falsch.";
                 return false;
             }
 
-            credentials = _deviceStore.AddDevice(deviceName);
+            credentials = _deviceStore.AddDevice(deviceName, platform);
+            var identity = _deviceStore.GetAuditIdentity(
+                credentials.DeviceId);
+            _activityLog.Record(
+                identity.DeviceName,
+                identity.Platform,
+                "Gerät gekoppelt",
+                ActivityLogResult.Success);
             error = "";
             RotateCode();
             return true;

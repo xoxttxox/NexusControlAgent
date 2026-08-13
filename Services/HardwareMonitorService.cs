@@ -5,7 +5,7 @@ namespace NexusControl.Agent.Services;
 
 internal sealed class HardwareMonitorService : IDisposable
 {
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
     private readonly Computer _computer = new()
     {
         IsCpuEnabled = true,

@@ -45,6 +45,7 @@ partial class AgentWindow
     private TableLayoutPanel behaviorLayout = null!;
     private CheckBox autoStartCheckBox = null!;
     private Button refreshButton = null!;
+    private Button protocolButton = null!;
     private Button hideButton = null!;
     private StatusStrip statusStrip = null!;
     private ToolStripStatusLabel statusLabel = null!;
@@ -101,6 +102,7 @@ partial class AgentWindow
         behaviorLayout = new TableLayoutPanel();
         autoStartCheckBox = new CheckBox();
         refreshButton = new Button();
+        protocolButton = new Button();
         hideButton = new Button();
         statusStrip = new StatusStrip();
         statusLabel = new ToolStripStatusLabel();
@@ -160,7 +162,7 @@ partial class AgentWindow
         localAgentLabel.Location = new Point(0, 0);
         localAgentLabel.Name = "localAgentLabel";
         localAgentLabel.Padding = new Padding(10, 0, 0, 0);
-        localAgentLabel.Size = new Size(260, 28);
+        localAgentLabel.Size = new Size(175, 28);
         localAgentLabel.TabIndex = 0;
         localAgentLabel.Tag = "muted";
         localAgentLabel.Text = "Lokaler PC-Agent";
@@ -170,13 +172,13 @@ partial class AgentWindow
         // 
         onlineStatusLabel.Dock = DockStyle.Right;
         onlineStatusLabel.Font = new Font("Segoe UI Semibold", 8.5F, FontStyle.Bold);
-        onlineStatusLabel.Location = new Point(394, 0);
+        onlineStatusLabel.Location = new Point(175, 0);
         onlineStatusLabel.Name = "onlineStatusLabel";
         onlineStatusLabel.Padding = new Padding(0, 0, 10, 0);
-        onlineStatusLabel.Size = new Size(90, 28);
+        onlineStatusLabel.Size = new Size(309, 28);
         onlineStatusLabel.TabIndex = 1;
         onlineStatusLabel.Tag = "success";
-        onlineStatusLabel.Text = "●  Online";
+        onlineStatusLabel.Text = "Online · kein Gerät verbunden · LAN";
         onlineStatusLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // contentLayout
@@ -252,7 +254,7 @@ partial class AgentWindow
         primaryAddressCaptionLabel.Size = new Size(92, 22);
         primaryAddressCaptionLabel.TabIndex = 0;
         primaryAddressCaptionLabel.Tag = "muted";
-        primaryAddressCaptionLabel.Text = "Primäre Adresse:";
+        primaryAddressCaptionLabel.Text = "Lokale Adresse:";
         primaryAddressCaptionLabel.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // primaryAddressValueLabel
@@ -283,6 +285,7 @@ partial class AgentWindow
         // trustedDevicesValueLabel
         // 
         trustedDevicesValueLabel.AutoEllipsis = true;
+        trustedDevicesValueLabel.Cursor = Cursors.Hand;
         trustedDevicesValueLabel.Dock = DockStyle.Fill;
         trustedDevicesValueLabel.Font = new Font("Segoe UI Semibold", 8.5F, FontStyle.Bold);
         trustedDevicesValueLabel.Location = new Point(330, 0);
@@ -293,6 +296,7 @@ partial class AgentWindow
         trustedDevicesValueLabel.Tag = "success";
         trustedDevicesValueLabel.Text = "0 Geräte";
         trustedDevicesValueLabel.TextAlign = ContentAlignment.MiddleLeft;
+        trustedDevicesValueLabel.Click += TrustedDevicesValueLabelClick;
         // 
         // remoteAccessCaptionLabel
         // 
@@ -382,10 +386,11 @@ partial class AgentWindow
         endpointsListBox.Location = new Point(1, 1);
         endpointsListBox.Margin = new Padding(0);
         endpointsListBox.Name = "endpointsListBox";
+        endpointsListBox.SelectionMode = SelectionMode.None;
         endpointsListBox.Size = new Size(450, 46);
         endpointsListBox.TabIndex = 0;
         endpointsListBox.Tag = "borderless";
-        endpointsListBox.DoubleClick += EndpointsListBoxDoubleClick;
+        endpointsListBox.MouseDoubleClick += EndpointsListBoxMouseDoubleClick;
         // 
         // pairingGroupBox
         // 
@@ -581,14 +586,17 @@ partial class AgentWindow
         // 
         // behaviorLayout
         // 
-        behaviorLayout.ColumnCount = 4;
+        behaviorLayout.ColumnCount = 6;
         behaviorLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-        behaviorLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 96F));
+        behaviorLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 88F));
+        behaviorLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 6F));
+        behaviorLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 88F));
         behaviorLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 6F));
         behaviorLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 82F));
         behaviorLayout.Controls.Add(autoStartCheckBox, 0, 0);
         behaviorLayout.Controls.Add(refreshButton, 1, 0);
-        behaviorLayout.Controls.Add(hideButton, 3, 0);
+        behaviorLayout.Controls.Add(protocolButton, 3, 0);
+        behaviorLayout.Controls.Add(hideButton, 5, 0);
         behaviorLayout.Dock = DockStyle.Fill;
         behaviorLayout.Location = new Point(8, 34);
         behaviorLayout.Margin = new Padding(0);
@@ -604,7 +612,7 @@ partial class AgentWindow
         autoStartCheckBox.Location = new Point(0, 0);
         autoStartCheckBox.Margin = new Padding(0);
         autoStartCheckBox.Name = "autoStartCheckBox";
-        autoStartCheckBox.Size = new Size(268, 37);
+        autoStartCheckBox.Size = new Size(182, 37);
         autoStartCheckBox.TabIndex = 0;
         autoStartCheckBox.Text = "Mit Windows starten";
         autoStartCheckBox.UseVisualStyleBackColor = false;
@@ -613,14 +621,26 @@ partial class AgentWindow
         // refreshButton
         // 
         refreshButton.Dock = DockStyle.Fill;
-        refreshButton.Location = new Point(268, 0);
+        refreshButton.Location = new Point(182, 0);
         refreshButton.Margin = new Padding(0);
         refreshButton.Name = "refreshButton";
-        refreshButton.Size = new Size(96, 37);
+        refreshButton.Size = new Size(88, 37);
         refreshButton.TabIndex = 1;
-        refreshButton.Text = "Aktualisieren";
+        refreshButton.Text = "Diagnose";
         refreshButton.UseVisualStyleBackColor = false;
         refreshButton.Click += RefreshButtonClick;
+        // 
+        // protocolButton
+        // 
+        protocolButton.Dock = DockStyle.Fill;
+        protocolButton.Location = new Point(276, 0);
+        protocolButton.Margin = new Padding(0);
+        protocolButton.Name = "protocolButton";
+        protocolButton.Size = new Size(88, 37);
+        protocolButton.TabIndex = 2;
+        protocolButton.Text = "Protokoll";
+        protocolButton.UseVisualStyleBackColor = false;
+        protocolButton.Click += ProtocolButtonClick;
         // 
         // hideButton
         // 
@@ -629,7 +649,7 @@ partial class AgentWindow
         hideButton.Margin = new Padding(0);
         hideButton.Name = "hideButton";
         hideButton.Size = new Size(82, 37);
-        hideButton.TabIndex = 2;
+        hideButton.TabIndex = 3;
         hideButton.Tag = "primary";
         hideButton.Text = "Ausblenden";
         hideButton.UseVisualStyleBackColor = false;
@@ -660,7 +680,7 @@ partial class AgentWindow
         // 
         versionStatusLabel.Name = "versionStatusLabel";
         versionStatusLabel.Size = new Size(65, 19);
-        versionStatusLabel.Text = "Version 0.11.3";
+        versionStatusLabel.Text = "Version 0.11.4";
         versionStatusLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // refreshTimer

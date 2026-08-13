@@ -10,7 +10,7 @@ namespace NexusControl.Agent.Services;
 internal sealed class WindowsMediaSessionService : BackgroundService
 {
     private readonly WindowsAudioService _audio;
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
     private readonly SemaphoreSlim _refreshLock = new(1, 1);
     private IReadOnlyList<MediaSessionSnapshot> _snapshot = [];
     private Dictionary<string, GlobalSystemMediaTransportControlsSession>

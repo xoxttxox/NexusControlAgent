@@ -5,9 +5,57 @@ dokumentiert. Die Struktur orientiert sich an
 [Keep a Changelog](https://keepachangelog.com/de/1.1.0/) und die Versionierung
 an [Semantic Versioning](https://semver.org/lang/de/).
 
-## [Unveröffentlicht]
+## [0.11.4] – 2026-08-13
 
-Derzeit sind keine unveröffentlichten Änderungen eingetragen.
+### Hinzugefügt
+
+- eigener Button **Protokoll** unten neben **Diagnose** und **Ausblenden**
+- kleines lokales Protokollfenster mit Live-Aktualisierung, Kopieren und
+  sicherem Leeren
+- begrenzte Historie für Smartphone-Verbindungen, Pairing, ausgeführte Befehle
+  sowie erfolgreiche, abgelehnte und fehlgeschlagene Aktionen
+- kompakte lokale Verwaltung gekoppelter Smartphones mit Gerätename, Plattform,
+  Live-Status, letzter Aktivität, Pausieren und sicherem Entfernen
+- einzeln konfigurierbare Freigaben für PC-Steuerung, Touchpad und Tastatur,
+  Prozesse, Medien und Lautstärke, Bildschirmübertragung, Dateien und
+  Energiebefehle
+- lokale Verbindungsdiagnose für Agent-Port, Netzwerkadressen, Firewall,
+  gekoppelte Geräte, stillen Windows-Autostart und Tailscale
+- kopierbarer, bereinigter Diagnosebericht ohne Geräte- oder Push-Tokens
+
+### Geändert
+
+- die grüne Gerätezahl öffnet jetzt die Geräteverwaltung
+- der bisherige Button **Aktualisieren** öffnet jetzt die Diagnose; der normale
+  Status wird weiterhin automatisch aktualisiert
+- Kopfzeile zeigt zusätzlich aktive Geräte und den Verbindungsmodus LAN oder
+  Tailscale
+- lokale Adressliste verwendet keine dauerhaft blaue Auswahlmarkierung mehr
+
+### Sicherheit
+
+- Protokolle enthalten ausschließlich Zeitpunkt, bereinigten Gerätenamen,
+  Plattform, feste Aktionsbezeichnung und Ergebnis; Kennwörter, Tokens,
+  Befehlsparameter, Texteingaben, Dateinamen und Dateiinhalte werden nicht
+  gespeichert
+- hochfrequente Mausbewegungen und Scrollereignisse werden bewusst nicht
+  protokolliert
+- Berechtigungen werden an Steuerbefehlen sowie Datei-, Bildschirm-, Medien-
+  und Prozessdaten serverseitig geprüft
+- das Pausieren oder Entfernen eines Geräts beendet dessen laufende Verbindung
+  und verhindert neue Befehle
+- alte Gerätedateien werden automatisch mit kompatiblen Standardberechtigungen in
+  das erweiterte lokale Format übernommen
+
+### Behoben
+
+- Hinweis- und Fehlerdialoge zeigen keine dauerhaft eingeblendete helle
+  Scrollleiste mehr.
+- Die Dialoghöhe passt sich nun automatisch an den umgebrochenen Meldungstext
+  an, damit der Inhalt ohne unnötige Scrollfläche lesbar bleibt.
+- bestehende Windows-Autostart-Aufgaben werden beim Start auf den erforderlichen
+  `--tray`-Parameter geprüft und bei Bedarf automatisch repariert; dadurch
+  öffnet sich das Agent-Fenster nach der Windows-Anmeldung nicht mehr.
 
 ## [0.11.3] – 2026-08-12
 

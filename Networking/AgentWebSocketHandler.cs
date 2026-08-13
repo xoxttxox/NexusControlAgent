@@ -20,6 +20,7 @@ internal sealed class AgentWebSocketHandler
     };
 
     private readonly DeviceStore _deviceStore;
+    private readonly ActivityLogService _activityLog;
     private readonly TelemetryService _telemetry;
     private readonly WindowsMediaSessionService _mediaSessions;
     private readonly ScreenCaptureService _screenCapture;
@@ -28,6 +29,7 @@ internal sealed class AgentWebSocketHandler
 
     public AgentWebSocketHandler(
         DeviceStore deviceStore,
+        ActivityLogService activityLog,
         TelemetryService telemetry,
         WindowsMediaSessionService mediaSessions,
         ScreenCaptureService screenCapture,
@@ -35,6 +37,7 @@ internal sealed class AgentWebSocketHandler
         IOptions<AgentOptions> options)
     {
         _deviceStore = deviceStore;
+        _activityLog = activityLog;
         _telemetry = telemetry;
         _mediaSessions = mediaSessions;
         _screenCapture = screenCapture;
@@ -60,6 +63,8 @@ internal sealed class AgentWebSocketHandler
         using var sendLock = new SemaphoreSlim(1, 1);
         using var sessionCancellation =
             CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted);
+        DeviceAuditIdentity? sessionIdentity = null;
+        var sessionAuthenticated = false;
 
         try
         {
@@ -70,6 +75,13 @@ internal sealed class AgentWebSocketHandler
                 || authentication.Type != "session.authenticate"
                 || !TimestampIsValid(authentication.Timestamp))
             {
+                var rejectedIdentity = _deviceStore.GetAuditIdentity(
+                    authentication?.DeviceId);
+                _activityLog.Record(
+                    rejectedIdentity.DeviceName,
+                    rejectedIdentity.Platform,
+                    "Verbindung herstellen",
+                    ActivityLogResult.Rejected);
                 await SendEnvelopeAsync(
                     socket,
                     sendLock,
@@ -88,6 +100,13 @@ internal sealed class AgentWebSocketHandler
                     authentication.DeviceId,
                     authPayload.SessionToken))
             {
+                var rejectedIdentity = _deviceStore.GetAuditIdentity(
+                    authentication.DeviceId);
+                _activityLog.Record(
+                    rejectedIdentity.DeviceName,
+                    rejectedIdentity.Platform,
+                    "Verbindung herstellen",
+                    ActivityLogResult.Rejected);
                 await SendEnvelopeAsync(
                     socket,
                     sendLock,
@@ -98,6 +117,14 @@ internal sealed class AgentWebSocketHandler
                 await CloseAsync(socket, WebSocketCloseStatus.PolicyViolation);
                 return;
             }
+
+            sessionIdentity = _deviceStore.GetAuditIdentity(
+                authentication.DeviceId);
+            sessionAuthenticated = true;
+            RecordActivity(
+                sessionIdentity,
+                "Verbindung hergestellt",
+                ActivityLogResult.Success);
 
             await SendEnvelopeAsync(
                 socket,
@@ -155,6 +182,10 @@ internal sealed class AgentWebSocketHandler
                     envelope.Payload.Deserialize<CommandRequest>(JsonOptions);
                 if (command is null || string.IsNullOrWhiteSpace(command.Command))
                 {
+                    RecordActivity(
+                        sessionIdentity,
+                        "Ungültiger Befehl",
+                        ActivityLogResult.Rejected);
                     await SendCommandResultAsync(
                         socket,
                         sendLock,
@@ -164,6 +195,29 @@ internal sealed class AgentWebSocketHandler
                         "failed",
                         "Ungültiger Befehl.",
                         "invalid_command",
+                        sessionCancellation.Token);
+                    continue;
+                }
+
+                var requiredPermission =
+                    DevicePermissionPolicy.ForCommand(command.Command);
+                if (!_deviceStore.HasPermission(
+                        authentication.DeviceId,
+                        requiredPermission))
+                {
+                    RecordCommand(
+                        sessionIdentity,
+                        command.Command,
+                        ActivityLogResult.Rejected);
+                    await SendCommandResultAsync(
+                        socket,
+                        sendLock,
+                        authentication.DeviceId,
+                        envelope.MessageId,
+                        false,
+                        "rejected",
+                        "Dieser Befehl ist für das gekoppelte Gerät nicht freigegeben.",
+                        "permission_denied",
                         sessionCancellation.Token);
                     continue;
                 }
@@ -184,6 +238,10 @@ internal sealed class AgentWebSocketHandler
 
                     if (recentCommands.Count >= _options.MaximumCommandsPerWindow)
                     {
+                        RecordCommand(
+                            sessionIdentity,
+                            command.Command,
+                            ActivityLogResult.Rejected);
                         await SendCommandResultAsync(
                             socket,
                             sendLock,
@@ -206,6 +264,7 @@ internal sealed class AgentWebSocketHandler
                     envelope.MessageId,
                     command,
                     screenState,
+                    sessionIdentity,
                     sessionCancellation.Token);
             }
 
@@ -228,6 +287,13 @@ internal sealed class AgentWebSocketHandler
         {
             sessionCancellation.Cancel();
             await CloseAsync(socket, WebSocketCloseStatus.NormalClosure);
+            if (sessionAuthenticated && sessionIdentity is not null)
+            {
+                RecordActivity(
+                    sessionIdentity,
+                    "Verbindung getrennt",
+                    ActivityLogResult.Information);
+            }
         }
     }
 
@@ -238,6 +304,7 @@ internal sealed class AgentWebSocketHandler
         string requestMessageId,
         CommandRequest command,
         ScreenStreamState screenState,
+        DeviceAuditIdentity? sessionIdentity,
         CancellationToken cancellationToken)
     {
         var expectResult = command.ExpectResult is not false;
@@ -257,6 +324,10 @@ internal sealed class AgentWebSocketHandler
                     "Bildschirmübertragung wurde gestartet.",
                     null,
                     cancellationToken);
+                RecordCommand(
+                    sessionIdentity,
+                    command.Command,
+                    ActivityLogResult.Success);
                 return;
             }
 
@@ -273,6 +344,10 @@ internal sealed class AgentWebSocketHandler
                     "Bildschirmübertragung wurde beendet.",
                     null,
                     cancellationToken);
+                RecordCommand(
+                    sessionIdentity,
+                    command.Command,
+                    ActivityLogResult.Success);
                 return;
             }
 
@@ -288,16 +363,29 @@ internal sealed class AgentWebSocketHandler
                     "Befehl wurde von Windows angenommen.",
                     null,
                     cancellationToken);
+                RecordCommand(
+                    sessionIdentity,
+                    command.Command,
+                    ActivityLogResult.Success);
 
                 _ = Task.Run(async () =>
                 {
                     await Task.Delay(650);
                     try
                     {
-                        _windows.Execute(command.Command, command.Parameters);
+                        if (_deviceStore.HasPermission(
+                                deviceId,
+                                DevicePermission.Power))
+                        {
+                            _windows.Execute(command.Command, command.Parameters);
+                        }
                     }
                     catch (Exception error)
                     {
+                        RecordCommand(
+                            sessionIdentity,
+                            command.Command,
+                            ActivityLogResult.Failed);
                         System.Diagnostics.Debug.WriteLine(
                             $"Power command failed: {error.Message}");
                     }
@@ -306,6 +394,10 @@ internal sealed class AgentWebSocketHandler
             }
 
             var message = _windows.Execute(command.Command, command.Parameters);
+            RecordCommand(
+                sessionIdentity,
+                command.Command,
+                ActivityLogResult.Success);
             if (expectResult)
             {
                 await SendCommandResultAsync(
@@ -322,6 +414,10 @@ internal sealed class AgentWebSocketHandler
         }
         catch (Exception error)
         {
+            RecordCommand(
+                sessionIdentity,
+                command.Command,
+                ActivityLogResult.Failed);
             if (expectResult)
             {
                 await SendCommandResultAsync(
@@ -343,6 +439,35 @@ internal sealed class AgentWebSocketHandler
         }
     }
 
+    private void RecordCommand(
+        DeviceAuditIdentity? identity,
+        string command,
+        ActivityLogResult result)
+    {
+        if (!ActivityLogService.ShouldRecordCommand(command))
+        {
+            return;
+        }
+
+        RecordActivity(
+            identity,
+            ActivityLogService.CommandAction(command),
+            result);
+    }
+
+    private void RecordActivity(
+        DeviceAuditIdentity? identity,
+        string action,
+        ActivityLogResult result)
+    {
+        identity ??= DeviceAuditIdentity.Unknown;
+        _activityLog.Record(
+            identity.DeviceName,
+            identity.Platform,
+            action,
+            result);
+    }
+
     private async Task SendScreenLoopAsync(
         WebSocket socket,
         SemaphoreSlim sendLock,
@@ -357,6 +482,29 @@ internal sealed class AgentWebSocketHandler
             if (!state.IsEnabled)
             {
                 await Task.Delay(150, cancellationToken);
+                continue;
+            }
+
+            if (!_deviceStore.HasPermission(
+                    deviceId,
+                    DevicePermission.Screen))
+            {
+                state.IsEnabled = false;
+                RecordActivity(
+                    _deviceStore.GetAuditIdentity(deviceId),
+                    "Bildschirmübertragung beendet",
+                    ActivityLogResult.Rejected);
+                await SendEnvelopeAsync(
+                    socket,
+                    sendLock,
+                    "screen.error",
+                    deviceId,
+                    new
+                    {
+                        message =
+                            "Die Bildschirmübertragung wurde für dieses Gerät deaktiviert.",
+                    },
+                    cancellationToken);
                 continue;
             }
 
@@ -407,6 +555,10 @@ internal sealed class AgentWebSocketHandler
         {
             if (!_deviceStore.IsAuthorized(deviceId, sessionToken))
             {
+                RecordActivity(
+                    _deviceStore.GetAuditIdentity(deviceId),
+                    "Verbindung widerrufen",
+                    ActivityLogResult.Rejected);
                 await SendEnvelopeAsync(
                     socket,
                     sendLock,
@@ -423,6 +575,30 @@ internal sealed class AgentWebSocketHandler
             try
             {
                 var snapshot = _telemetry.Capture();
+                if (!_deviceStore.HasPermission(
+                        deviceId,
+                        DevicePermission.Processes))
+                {
+                    snapshot = snapshot with
+                    {
+                        Processes = Array.Empty<ProcessSnapshot>(),
+                    };
+                }
+                if (!_deviceStore.HasPermission(
+                        deviceId,
+                        DevicePermission.Media))
+                {
+                    snapshot = snapshot with
+                    {
+                        Audio = snapshot.Audio with
+                        {
+                            VolumePercent = 0,
+                            IsMuted = false,
+                            Available = false,
+                        },
+                        MediaSessions = Array.Empty<MediaSessionSnapshot>(),
+                    };
+                }
                 await SendEnvelopeAsync(
                     socket,
                     sendLock,
@@ -486,7 +662,11 @@ internal sealed class AgentWebSocketHandler
                 deviceId,
                 new MediaSessionsUpdate(
                     DateTimeOffset.UtcNow,
-                    _mediaSessions.GetSnapshot()),
+                    _deviceStore.HasPermission(
+                        deviceId,
+                        DevicePermission.Media)
+                        ? _mediaSessions.GetSnapshot()
+                        : Array.Empty<MediaSessionSnapshot>()),
                 cancellationToken);
             await Task.Delay(
                 TimeSpan.FromMilliseconds(400),

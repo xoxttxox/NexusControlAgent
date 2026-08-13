@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Xml.Linq;
 using Microsoft.Win32;
 
 namespace NexusControl.Agent.Services;
@@ -24,12 +25,20 @@ internal sealed class AutoStartService
         var preference = ReadSavedPreference();
         if (preference is not null)
         {
-            if (preference.Value == IsEnabled())
+            if (preference.Value)
             {
-                return AutoStartResult.Success();
+                // Ältere Agent-Versionen konnten bereits eine Aufgabe ohne
+                // --tray hinterlassen. Nur das Vorhandensein der Aufgabe zu
+                // prüfen reicht deshalb nicht: Eine veraltete Aktion wird hier
+                // einmalig mit dem aktuellen, unsichtbaren Tray-Start ersetzt.
+                return IsConfiguredForTrayStart()
+                    ? AutoStartResult.Success()
+                    : SetEnabledCore(true);
             }
 
-            return SetEnabledCore(preference.Value);
+            return IsEnabled()
+                ? SetEnabledCore(false)
+                : AutoStartResult.Success();
         }
 
         if (!InstallerRequestedAutoStart())
@@ -132,6 +141,71 @@ internal sealed class AutoStartService
                     createResult,
                     "Der Windows-Autostart konnte nicht eingerichtet werden."));
     }
+
+    private static bool IsConfiguredForTrayStart()
+    {
+        var executablePath = Environment.ProcessPath;
+        if (
+            string.IsNullOrWhiteSpace(executablePath)
+            || !File.Exists(executablePath))
+        {
+            return false;
+        }
+
+        var result = RunTaskScheduler(
+            ["/Query", "/TN", TaskName, "/XML"]);
+        if (result.ExitCode != 0 || string.IsNullOrWhiteSpace(result.Output))
+        {
+            return false;
+        }
+
+        try
+        {
+            var document = XDocument.Parse(result.Output);
+            var execAction = document
+                .Descendants()
+                .FirstOrDefault(element =>
+                    string.Equals(
+                        element.Name.LocalName,
+                        "Exec",
+                        StringComparison.Ordinal));
+            if (execAction is null)
+            {
+                return false;
+            }
+
+            var command = GetChildElementValue(execAction, "Command");
+            var arguments = GetChildElementValue(execAction, "Arguments");
+            var completeAction = $"{command} {arguments}";
+
+            return !string.IsNullOrWhiteSpace(command)
+                && command.Contains(
+                    executablePath,
+                    StringComparison.OrdinalIgnoreCase)
+                && completeAction.Contains(
+                    "--tray",
+                    StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            // Eine nicht lesbare oder fremd veränderte Aufgabe gilt als alt und
+            // wird durch SetEnabledCore mit unserer bekannten Aktion ersetzt.
+            return false;
+        }
+    }
+
+    private static string GetChildElementValue(
+        XElement parent,
+        string localName) =>
+        parent
+            .Elements()
+            .FirstOrDefault(element =>
+                string.Equals(
+                    element.Name.LocalName,
+                    localName,
+                    StringComparison.Ordinal))
+            ?.Value
+        ?? string.Empty;
 
     private static bool InstallerRequestedAutoStart()
     {

@@ -3,7 +3,7 @@ chcp 65001 >nul
 setlocal EnableExtensions
 
 for %%I in ("%~dp0..") do set "PROJECT_ROOT=%%~fI"
-set "MSI=%PROJECT_ROOT%\artifacts\installer\NexusControlAgent-Setup-v0.11.3-win-x64.msi"
+set "MSI=%PROJECT_ROOT%\artifacts\installer\NexusControlAgent-Setup-v0.11.4-win-x64.msi"
 set "LOG=%PROJECT_ROOT%\artifacts\logs\msi-install.log"
 
 if not exist "%MSI%" (

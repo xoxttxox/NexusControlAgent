@@ -1,4 +1,4 @@
-# Nexus Control Agent – MSI-Installer 0.11.3
+# Nexus Control Agent – MSI-Installer 0.11.4
 
 Der Installer basiert auf WiX Toolset 7 und installiert ausschließlich den
 interaktiven Nexus Control Agent für Windows x64.
@@ -12,7 +12,7 @@ interaktiven Nexus Control Agent für Windows x64.
 Die fertige Datei liegt hier:
 
 ```text
-artifacts\installer\NexusControlAgent-Setup-v0.11.3-win-x64.msi
+artifacts\installer\NexusControlAgent-Setup-v0.11.4-win-x64.msi
 ```
 
 ## Installierte Bestandteile
@@ -57,7 +57,7 @@ Code-Signing-Zertifikat signiert werden:
 Danach prüfen:
 
 ```powershell
-signtool verify /pa /v .\artifacts\installer\NexusControlAgent-Setup-v0.11.3-win-x64.msi
+signtool verify /pa /v .\artifacts\installer\NexusControlAgent-Setup-v0.11.4-win-x64.msi
 ```
 
 Der Agent besitzt keinen integrierten Updater. Neue Versionen werden als MSI

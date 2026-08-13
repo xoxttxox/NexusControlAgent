@@ -27,6 +27,7 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
     public AgentApplicationContext(
         PairingService pairing,
         DeviceStore devices,
+        ActivityLogService activityLog,
         AgentOptions options,
         bool startInTray)
     {
@@ -37,7 +38,8 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
             devices,
             options,
             _autoStart,
-            firewall);
+            firewall,
+            activityLog);
         MainForm = _window;
 
         // Der unsichtbare Handle macht InvokeRequired auch beim Tray-Start
@@ -123,7 +125,12 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
 
         if (startInTray)
         {
+            // Beim Windows-Autostart darf das Hauptfenster weder sichtbar
+            // werden noch kurz in der Taskleiste aufblitzen. Es wird erst über
+            // das Tray-Menü oder einen Doppelklick auf das Symbol geöffnet.
             _window.ShowInTaskbar = false;
+            _window.WindowState = WinForms.FormWindowState.Normal;
+            _window.Hide();
             _minimizeHintShown = true;
         }
         else

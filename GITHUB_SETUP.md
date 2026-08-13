@@ -65,22 +65,22 @@ ersetzt werden.
 **Tag**
 
 ```text
-v0.11.3
+v0.11.4
 ```
 
 **Titel**
 
 ```text
-Nexus Control Agent 0.11.3
+Nexus Control Agent 0.11.4
 ```
 
 **Dateien für die Release-Assets**
 
 ```text
-NexusControlAgent-Setup-v0.11.3-win-x64.msi
+NexusControlAgent-Setup-v0.11.4-win-x64.msi
 ```
 
-Die Release-Beschreibung kann aus dem Abschnitt `0.11.3` in `CHANGELOG.md`
+Die Release-Beschreibung kann aus dem Abschnitt `0.11.4` in `CHANGELOG.md`
 übernommen werden. Der Agent besitzt keinen integrierten Updater; Benutzer laden
 und installieren neue MSI-Versionen manuell.
 
