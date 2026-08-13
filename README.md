@@ -194,7 +194,6 @@ open an issue first. Additional guidance is available in
 - [Changelog](CHANGELOG.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security Policy](SECURITY.md)
-- [GitHub Publishing](GITHUB_SETUP.md)
 - [Installer Documentation](Installer/README.md)
 
 ## License
