@@ -5,6 +5,31 @@ The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 follows [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- added an extensible WinForms localization system with English as the default
+  and automatic English fallback
+- added selectable English, German, French, Spanish, Italian, and Polish UI
+  languages
+- added a one-time welcome screen with language selection on the first
+  interactive launch
+- added a compact **Settings** button and language settings dialog to the Agent
+  window header
+- added per-user persistence of the selected language under
+  `%LocalAppData%\NexusControl`
+- localized the main window, paired-device management, connection diagnostics,
+  activity log, system tray, firewall prompts, and common dialogs
+
+### Changed
+
+- converted all project Markdown documentation to English
+- silent Windows tray startup remains windowless; first-run setup waits until
+  the user opens the Agent interactively
+- activity log entries now use stable action identifiers and are translated
+  when displayed, including entries written by earlier German versions
+
 ## [0.11.4] – 2026-08-13
 
 ### Added

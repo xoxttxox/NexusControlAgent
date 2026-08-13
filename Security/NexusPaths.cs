@@ -4,6 +4,18 @@ namespace NexusControl.Agent.Security;
 
 internal static class NexusPaths
 {
+    public static string UserDataDirectory => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "NexusControl");
+
+    public static string LanguagePreferencesPath => Path.Combine(
+        UserDataDirectory,
+        "language.json");
+
+    public static string FirstRunStatePath => Path.Combine(
+        UserDataDirectory,
+        "first-run.json");
+
     public static string DataDirectory => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
         "NexusControl");

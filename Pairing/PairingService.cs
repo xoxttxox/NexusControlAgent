@@ -53,7 +53,7 @@ internal sealed class PairingService
                 _activityLog.Record(
                     null,
                     null,
-                    "Pairing-Code prüfen",
+                    "pairing.verify",
                     ActivityLogResult.Rejected);
                 credentials = null;
                 error =
@@ -72,7 +72,7 @@ internal sealed class PairingService
                     _activityLog.Record(
                         null,
                         null,
-                        "Pairing-Code prüfen",
+                        "pairing.verify",
                         ActivityLogResult.Rejected);
                     credentials = null;
                     error = "Zu viele Fehlversuche. Ein neuer Code wurde erstellt.";
@@ -82,7 +82,7 @@ internal sealed class PairingService
                 _activityLog.Record(
                     null,
                     null,
-                    "Pairing-Code prüfen",
+                    "pairing.verify",
                     ActivityLogResult.Rejected);
                 credentials = null;
                 error = "Der 6-stellige Pairing-Code ist falsch.";
@@ -95,7 +95,7 @@ internal sealed class PairingService
             _activityLog.Record(
                 identity.DeviceName,
                 identity.Platform,
-                "Gerät gekoppelt",
+                "device.paired",
                 ActivityLogResult.Success);
             error = "";
             RotateCode();

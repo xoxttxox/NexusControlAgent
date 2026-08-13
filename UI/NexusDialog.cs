@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Windows.Forms;
+using NexusControl.Agent.Localization;
 
 namespace NexusControl.Agent.UI;
 
@@ -55,21 +56,22 @@ internal static class NexusDialog
             caption,
             kind,
             confirmation: false,
-            confirmText: "OK");
+            confirmText: LocalizationService.Text("Common.Ok"));
 
     public static DialogResult Confirm(
         IWin32Window? owner,
         string text,
         string caption,
         NexusDialogKind kind,
-        string confirmText = "Bestätigen") =>
+        string? confirmText = null) =>
         ShowCore(
             owner,
             text,
             caption,
             kind,
             confirmation: true,
-            confirmText: confirmText);
+            confirmText: confirmText
+                ?? LocalizationService.Text("Common.Confirm"));
 
     private static DialogResult ShowCore(
         IWin32Window? owner,
@@ -162,7 +164,7 @@ internal static class NexusDialog
 
         var okButton = new Button
         {
-            Text = confirmation ? confirmText : "OK",
+            Text = confirmText,
             Width = 88,
             Height = 28,
             DialogResult = DialogResult.OK,
@@ -176,7 +178,7 @@ internal static class NexusDialog
         {
             cancelButton = new Button
             {
-                Text = "Abbrechen",
+                Text = LocalizationService.Text("Common.Cancel"),
                 Width = 88,
                 Height = 28,
                 DialogResult = DialogResult.Cancel,

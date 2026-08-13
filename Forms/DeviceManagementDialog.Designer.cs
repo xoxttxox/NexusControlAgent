@@ -114,13 +114,13 @@ partial class DeviceManagementDialog
         headingLabel.Name = "headingLabel";
         headingLabel.Size = new Size(454, 30);
         headingLabel.TabIndex = 0;
-        headingLabel.Text = "Gekoppelte Smartphones verwalten";
+        headingLabel.Text = "Manage paired smartphones";
         headingLabel.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // selectorLayout
         // 
         selectorLayout.ColumnCount = 2;
-        selectorLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F));
+        selectorLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130F));
         selectorLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
         selectorLayout.Controls.Add(deviceSelectorLabel, 0, 0);
         selectorLayout.Controls.Add(_deviceComboBox, 1, 0);
@@ -141,7 +141,7 @@ partial class DeviceManagementDialog
         deviceSelectorLabel.Size = new Size(94, 38);
         deviceSelectorLabel.TabIndex = 0;
         deviceSelectorLabel.Tag = "muted";
-        deviceSelectorLabel.Text = "Gerät auswählen:";
+        deviceSelectorLabel.Text = "Select device:";
         deviceSelectorLabel.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // _deviceComboBox
@@ -167,12 +167,12 @@ partial class DeviceManagementDialog
         detailsGroupBox.Size = new Size(460, 315);
         detailsGroupBox.TabIndex = 2;
         detailsGroupBox.TabStop = false;
-        detailsGroupBox.Text = "Gerät und Berechtigungen";
+        detailsGroupBox.Text = "Device and permissions";
         // 
         // detailsLayout
         // 
         detailsLayout.ColumnCount = 2;
-        detailsLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 92F));
+        detailsLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120F));
         detailsLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
         detailsLayout.Controls.Add(deviceNameLabel, 0, 0);
         detailsLayout.Controls.Add(_deviceNameTextBox, 1, 0);
@@ -201,7 +201,7 @@ partial class DeviceManagementDialog
         deviceNameLabel.Size = new Size(86, 32);
         deviceNameLabel.TabIndex = 0;
         deviceNameLabel.Tag = "muted";
-        deviceNameLabel.Text = "Gerätename:";
+        deviceNameLabel.Text = "Device name:";
         deviceNameLabel.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // _deviceNameTextBox
@@ -236,7 +236,7 @@ partial class DeviceManagementDialog
         _remoteAccessCheckBox.Name = "_remoteAccessCheckBox";
         _remoteAccessCheckBox.Size = new Size(440, 32);
         _remoteAccessCheckBox.TabIndex = 3;
-        _remoteAccessCheckBox.Text = "Remote-Zugriff für dieses Gerät erlauben";
+        _remoteAccessCheckBox.Text = "Allow remote access for this device";
         _remoteAccessCheckBox.UseVisualStyleBackColor = true;
         _remoteAccessCheckBox.CheckedChanged += SettingsChanged;
         // 
@@ -249,7 +249,7 @@ partial class DeviceManagementDialog
         permissionsCaptionLabel.Name = "permissionsCaptionLabel";
         permissionsCaptionLabel.Size = new Size(434, 24);
         permissionsCaptionLabel.TabIndex = 4;
-        permissionsCaptionLabel.Text = "Freigegebene Funktionen";
+        permissionsCaptionLabel.Text = "Allowed features";
         permissionsCaptionLabel.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // permissionGrid
@@ -285,7 +285,7 @@ partial class DeviceManagementDialog
         _systemControlCheckBox.Name = "_systemControlCheckBox";
         _systemControlCheckBox.Size = new Size(220, 36);
         _systemControlCheckBox.TabIndex = 0;
-        _systemControlCheckBox.Text = "PC-Steuerung";
+        _systemControlCheckBox.Text = "PC control";
         _systemControlCheckBox.UseVisualStyleBackColor = true;
         _systemControlCheckBox.CheckedChanged += SettingsChanged;
         // 
@@ -297,7 +297,7 @@ partial class DeviceManagementDialog
         _touchpadCheckBox.Name = "_touchpadCheckBox";
         _touchpadCheckBox.Size = new Size(220, 36);
         _touchpadCheckBox.TabIndex = 1;
-        _touchpadCheckBox.Text = "Touchpad && Tastatur";
+        _touchpadCheckBox.Text = "Touchpad && keyboard";
         _touchpadCheckBox.UseVisualStyleBackColor = true;
         _touchpadCheckBox.CheckedChanged += SettingsChanged;
         // 
@@ -309,7 +309,7 @@ partial class DeviceManagementDialog
         _processesCheckBox.Name = "_processesCheckBox";
         _processesCheckBox.Size = new Size(220, 36);
         _processesCheckBox.TabIndex = 2;
-        _processesCheckBox.Text = "Prozesse";
+        _processesCheckBox.Text = "Processes";
         _processesCheckBox.UseVisualStyleBackColor = true;
         _processesCheckBox.CheckedChanged += SettingsChanged;
         // 
@@ -321,7 +321,7 @@ partial class DeviceManagementDialog
         _mediaCheckBox.Name = "_mediaCheckBox";
         _mediaCheckBox.Size = new Size(220, 36);
         _mediaCheckBox.TabIndex = 3;
-        _mediaCheckBox.Text = "Medien && Lautstärke";
+        _mediaCheckBox.Text = "Media && volume";
         _mediaCheckBox.UseVisualStyleBackColor = true;
         _mediaCheckBox.CheckedChanged += SettingsChanged;
         // 
@@ -333,7 +333,7 @@ partial class DeviceManagementDialog
         _screenCheckBox.Name = "_screenCheckBox";
         _screenCheckBox.Size = new Size(220, 36);
         _screenCheckBox.TabIndex = 4;
-        _screenCheckBox.Text = "Bildschirmübertragung";
+        _screenCheckBox.Text = "Screen streaming";
         _screenCheckBox.UseVisualStyleBackColor = true;
         _screenCheckBox.CheckedChanged += SettingsChanged;
         // 
@@ -345,7 +345,7 @@ partial class DeviceManagementDialog
         _filesCheckBox.Name = "_filesCheckBox";
         _filesCheckBox.Size = new Size(220, 36);
         _filesCheckBox.TabIndex = 5;
-        _filesCheckBox.Text = "Dateien";
+        _filesCheckBox.Text = "Files";
         _filesCheckBox.UseVisualStyleBackColor = true;
         _filesCheckBox.CheckedChanged += SettingsChanged;
         // 
@@ -357,7 +357,7 @@ partial class DeviceManagementDialog
         _powerCheckBox.Name = "_powerCheckBox";
         _powerCheckBox.Size = new Size(220, 37);
         _powerCheckBox.TabIndex = 6;
-        _powerCheckBox.Text = "Energiebefehle";
+        _powerCheckBox.Text = "Power commands";
         _powerCheckBox.UseVisualStyleBackColor = true;
         _powerCheckBox.CheckedChanged += SettingsChanged;
         // 
@@ -402,7 +402,7 @@ partial class DeviceManagementDialog
         _saveButton.Size = new Size(88, 34);
         _saveButton.TabIndex = 1;
         _saveButton.Tag = "primary";
-        _saveButton.Text = "Speichern";
+        _saveButton.Text = "Save";
         _saveButton.UseVisualStyleBackColor = true;
         _saveButton.Click += SaveButtonClicked;
         // 
@@ -414,7 +414,7 @@ partial class DeviceManagementDialog
         _removeButton.Name = "_removeButton";
         _removeButton.Size = new Size(88, 34);
         _removeButton.TabIndex = 2;
-        _removeButton.Text = "Entfernen";
+        _removeButton.Text = "Remove";
         _removeButton.UseVisualStyleBackColor = true;
         _removeButton.Click += RemoveButtonClicked;
         // 
@@ -427,7 +427,7 @@ partial class DeviceManagementDialog
         closeButton.Name = "closeButton";
         closeButton.Size = new Size(76, 34);
         closeButton.TabIndex = 3;
-        closeButton.Text = "Schließen";
+        closeButton.Text = "Close";
         closeButton.UseVisualStyleBackColor = true;
         // 
         // _refreshTimer
@@ -451,7 +451,7 @@ partial class DeviceManagementDialog
         Name = "DeviceManagementDialog";
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.CenterParent;
-        Text = "Gekoppelte Geräte";
+        Text = "Paired devices";
         rootLayout.ResumeLayout(false);
         selectorLayout.ResumeLayout(false);
         detailsGroupBox.ResumeLayout(false);

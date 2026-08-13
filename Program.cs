@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NexusControl.Agent.Application;
 using NexusControl.Agent.Configuration;
+using NexusControl.Agent.Localization;
 using NexusControl.Agent.Networking;
 using NexusControl.Agent.Pairing;
 using NexusControl.Agent.Services;
@@ -25,6 +26,7 @@ internal static class Program
         // Die DPI-Einstellung gehört bei modernem WinForms nicht ins Manifest.
         System.Windows.Forms.Application.SetHighDpiMode(
             System.Windows.Forms.HighDpiMode.PerMonitorV2);
+        LocalizationService.Initialize();
 
         var autoStartCommand = args.FirstOrDefault(argument =>
             argument.StartsWith(
@@ -70,7 +72,7 @@ internal static class Program
             if (!startInTray)
             {
                 NexusDialog.ShowStandalone(
-                    "Nexus Control Agent läuft bereits. Du findest ihn im Infobereich bei den ausgeblendeten Symbolen.",
+                    LocalizationService.Text("Program.AlreadyRunning"),
                     "Nexus Control Agent",
                     NexusDialogKind.Information);
             }
@@ -115,40 +117,40 @@ internal static class Program
             .Bind(builder.Configuration.GetSection(AgentOptions.SectionName))
             .Validate(
                 options => options.Port is > 0 and <= 65535,
-                "Agent:Port muss zwischen 1 und 65535 liegen.")
+                LocalizationService.Text("Program.Validation.Port"))
             .Validate(
                 options => options.PairingCodeLifetimeMinutes is >= 1 and <= 60,
-                "Agent:PairingCodeLifetimeMinutes muss zwischen 1 und 60 liegen.")
+                LocalizationService.Text("Program.Validation.PairingLifetime"))
             .Validate(
                 options => options.MaximumPairingAttempts is >= 1 and <= 20,
-                "Agent:MaximumPairingAttempts muss zwischen 1 und 20 liegen.")
+                LocalizationService.Text("Program.Validation.PairingAttempts"))
             .Validate(
                 options =>
                     options.TelemetryIntervalMilliseconds is >= 250 and <= 60_000,
-                "Agent:TelemetryIntervalMilliseconds muss zwischen 250 und 60000 liegen.")
+                LocalizationService.Text("Program.Validation.TelemetryInterval"))
             .Validate(
                 options =>
                     options.CommandWindowSeconds > 0
                     && options.MaximumCommandsPerWindow > 0,
-                "Das Befehlslimit muss größer als 0 sein.")
+                LocalizationService.Text("Program.Validation.CommandLimit"))
             .Validate(
                 options => options.AllowedClockSkewMinutes is >= 1 and <= 10,
-                "Agent:AllowedClockSkewMinutes muss zwischen 1 und 10 liegen.")
+                LocalizationService.Text("Program.Validation.ClockSkew"))
             .Validate(
                 options =>
                     options.MaximumMessageSizeBytes is >= 4096 and <= 1_048_576,
-                "Agent:MaximumMessageSizeBytes muss zwischen 4096 und 1048576 liegen.")
+                LocalizationService.Text("Program.Validation.MessageSize"))
             .Validate(
                 options =>
                     options.PushMonitoringIntervalSeconds is >= 5 and <= 300,
-                "Agent:PushMonitoringIntervalSeconds muss zwischen 5 und 300 liegen.")
+                LocalizationService.Text("Program.Validation.PushInterval"))
             .Validate(
                 options =>
                     options.PushTemperatureThresholdCelsius is >= 50 and <= 120
                     && options.PushTemperatureResetCelsius is >= 40 and <= 115
                     && options.PushTemperatureResetCelsius
                         < options.PushTemperatureThresholdCelsius,
-                "Die Push-Temperaturgrenzen sind ungültig.")
+                LocalizationService.Text("Program.Validation.Temperature"))
             .ValidateOnStart();
         builder.Services.AddSingleton<ActivityLogService>();
         builder.Services.AddSingleton<DeviceStore>();
@@ -203,7 +205,10 @@ internal static class Program
         catch (Exception error)
         {
             NexusDialog.ShowStandalone(
-                $"Der Nexus Control Server konnte nicht gestartet werden.{Environment.NewLine}{Environment.NewLine}{error.Message}",
+                LocalizationService.Format(
+                    "Program.ServerStartFailed",
+                    Environment.NewLine,
+                    error.Message),
                 "Nexus Control Agent",
                 NexusDialogKind.Error);
             return;
@@ -250,7 +255,10 @@ internal static class Program
         catch (Exception error)
         {
             NexusDialog.ShowStandalone(
-                $"Die Desktop-Oberfläche wurde unerwartet beendet.{Environment.NewLine}{Environment.NewLine}{error.Message}",
+                LocalizationService.Format(
+                    "Program.DesktopUnexpectedExit",
+                    Environment.NewLine,
+                    error.Message),
                 "Nexus Control Agent",
                 NexusDialogKind.Error);
         }

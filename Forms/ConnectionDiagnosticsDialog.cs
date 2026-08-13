@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using NexusControl.Agent.Services;
+using NexusControl.Agent.Localization;
 using NexusControl.Agent.UI;
 
 namespace NexusControl.Agent.Forms;
@@ -26,6 +27,9 @@ internal sealed partial class ConnectionDiagnosticsDialog : Form
     {
         _diagnostics = null!;
         InitializeComponent();
+        LocalizationService.Apply(
+            this,
+            nameof(ConnectionDiagnosticsDialog));
         WinFormsTheme.Apply(this);
     }
 
@@ -34,6 +38,9 @@ internal sealed partial class ConnectionDiagnosticsDialog : Form
     {
         _diagnostics = diagnostics;
         InitializeComponent();
+        LocalizationService.Apply(
+            this,
+            nameof(ConnectionDiagnosticsDialog));
         WinFormsTheme.Apply(this);
     }
 
@@ -60,7 +67,8 @@ internal sealed partial class ConnectionDiagnosticsDialog : Form
         _runButton.Enabled = false;
         _copyButton.Enabled = false;
         _report = null;
-        _summaryLabel.Text = "Verbindung und Windows-Einstellungen werden geprüft …";
+        _summaryLabel.Text = LocalizationService.Text(
+            "ConnectionDiagnosticsDialog.Checking");
         _summaryLabel.ForeColor = WinFormsTheme.TextMuted;
         ShowProgressRows();
 
@@ -90,7 +98,9 @@ internal sealed partial class ConnectionDiagnosticsDialog : Form
         }
         catch (Exception error)
         {
-            _summaryLabel.Text = $"Diagnose fehlgeschlagen: {error.Message}";
+            _summaryLabel.Text = LocalizationService.Format(
+                "ConnectionDiagnosticsDialog.Failed",
+                error.Message);
             _summaryLabel.ForeColor = WinFormsTheme.Error;
         }
         finally
@@ -111,7 +121,10 @@ internal sealed partial class ConnectionDiagnosticsDialog : Form
             var placeholder = new Label
             {
                 Dock = DockStyle.Fill,
-                Text = row == 0 ? "Prüfung läuft …" : "",
+                Text = row == 0
+                    ? LocalizationService.Text(
+                        "ConnectionDiagnosticsDialog.Running")
+                    : "",
                 Tag = "muted",
                 TextAlign = ContentAlignment.MiddleLeft,
             };
@@ -173,14 +186,16 @@ internal sealed partial class ConnectionDiagnosticsDialog : Form
         try
         {
             Clipboard.SetText(_report);
-            _summaryLabel.Text = "Diagnosebericht wurde kopiert.";
+            _summaryLabel.Text = LocalizationService.Text(
+                "ConnectionDiagnosticsDialog.ReportCopied");
         }
         catch (ExternalException)
         {
             NexusDialog.Show(
                 this,
-                "Windows konnte die Zwischenablage gerade nicht öffnen. Bitte versuche es erneut.",
-                "Verbindungsdiagnose",
+                LocalizationService.Text("Common.ClipboardUnavailable"),
+                LocalizationService.Text(
+                    "ConnectionDiagnosticsDialog.Title"),
                 NexusDialogKind.Information);
         }
     }

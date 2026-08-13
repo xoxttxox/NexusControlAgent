@@ -77,7 +77,7 @@ partial class ActivityLogDialog
         titleLabel.Name = "titleLabel";
         titleLabel.Size = new Size(454, 32);
         titleLabel.TabIndex = 0;
-        titleLabel.Text = "Lokales Aktivitätsprotokoll";
+        titleLabel.Text = "Local activity log";
         titleLabel.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // privacyLabel
@@ -88,7 +88,7 @@ partial class ActivityLogDialog
         privacyLabel.Size = new Size(454, 46);
         privacyLabel.TabIndex = 1;
         privacyLabel.Tag = "muted";
-        privacyLabel.Text = "Zeigt Verbindungen und ausgeführte Aktionen. Kennwörter, Tokens, Texteingaben, Dateinamen und Inhalte werden nicht gespeichert.";
+        privacyLabel.Text = "Shows connections and executed actions. Passwords, tokens, text input, filenames, and file contents are never stored.";
         privacyLabel.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // _entriesListBox
@@ -146,7 +146,7 @@ partial class ActivityLogDialog
         copyButton.Name = "copyButton";
         copyButton.Size = new Size(92, 38);
         copyButton.TabIndex = 1;
-        copyButton.Text = "Kopieren";
+        copyButton.Text = "Copy";
         copyButton.UseVisualStyleBackColor = true;
         copyButton.Click += CopyButtonClicked;
         // 
@@ -158,7 +158,7 @@ partial class ActivityLogDialog
         clearButton.Name = "clearButton";
         clearButton.Size = new Size(74, 38);
         clearButton.TabIndex = 2;
-        clearButton.Text = "Leeren";
+        clearButton.Text = "Clear";
         clearButton.UseVisualStyleBackColor = true;
         clearButton.Click += ClearButtonClicked;
         // 
@@ -172,7 +172,7 @@ partial class ActivityLogDialog
         closeButton.Size = new Size(82, 38);
         closeButton.TabIndex = 3;
         closeButton.Tag = "primary";
-        closeButton.Text = "Schließen";
+        closeButton.Text = "Close";
         closeButton.UseVisualStyleBackColor = true;
         // 
         // _refreshTimer
@@ -196,7 +196,7 @@ partial class ActivityLogDialog
         Name = "ActivityLogDialog";
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.CenterParent;
-        Text = "Nexus Control Protokoll";
+        Text = "Nexus Control activity log";
         Shown += DialogShown;
         rootLayout.ResumeLayout(false);
         footerLayout.ResumeLayout(false);

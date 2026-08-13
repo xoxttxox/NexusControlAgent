@@ -80,7 +80,7 @@ internal sealed class AgentWebSocketHandler
                 _activityLog.Record(
                     rejectedIdentity.DeviceName,
                     rejectedIdentity.Platform,
-                    "Verbindung herstellen",
+                    "connection.attempt",
                     ActivityLogResult.Rejected);
                 await SendEnvelopeAsync(
                     socket,
@@ -105,7 +105,7 @@ internal sealed class AgentWebSocketHandler
                 _activityLog.Record(
                     rejectedIdentity.DeviceName,
                     rejectedIdentity.Platform,
-                    "Verbindung herstellen",
+                    "connection.attempt",
                     ActivityLogResult.Rejected);
                 await SendEnvelopeAsync(
                     socket,
@@ -123,7 +123,7 @@ internal sealed class AgentWebSocketHandler
             sessionAuthenticated = true;
             RecordActivity(
                 sessionIdentity,
-                "Verbindung hergestellt",
+                "connection.established",
                 ActivityLogResult.Success);
 
             await SendEnvelopeAsync(
@@ -291,7 +291,7 @@ internal sealed class AgentWebSocketHandler
             {
                 RecordActivity(
                     sessionIdentity,
-                    "Verbindung getrennt",
+                    "connection.disconnected",
                     ActivityLogResult.Information);
             }
         }
@@ -492,7 +492,7 @@ internal sealed class AgentWebSocketHandler
                 state.IsEnabled = false;
                 RecordActivity(
                     _deviceStore.GetAuditIdentity(deviceId),
-                    "Bildschirmübertragung beendet",
+                    "command.screen.stop",
                     ActivityLogResult.Rejected);
                 await SendEnvelopeAsync(
                     socket,
@@ -557,7 +557,7 @@ internal sealed class AgentWebSocketHandler
             {
                 RecordActivity(
                     _deviceStore.GetAuditIdentity(deviceId),
-                    "Verbindung widerrufen",
+                    "connection.revoked",
                     ActivityLogResult.Rejected);
                 await SendEnvelopeAsync(
                     socket,

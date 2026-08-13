@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Xml.Linq;
 using Microsoft.Win32;
+using NexusControl.Agent.Localization;
 
 namespace NexusControl.Agent.Services;
 
@@ -100,7 +101,8 @@ internal sealed class AutoStartService
                 : AutoStartResult.Failure(
                     BuildError(
                         deleteResult,
-                        "Der Autostart konnte nicht entfernt werden."));
+                        LocalizationService.Text(
+                            "Service.AutoStart.RemoveFailed")));
         }
 
         var executablePath = Environment.ProcessPath;
@@ -113,7 +115,8 @@ internal sealed class AutoStartService
                 StringComparison.OrdinalIgnoreCase))
         {
             return AutoStartResult.Failure(
-                "Der Autostart kann erst aus der gebauten NexusControlAgent.exe aktiviert werden.");
+                LocalizationService.Text(
+                    "Service.AutoStart.RequiresBuiltExe"));
         }
 
         // schtasks receives the complete action as one /TR argument. The quotes
@@ -139,7 +142,8 @@ internal sealed class AutoStartService
             : AutoStartResult.Failure(
                 BuildError(
                     createResult,
-                    "Der Windows-Autostart konnte nicht eingerichtet werden."));
+                    LocalizationService.Text(
+                        "Service.AutoStart.SetupFailed")));
     }
 
     private static bool IsConfiguredForTrayStart()
@@ -340,7 +344,8 @@ internal sealed class AutoStartService
                 return new SchedulerResult(
                     -1,
                     "",
-                    "Die Windows-Aufgabenplanung konnte nicht gestartet werden.");
+                    LocalizationService.Text(
+                        "Service.AutoStart.SchedulerStartFailed"));
             }
 
             var outputTask = process.StandardOutput.ReadToEndAsync();
@@ -359,7 +364,8 @@ internal sealed class AutoStartService
                 return new SchedulerResult(
                     -1,
                     "",
-                    "Zeitüberschreitung bei der Windows-Aufgabenplanung.");
+                    LocalizationService.Text(
+                        "Service.AutoStart.SchedulerTimeout"));
             }
 
             Task.WaitAll([outputTask, errorTask], 2_000);

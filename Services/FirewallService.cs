@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using NexusControl.Agent.Localization;
 
 namespace NexusControl.Agent.Services;
 
@@ -15,7 +16,7 @@ internal sealed class FirewallService
             throw new ArgumentOutOfRangeException(
                 nameof(port),
                 port,
-                "Der Firewall-Port muss zwischen 1 und 65535 liegen.");
+                LocalizationService.Text("Service.Firewall.PortRange"));
         }
 
         _port = port;
@@ -54,7 +55,9 @@ internal sealed class FirewallService
         if (!File.Exists(scriptPath))
         {
             return FirewallSetupResult.Failed(
-                $"Das Firewall-Skript wurde nicht gefunden: {scriptPath}");
+                LocalizationService.Format(
+                    "Service.Firewall.ScriptMissing",
+                    scriptPath));
         }
 
         try
@@ -70,14 +73,17 @@ internal sealed class FirewallService
             if (!process.Start())
             {
                 return FirewallSetupResult.Failed(
-                    "Die Windows-Administratorabfrage konnte nicht gestartet werden.");
+                    LocalizationService.Text(
+                        "Service.Firewall.ElevationFailed"));
             }
 
             await process.WaitForExitAsync(cancellationToken);
             return process.ExitCode == 0
                 ? FirewallSetupResult.Success()
                 : FirewallSetupResult.Failed(
-                    $"Windows konnte die Firewall-Regel nicht erstellen (Fehlercode {process.ExitCode}).");
+                    LocalizationService.Format(
+                        "Service.Firewall.RuleFailed",
+                        process.ExitCode));
         }
         catch (Win32Exception exception)
             when (exception.NativeErrorCode == 1223)

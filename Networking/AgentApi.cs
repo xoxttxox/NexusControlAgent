@@ -202,7 +202,7 @@ internal static class AgentApi
                     activityLog.Record(
                         requestingIdentity.DeviceName,
                         requestingIdentity.Platform,
-                        "Gerätefreigabe entfernen",
+                        "device.permission.remove",
                         ActivityLogResult.Failed);
                     return Results.NotFound(new
                     {
@@ -213,7 +213,7 @@ internal static class AgentApi
                 activityLog.Record(
                     requestingIdentity.DeviceName,
                     requestingIdentity.Platform,
-                    "Gerätefreigabe entfernt",
+                    "device.permission.removed",
                     ActivityLogResult.Success);
 
                 return Results.Ok(new
@@ -368,7 +368,7 @@ internal static class AgentApi
                     DevicePermission.Screen,
                     out var currentDeviceId,
                     activityLog,
-                    "Bildschirmübertragung starten");
+                    "command.screen.start");
                 if (authorizationError is not null)
                 {
                     return authorizationError;
@@ -381,7 +381,7 @@ internal static class AgentApi
                         devices,
                         activityLog,
                         currentDeviceId,
-                        "Bildschirmübertragung starten",
+                        "command.screen.start",
                         ActivityLogResult.Failed);
                     return Results.BadRequest(new
                     {
@@ -404,7 +404,7 @@ internal static class AgentApi
                     devices,
                     activityLog,
                     currentDeviceId,
-                    "Bildschirmübertragung starten",
+                    "command.screen.start",
                     ActivityLogResult.Success);
 
                 return Results.Ok(new
@@ -502,7 +502,7 @@ internal static class AgentApi
                     DevicePermission.Files,
                     out var currentDeviceId,
                     activityLog,
-                    "Datei hochladen");
+                    "file.upload");
                 if (authorizationError is not null)
                 {
                     return authorizationError;
@@ -513,7 +513,7 @@ internal static class AgentApi
                         devices,
                         activityLog,
                         currentDeviceId,
-                        "Datei hochladen",
+                        "file.upload",
                         ActivityLogResult.Failed);
                     return Results.BadRequest(new
                     {
@@ -532,7 +532,7 @@ internal static class AgentApi
                             devices,
                             activityLog,
                             currentDeviceId,
-                            "Datei hochladen",
+                            "file.upload",
                             ActivityLogResult.Failed);
                         return Results.BadRequest(new
                         {
@@ -553,7 +553,7 @@ internal static class AgentApi
                         devices,
                         activityLog,
                         currentDeviceId,
-                        "Datei hochladen",
+                        "file.upload",
                         ActivityLogResult.Success);
                     return Results.Ok(saved);
                 }
@@ -564,7 +564,7 @@ internal static class AgentApi
                         devices,
                         activityLog,
                         currentDeviceId,
-                        "Datei hochladen",
+                        "file.upload",
                         ActivityLogResult.Failed);
                     return Results.BadRequest(new { message = error.Message });
                 }
@@ -583,7 +583,7 @@ internal static class AgentApi
                     DevicePermission.Files,
                     out var currentDeviceId,
                     activityLog,
-                    "Datei herunterladen");
+                    "file.download");
                 if (authorizationError is not null)
                 {
                     return authorizationError;
@@ -596,7 +596,7 @@ internal static class AgentApi
                         devices,
                         activityLog,
                         currentDeviceId,
-                        "Datei herunterladen",
+                        "file.download",
                         ActivityLogResult.Failed);
                     return Results.NotFound(new
                     {
@@ -608,7 +608,7 @@ internal static class AgentApi
                     devices,
                     activityLog,
                     currentDeviceId,
-                    "Datei herunterladen",
+                    "file.download",
                     ActivityLogResult.Success);
 
                 return Results.File(

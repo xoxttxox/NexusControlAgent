@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using NexusControl.Agent.Configuration;
+using NexusControl.Agent.Localization;
 using NexusControl.Agent.Networking;
 using NexusControl.Agent.Pairing;
 using NexusControl.Agent.Services;
@@ -25,7 +26,9 @@ internal sealed partial class AgentWindow : Form
     private string? _lastQrPayload;
     private string _connectionMode = "LAN";
     private bool _syncingAutoStart;
+    private bool _languageEventsSubscribed;
     private bool _firewallCheckStarted;
+    private ToolTip? _toolTip;
 
     /// <summary>
     /// Konstruktor ausschließlich für den Visual-Studio-WinForms-Designer.
@@ -42,6 +45,7 @@ internal sealed partial class AgentWindow : Form
         _connectionDiagnostics = null!;
         _activityLog = null!;
         InitializeComponent();
+        ApplyLocalization();
         WinFormsTheme.Apply(this);
         ConfigureToolTips();
     }
@@ -67,7 +71,11 @@ internal sealed partial class AgentWindow : Form
             autoStart);
 
         InitializeComponent();
-        versionStatusLabel.Text = $"Version {TelemetryService.AgentVersion}";
+        SubscribeLanguageEvents();
+        ApplyLocalization();
+        versionStatusLabel.Text = LocalizationService.Format(
+            "Common.Version",
+            TelemetryService.AgentVersion);
         serverPortValueLabel.Text = _options.Port.ToString();
         TrySetApplicationIcon();
         WinFormsTheme.Apply(this);
@@ -131,28 +139,35 @@ internal sealed partial class AgentWindow : Form
 
         NexusDialog.Show(
             this,
-            "Damit dein Smartphone den PC im lokalen Netzwerk erreichen kann, richtet Nexus Control jetzt einmalig eine Windows-Firewall-Regel ein.\r\n\r\n" +
-            $"Freigegeben wird ausschließlich TCP-Port {_options.Port} für Geräte aus deinem lokalen Subnetz. Danach erscheint die Windows-Administratorabfrage.",
-            "Windows-Firewall einrichten",
+            LocalizationService.Format(
+                "AgentWindow.Firewall.Intro",
+                Environment.NewLine,
+                _options.Port),
+            LocalizationService.Text("AgentWindow.Firewall.Title"),
             NexusDialogKind.Information);
 
-        statusLabel.Text = "Windows-Firewall wird eingerichtet …";
+        statusLabel.Text = LocalizationService.Text(
+            "AgentWindow.Firewall.Installing");
         var result = await _firewall.InstallElevatedAsync();
         if (result.Succeeded)
         {
-            statusLabel.Text = "Windows-Firewall wurde erfolgreich eingerichtet.";
+            statusLabel.Text = LocalizationService.Text(
+                "AgentWindow.Firewall.Success");
             return;
         }
 
         var message = result.Cancelled
-            ? "Die Windows-Administratorabfrage wurde abgebrochen. Ohne Firewall-Regel kann dein Smartphone den Agent möglicherweise nicht erreichen. Beim nächsten Start wird die Einrichtung erneut angeboten."
-            : "Die Windows-Firewall konnte nicht eingerichtet werden.\r\n\r\n" +
-              (result.Error ?? "Unbekannter Fehler.");
+            ? LocalizationService.Text("AgentWindow.Firewall.Cancelled")
+            : LocalizationService.Format(
+                "AgentWindow.Firewall.Failed",
+                Environment.NewLine,
+                result.Error
+                    ?? LocalizationService.Text("Common.UnknownError"));
 
         NexusDialog.Show(
             this,
             message,
-            "Firewall-Einrichtung",
+            LocalizationService.Text("AgentWindow.Firewall.SetupTitle"),
             NexusDialogKind.Warning);
     }
 
@@ -215,6 +230,12 @@ internal sealed partial class AgentWindow : Form
         dialog.ShowDialog(this);
     }
 
+    private void SettingsButtonClick(object? sender, EventArgs eventArgs)
+    {
+        using var dialog = new SettingsDialog();
+        dialog.ShowDialog(this);
+    }
+
     private void HideButtonClick(object? sender, EventArgs eventArgs)
     {
         HideRequested?.Invoke(this, EventArgs.Empty);
@@ -223,6 +244,57 @@ internal sealed partial class AgentWindow : Form
     private void RefreshTimerTick(object? sender, EventArgs eventArgs)
     {
         RefreshStatus();
+    }
+
+    private void ApplicationLanguageChanged(
+        object? sender,
+        EventArgs eventArgs)
+    {
+        if (IsDisposed)
+        {
+            return;
+        }
+
+        if (InvokeRequired)
+        {
+            BeginInvoke(new Action(
+                () => ApplicationLanguageChanged(sender, eventArgs)));
+            return;
+        }
+
+        ApplyLocalization();
+        ConfigureToolTips();
+        RefreshStatus(forceNetworkRefresh: true);
+    }
+
+    private void SubscribeLanguageEvents()
+    {
+        if (_languageEventsSubscribed)
+        {
+            return;
+        }
+
+        LocalizationService.LanguageChanged += ApplicationLanguageChanged;
+        _languageEventsSubscribed = true;
+    }
+
+    private void UnsubscribeLanguageEvents()
+    {
+        if (!_languageEventsSubscribed)
+        {
+            return;
+        }
+
+        LocalizationService.LanguageChanged -= ApplicationLanguageChanged;
+        _languageEventsSubscribed = false;
+    }
+
+    private void ApplyLocalization()
+    {
+        LocalizationService.Apply(this, nameof(AgentWindow));
+        versionStatusLabel.Text = LocalizationService.Format(
+            "Common.Version",
+            TelemetryService.AgentVersion);
     }
 
     private void TrySetApplicationIcon()
@@ -244,24 +316,27 @@ internal sealed partial class AgentWindow : Form
 
     private void ConfigureToolTips()
     {
-        var toolTip = new ToolTip(components!)
+        _toolTip ??= new ToolTip(components!)
         {
             AutomaticDelay = 350,
             AutoPopDelay = 6_000,
             ShowAlways = true,
         };
-        toolTip.SetToolTip(
+        _toolTip.SetToolTip(
             trustedDevicesValueLabel,
-            "Gekoppelte Smartphones verwalten");
-        toolTip.SetToolTip(
+            LocalizationService.Text("AgentWindow.ToolTip.Devices"));
+        _toolTip.SetToolTip(
             refreshButton,
-            "Verbindungsdiagnose öffnen");
-        toolTip.SetToolTip(
+            LocalizationService.Text("AgentWindow.ToolTip.Diagnostics"));
+        _toolTip.SetToolTip(
             protocolButton,
-            "Lokale Verbindungen und Aktionen anzeigen");
-        toolTip.SetToolTip(
+            LocalizationService.Text("AgentWindow.ToolTip.ActivityLog"));
+        _toolTip.SetToolTip(
             endpointsListBox,
-            "Adresse doppelklicken, um sie zu kopieren");
+            LocalizationService.Text("AgentWindow.ToolTip.Endpoints"));
+        _toolTip.SetToolTip(
+            settingsButton,
+            LocalizationService.Text("AgentWindow.ToolTip.Settings"));
     }
 
     private void RefreshStatus(bool forceNetworkRefresh = false)
@@ -276,8 +351,10 @@ internal sealed partial class AgentWindow : Form
                 NetworkUtilities.GetTailscaleIPv4Addresses().Count > 0;
             remoteAccessValueLabel.Text =
                 tailscaleAvailable
-                    ? "Tailscale verfügbar"
-                    : "Nur lokales Netzwerk";
+                    ? LocalizationService.Text(
+                        "AgentWindow.Remote.TailscaleAvailable")
+                    : LocalizationService.Text(
+                        "AgentWindow.Remote.LocalOnly");
             _connectionMode = tailscaleAvailable ? "Tailscale" : "LAN";
             _lastNetworkRefresh = DateTimeOffset.UtcNow;
         }
@@ -287,13 +364,22 @@ internal sealed partial class AgentWindow : Form
         var onlineDevices = trustedDevices.Count(device => device.IsOnline);
         primaryAddressValueLabel.Text = snapshot.PreferredEndpoint;
         trustedDevicesValueLabel.Text = trustedDevices.Count == 1
-            ? "1 Gerät  ›"
-            : $"{trustedDevices.Count} Geräte  ›";
+            ? LocalizationService.Text("AgentWindow.Devices.One")
+            : LocalizationService.Format(
+                "AgentWindow.Devices.Many",
+                trustedDevices.Count);
         onlineStatusLabel.Text = onlineDevices switch
         {
-            0 => $"Online · kein Gerät verbunden · {_connectionMode}",
-            1 => $"Online · 1 Gerät verbunden · {_connectionMode}",
-            _ => $"Online · {onlineDevices} Geräte verbunden · {_connectionMode}",
+            0 => LocalizationService.Format(
+                "AgentWindow.Header.None",
+                _connectionMode),
+            1 => LocalizationService.Format(
+                "AgentWindow.Header.One",
+                _connectionMode),
+            _ => LocalizationService.Format(
+                "AgentWindow.Header.Many",
+                onlineDevices,
+                _connectionMode),
         };
         UpdateEndpointList(snapshot.Endpoints);
 
@@ -307,8 +393,10 @@ internal sealed partial class AgentWindow : Form
             remaining = TimeSpan.Zero;
         }
 
-        pairingExpiryLabel.Text =
-            $"Noch {remaining.Minutes:00}:{remaining.Seconds:00} Minuten gültig";
+        pairingExpiryLabel.Text = LocalizationService.Format(
+            "AgentWindow.Pairing.Expires",
+            remaining.Minutes,
+            remaining.Seconds);
         var lifetimeSeconds = TimeSpan
             .FromMinutes(_options.PairingCodeLifetimeMinutes)
             .TotalSeconds;
@@ -320,8 +408,10 @@ internal sealed partial class AgentWindow : Form
             pairingProgressBar.Minimum,
             pairingProgressBar.Maximum);
 
-        statusLabel.Text =
-            $"Agent läuft auf Port {_options.Port}  ·  {DateTime.Now:HH:mm:ss}";
+        statusLabel.Text = LocalizationService.Format(
+            "AgentWindow.Status.Running",
+            _options.Port,
+            DateTime.Now);
 
         if (!string.Equals(
                 _lastQrPayload,
@@ -399,7 +489,9 @@ internal sealed partial class AgentWindow : Form
         _syncingAutoStart = false;
         NexusDialog.Show(
             this,
-            result.Error ?? "Der Autostart konnte nicht geändert werden.",
+            result.Error
+                ?? LocalizationService.Text(
+                    "AgentWindow.AutoStartChangeFailed"),
             "Nexus Control Agent",
             NexusDialogKind.Warning);
     }
@@ -417,13 +509,14 @@ internal sealed partial class AgentWindow : Form
         try
         {
             Clipboard.SetText(value);
-            statusLabel.Text = "In die Zwischenablage kopiert.";
+            statusLabel.Text = LocalizationService.Text(
+                "AgentWindow.Status.Copied");
         }
         catch (ExternalException)
         {
             NexusDialog.Show(
                 this,
-                "Windows konnte die Zwischenablage gerade nicht öffnen. Bitte versuche es erneut.",
+                LocalizationService.Text("Common.ClipboardUnavailable"),
                 "Nexus Control Agent",
                 NexusDialogKind.Information);
         }

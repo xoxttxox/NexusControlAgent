@@ -37,6 +37,10 @@ docs/installation
 - preserve the existing folder and namespace structure
 - do not work around nullable warnings by disabling them globally
 - continue to represent UI changes in the WinForms Designer
+- keep English as the neutral resource language and update every supported
+  `Localization/Strings.<language>.resx` catalog when adding user-facing text
+- never hard-code new user-facing desktop text when a localization resource is
+  appropriate
 - do not add WPF or XAML dependencies
 - keep asynchronous operations cancellable with `CancellationToken`
 - do not hard-code credentials or machine-specific values

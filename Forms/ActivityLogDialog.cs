@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using NexusControl.Agent.Localization;
 using NexusControl.Agent.Services;
 using NexusControl.Agent.UI;
 
@@ -24,6 +25,7 @@ internal sealed partial class ActivityLogDialog : Form
     {
         _activityLog = null!;
         InitializeComponent();
+        LocalizationService.Apply(this, nameof(ActivityLogDialog));
         WinFormsTheme.Apply(this);
     }
 
@@ -31,6 +33,7 @@ internal sealed partial class ActivityLogDialog : Form
     {
         _activityLog = activityLog;
         InitializeComponent();
+        LocalizationService.Apply(this, nameof(ActivityLogDialog));
         WinFormsTheme.Apply(this);
     }
 
@@ -65,7 +68,8 @@ internal sealed partial class ActivityLogDialog : Form
             if (entries.Count == 0)
             {
                 _entriesListBox.Items.Add(
-                    "Noch keine Verbindungen oder Aktionen protokolliert.");
+                    LocalizationService.Text(
+                        "ActivityLogDialog.NoActivity"));
             }
             else
             {
@@ -82,9 +86,13 @@ internal sealed partial class ActivityLogDialog : Form
 
         _statusLabel.Text = entries.Count switch
         {
-            0 => "Keine Einträge",
-            1 => "1 Eintrag · nur lokal",
-            _ => $"{entries.Count} Einträge · nur lokal",
+            0 => LocalizationService.Text(
+                "ActivityLogDialog.Status.None"),
+            1 => LocalizationService.Text(
+                "ActivityLogDialog.Status.One"),
+            _ => LocalizationService.Format(
+                "ActivityLogDialog.Status.Many",
+                entries.Count),
         };
         _lastRevision = revision;
     }
@@ -94,14 +102,15 @@ internal sealed partial class ActivityLogDialog : Form
         try
         {
             Clipboard.SetText(_activityLog.BuildReport());
-            _statusLabel.Text = "Protokoll wurde kopiert.";
+            _statusLabel.Text = LocalizationService.Text(
+                "ActivityLogDialog.Copied");
         }
         catch (ExternalException)
         {
             NexusDialog.Show(
                 this,
-                "Windows konnte die Zwischenablage gerade nicht öffnen. Bitte versuche es erneut.",
-                "Nexus Control Protokoll",
+                LocalizationService.Text("Common.ClipboardUnavailable"),
+                LocalizationService.Text("ActivityLogDialog.Title"),
                 NexusDialogKind.Information);
         }
     }
@@ -110,10 +119,10 @@ internal sealed partial class ActivityLogDialog : Form
     {
         var result = NexusDialog.Confirm(
             this,
-            "Soll das lokale Aktivitätsprotokoll wirklich vollständig geleert werden?",
-            "Protokoll leeren",
+            LocalizationService.Text("ActivityLogDialog.ClearPrompt"),
+            LocalizationService.Text("ActivityLogDialog.ClearTitle"),
             NexusDialogKind.Warning,
-            "Leeren");
+            LocalizationService.Text("ActivityLogDialog.ClearButton"));
         if (result != DialogResult.OK)
         {
             return;
@@ -123,8 +132,8 @@ internal sealed partial class ActivityLogDialog : Form
         {
             NexusDialog.Show(
                 this,
-                "Das Protokoll konnte nicht geleert werden.",
-                "Nexus Control Protokoll",
+                LocalizationService.Text("ActivityLogDialog.ClearFailed"),
+                LocalizationService.Text("ActivityLogDialog.Title"),
                 NexusDialogKind.Warning);
             return;
         }
@@ -136,9 +145,12 @@ internal sealed partial class ActivityLogDialog : Form
     {
         var deviceName = entry.DeviceName[
             ..Math.Min(entry.DeviceName.Length, 18)];
-        var action = entry.Action[
-            ..Math.Min(entry.Action.Length, 36)];
-        return $"{entry.Timestamp.ToLocalTime():dd.MM. HH:mm:ss}  ·  "
+        var localizedAction = ActivityLogService.DisplayAction(entry.Action);
+        var action = localizedAction[
+            ..Math.Min(localizedAction.Length, 36)];
+        return $"{entry.Timestamp.ToLocalTime().ToString(
+                "g",
+                LocalizationService.CurrentCulture)}  ·  "
             + $"{deviceName}  ·  {action}  ·  "
             + ActivityLogService.ResultText(entry.Result);
     }

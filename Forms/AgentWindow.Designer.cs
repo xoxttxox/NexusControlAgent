@@ -13,6 +13,7 @@ partial class AgentWindow
     private TableLayoutPanel appLayout = null!;
     private Panel headerPanel = null!;
     private Label localAgentLabel = null!;
+    private Button settingsButton = null!;
     private Label onlineStatusLabel = null!;
     private TableLayoutPanel contentLayout = null!;
     private DarkGroupBox connectionGroupBox = null!;
@@ -56,6 +57,7 @@ partial class AgentWindow
     {
         if (disposing)
         {
+            UnsubscribeLanguageEvents();
             refreshTimer?.Stop();
             qrCodePictureBox?.Image?.Dispose();
             components?.Dispose();
@@ -70,6 +72,7 @@ partial class AgentWindow
         appLayout = new TableLayoutPanel();
         headerPanel = new Panel();
         localAgentLabel = new Label();
+        settingsButton = new Button();
         onlineStatusLabel = new Label();
         contentLayout = new TableLayoutPanel();
         connectionGroupBox = new DarkGroupBox();
@@ -148,6 +151,7 @@ partial class AgentWindow
         // 
         headerPanel.BackColor = Color.FromArgb(28, 31, 36);
         headerPanel.Controls.Add(localAgentLabel);
+        headerPanel.Controls.Add(settingsButton);
         headerPanel.Controls.Add(onlineStatusLabel);
         headerPanel.Dock = DockStyle.Fill;
         headerPanel.Location = new Point(0, 0);
@@ -162,23 +166,36 @@ partial class AgentWindow
         localAgentLabel.Location = new Point(0, 0);
         localAgentLabel.Name = "localAgentLabel";
         localAgentLabel.Padding = new Padding(10, 0, 0, 0);
-        localAgentLabel.Size = new Size(175, 28);
+        localAgentLabel.Size = new Size(112, 28);
         localAgentLabel.TabIndex = 0;
         localAgentLabel.Tag = "muted";
-        localAgentLabel.Text = "Lokaler PC-Agent";
+        localAgentLabel.Text = "Local PC agent";
         localAgentLabel.TextAlign = ContentAlignment.MiddleLeft;
+        // 
+        // settingsButton
+        // 
+        settingsButton.FlatStyle = FlatStyle.Flat;
+        settingsButton.Font = new Font("Segoe UI", 8F);
+        settingsButton.Location = new Point(116, 3);
+        settingsButton.Name = "settingsButton";
+        settingsButton.Size = new Size(112, 22);
+        settingsButton.TabIndex = 1;
+        settingsButton.Text = "Settings";
+        settingsButton.UseVisualStyleBackColor = false;
+        settingsButton.Click += SettingsButtonClick;
         // 
         // onlineStatusLabel
         // 
+        onlineStatusLabel.AutoEllipsis = true;
         onlineStatusLabel.Dock = DockStyle.Right;
         onlineStatusLabel.Font = new Font("Segoe UI Semibold", 8.5F, FontStyle.Bold);
-        onlineStatusLabel.Location = new Point(175, 0);
+        onlineStatusLabel.Location = new Point(232, 0);
         onlineStatusLabel.Name = "onlineStatusLabel";
         onlineStatusLabel.Padding = new Padding(0, 0, 10, 0);
-        onlineStatusLabel.Size = new Size(309, 28);
-        onlineStatusLabel.TabIndex = 1;
+        onlineStatusLabel.Size = new Size(252, 28);
+        onlineStatusLabel.TabIndex = 2;
         onlineStatusLabel.Tag = "success";
-        onlineStatusLabel.Text = "Online · kein Gerät verbunden · LAN";
+        onlineStatusLabel.Text = "Online · no device connected · LAN";
         onlineStatusLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // contentLayout
@@ -214,7 +231,7 @@ partial class AgentWindow
         connectionGroupBox.Size = new Size(468, 150);
         connectionGroupBox.TabIndex = 0;
         connectionGroupBox.TabStop = false;
-        connectionGroupBox.Text = "Verbindung";
+        connectionGroupBox.Text = "Connection";
         // 
         // connectionLayout
         // 
@@ -254,7 +271,7 @@ partial class AgentWindow
         primaryAddressCaptionLabel.Size = new Size(92, 22);
         primaryAddressCaptionLabel.TabIndex = 0;
         primaryAddressCaptionLabel.Tag = "muted";
-        primaryAddressCaptionLabel.Text = "Lokale Adresse:";
+        primaryAddressCaptionLabel.Text = "Local address:";
         primaryAddressCaptionLabel.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // primaryAddressValueLabel
@@ -267,7 +284,7 @@ partial class AgentWindow
         primaryAddressValueLabel.Name = "primaryAddressValueLabel";
         primaryAddressValueLabel.Size = new Size(183, 22);
         primaryAddressValueLabel.TabIndex = 1;
-        primaryAddressValueLabel.Text = "Wird ermittelt …";
+        primaryAddressValueLabel.Text = "Detecting …";
         primaryAddressValueLabel.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // trustedDevicesCaptionLabel
@@ -279,7 +296,7 @@ partial class AgentWindow
         trustedDevicesCaptionLabel.Size = new Size(55, 22);
         trustedDevicesCaptionLabel.TabIndex = 2;
         trustedDevicesCaptionLabel.Tag = "muted";
-        trustedDevicesCaptionLabel.Text = "Geräte:";
+        trustedDevicesCaptionLabel.Text = "Devices:";
         trustedDevicesCaptionLabel.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // trustedDevicesValueLabel
@@ -294,7 +311,7 @@ partial class AgentWindow
         trustedDevicesValueLabel.Size = new Size(122, 22);
         trustedDevicesValueLabel.TabIndex = 3;
         trustedDevicesValueLabel.Tag = "success";
-        trustedDevicesValueLabel.Text = "0 Geräte";
+        trustedDevicesValueLabel.Text = "0 devices";
         trustedDevicesValueLabel.TextAlign = ContentAlignment.MiddleLeft;
         trustedDevicesValueLabel.Click += TrustedDevicesValueLabelClick;
         // 
@@ -320,7 +337,7 @@ partial class AgentWindow
         remoteAccessValueLabel.Name = "remoteAccessValueLabel";
         remoteAccessValueLabel.Size = new Size(183, 22);
         remoteAccessValueLabel.TabIndex = 5;
-        remoteAccessValueLabel.Text = "Wird geprüft …";
+        remoteAccessValueLabel.Text = "Checking …";
         remoteAccessValueLabel.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // serverPortCaptionLabel
@@ -358,7 +375,7 @@ partial class AgentWindow
         endpointsCaptionLabel.Size = new Size(452, 18);
         endpointsCaptionLabel.TabIndex = 8;
         endpointsCaptionLabel.Tag = "muted";
-        endpointsCaptionLabel.Text = "Adressen – Doppelklick kopiert";
+        endpointsCaptionLabel.Text = "Addresses — double-click to copy";
         endpointsCaptionLabel.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // endpointsBorderPanel
@@ -403,7 +420,7 @@ partial class AgentWindow
         pairingGroupBox.Size = new Size(468, 150);
         pairingGroupBox.TabIndex = 1;
         pairingGroupBox.TabStop = false;
-        pairingGroupBox.Text = "Neues Gerät verbinden";
+        pairingGroupBox.Text = "Pair a new device";
         // 
         // pairingLayout
         // 
@@ -478,7 +495,7 @@ partial class AgentWindow
         pairingCodeCaptionLabel.Size = new Size(332, 16);
         pairingCodeCaptionLabel.TabIndex = 0;
         pairingCodeCaptionLabel.Tag = "muted";
-        pairingCodeCaptionLabel.Text = "Pairing-Code";
+        pairingCodeCaptionLabel.Text = "Pairing code";
         pairingCodeCaptionLabel.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // pairingCodeTextBox
@@ -507,7 +524,7 @@ partial class AgentWindow
         pairingExpiryLabel.Size = new Size(332, 18);
         pairingExpiryLabel.TabIndex = 2;
         pairingExpiryLabel.Tag = "muted";
-        pairingExpiryLabel.Text = "Noch 00:00 Minuten gültig";
+        pairingExpiryLabel.Text = "Valid for 00:00 more";
         pairingExpiryLabel.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // pairingProgressBar
@@ -555,7 +572,7 @@ partial class AgentWindow
         copyPairingCodeButton.Size = new Size(162, 28);
         copyPairingCodeButton.TabIndex = 0;
         copyPairingCodeButton.Tag = "primary";
-        copyPairingCodeButton.Text = "Code kopieren";
+        copyPairingCodeButton.Text = "Copy code";
         copyPairingCodeButton.UseVisualStyleBackColor = false;
         copyPairingCodeButton.Click += CopyPairingCodeButtonClick;
         // 
@@ -567,7 +584,7 @@ partial class AgentWindow
         rotatePairingCodeButton.Name = "rotatePairingCodeButton";
         rotatePairingCodeButton.Size = new Size(162, 28);
         rotatePairingCodeButton.TabIndex = 1;
-        rotatePairingCodeButton.Text = "Neuer Code";
+        rotatePairingCodeButton.Text = "New code";
         rotatePairingCodeButton.UseVisualStyleBackColor = false;
         rotatePairingCodeButton.Click += RotatePairingCodeButtonClick;
         // 
@@ -582,7 +599,7 @@ partial class AgentWindow
         behaviorGroupBox.Size = new Size(468, 77);
         behaviorGroupBox.TabIndex = 2;
         behaviorGroupBox.TabStop = false;
-        behaviorGroupBox.Text = "Verhalten";
+        behaviorGroupBox.Text = "Behavior";
         // 
         // behaviorLayout
         // 
@@ -614,7 +631,7 @@ partial class AgentWindow
         autoStartCheckBox.Name = "autoStartCheckBox";
         autoStartCheckBox.Size = new Size(182, 37);
         autoStartCheckBox.TabIndex = 0;
-        autoStartCheckBox.Text = "Mit Windows starten";
+        autoStartCheckBox.Text = "Start with Windows";
         autoStartCheckBox.UseVisualStyleBackColor = false;
         autoStartCheckBox.CheckedChanged += AutoStartCheckedChanged;
         // 
@@ -626,7 +643,7 @@ partial class AgentWindow
         refreshButton.Name = "refreshButton";
         refreshButton.Size = new Size(88, 37);
         refreshButton.TabIndex = 1;
-        refreshButton.Text = "Diagnose";
+        refreshButton.Text = "Diagnostics";
         refreshButton.UseVisualStyleBackColor = false;
         refreshButton.Click += RefreshButtonClick;
         // 
@@ -638,7 +655,7 @@ partial class AgentWindow
         protocolButton.Name = "protocolButton";
         protocolButton.Size = new Size(88, 37);
         protocolButton.TabIndex = 2;
-        protocolButton.Text = "Protokoll";
+        protocolButton.Text = "Activity log";
         protocolButton.UseVisualStyleBackColor = false;
         protocolButton.Click += ProtocolButtonClick;
         // 
@@ -651,7 +668,7 @@ partial class AgentWindow
         hideButton.Size = new Size(82, 37);
         hideButton.TabIndex = 3;
         hideButton.Tag = "primary";
-        hideButton.Text = "Ausblenden";
+        hideButton.Text = "Hide";
         hideButton.UseVisualStyleBackColor = false;
         hideButton.Click += HideButtonClick;
         // 
@@ -673,7 +690,7 @@ partial class AgentWindow
         statusLabel.Name = "statusLabel";
         statusLabel.Size = new Size(401, 19);
         statusLabel.Spring = true;
-        statusLabel.Text = "Agent wird gestartet …";
+        statusLabel.Text = "Agent is starting …";
         statusLabel.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // versionStatusLabel

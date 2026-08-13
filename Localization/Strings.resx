@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" /></xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType><xsd:attribute name="alias" type="xsd:string" /><xsd:attribute name="name" type="xsd:string" /></xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType><xsd:sequence><xsd:element name="value" type="xsd:string" minOccurs="0" /></xsd:sequence><xsd:attribute name="name" type="xsd:string" use="required" /></xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="ActivityLog.Action.AudioMute" xml:space="preserve"><value>Windows audio: mute</value></data>
+  <data name="ActivityLog.Action.AudioVolume" xml:space="preserve"><value>Windows audio: volume</value></data>
+  <data name="ActivityLog.Action.ConnectionAttempt" xml:space="preserve"><value>Connect</value></data>
+  <data name="ActivityLog.Action.ConnectionDisconnected" xml:space="preserve"><value>Connection disconnected</value></data>
+  <data name="ActivityLog.Action.ConnectionEstablished" xml:space="preserve"><value>Connection established</value></data>
+  <data name="ActivityLog.Action.ConnectionRevoked" xml:space="preserve"><value>Connection revoked</value></data>
+  <data name="ActivityLog.Action.DevicePaired" xml:space="preserve"><value>Device paired</value></data>
+  <data name="ActivityLog.Action.FileDownload" xml:space="preserve"><value>Download file</value></data>
+  <data name="ActivityLog.Action.FileUpload" xml:space="preserve"><value>Upload file</value></data>
+  <data name="ActivityLog.Action.KeyboardText" xml:space="preserve"><value>Remote keyboard: text input</value></data>
+  <data name="ActivityLog.Action.MediaNext" xml:space="preserve"><value>Media: next track</value></data>
+  <data name="ActivityLog.Action.MediaPlayPause" xml:space="preserve"><value>Media: play/pause</value></data>
+  <data name="ActivityLog.Action.MediaPrevious" xml:space="preserve"><value>Media: previous track</value></data>
+  <data name="ActivityLog.Action.PairingVerify" xml:space="preserve"><value>Verify pairing code</value></data>
+  <data name="ActivityLog.Action.PermissionRemove" xml:space="preserve"><value>Remove device access</value></data>
+  <data name="ActivityLog.Action.PermissionRemoved" xml:space="preserve"><value>Device access removed</value></data>
+  <data name="ActivityLog.Action.PermissionsChanged" xml:space="preserve"><value>Device permissions changed</value></data>
+  <data name="ActivityLog.Action.PointerButton" xml:space="preserve"><value>Remote touchpad: mouse click</value></data>
+  <data name="ActivityLog.Action.ProcessTerminate" xml:space="preserve"><value>Terminate process</value></data>
+  <data name="ActivityLog.Action.ScreenStart" xml:space="preserve"><value>Start screen streaming</value></data>
+  <data name="ActivityLog.Action.ScreenStop" xml:space="preserve"><value>Stop screen streaming</value></data>
+  <data name="ActivityLog.Action.SessionLock" xml:space="preserve"><value>Lock PC</value></data>
+  <data name="ActivityLog.Action.SessionMute" xml:space="preserve"><value>Active media: mute</value></data>
+  <data name="ActivityLog.Action.SessionNext" xml:space="preserve"><value>Active media: next track</value></data>
+  <data name="ActivityLog.Action.SessionPlayPause" xml:space="preserve"><value>Active media: play/pause</value></data>
+  <data name="ActivityLog.Action.SessionPrevious" xml:space="preserve"><value>Active media: previous track</value></data>
+  <data name="ActivityLog.Action.SessionVolume" xml:space="preserve"><value>Active media: volume</value></data>
+  <data name="ActivityLog.Action.SystemRestart" xml:space="preserve"><value>Restart PC</value></data>
+  <data name="ActivityLog.Action.SystemShutdown" xml:space="preserve"><value>Shut down PC</value></data>
+  <data name="ActivityLog.Action.SystemSleep" xml:space="preserve"><value>Sleep</value></data>
+  <data name="ActivityLog.Action.SystemWake" xml:space="preserve"><value>Wake PC</value></data>
+  <data name="ActivityLog.Action.UnknownCommand" xml:space="preserve"><value>Unknown command</value></data>
+  <data name="ActivityLog.Report.Empty" xml:space="preserve"><value>No activity has been logged yet.</value></data>
+  <data name="ActivityLog.Report.Privacy" xml:space="preserve"><value>Contains no passwords, tokens, command parameters, filenames, or file contents.</value></data>
+  <data name="ActivityLog.Report.Title" xml:space="preserve"><value>Nexus Control Agent — local activity log</value></data>
+  <data name="ActivityLog.Result.Failed" xml:space="preserve"><value>Failed</value></data>
+  <data name="ActivityLog.Result.Information" xml:space="preserve"><value>Information</value></data>
+  <data name="ActivityLog.Result.Rejected" xml:space="preserve"><value>Rejected</value></data>
+  <data name="ActivityLog.Result.Success" xml:space="preserve"><value>Successful</value></data>
+  <data name="ActivityLog.UnknownAction" xml:space="preserve"><value>Unknown action</value></data>
+  <data name="ActivityLog.UnknownDevice" xml:space="preserve"><value>Unknown device</value></data>
+  <data name="ActivityLog.UnknownPlatform" xml:space="preserve"><value>Unknown</value></data>
+  <data name="ActivityLogDialog.ClearButton" xml:space="preserve"><value>Clear</value></data>
+  <data name="ActivityLogDialog.ClearFailed" xml:space="preserve"><value>The activity log could not be cleared.</value></data>
+  <data name="ActivityLogDialog.ClearPrompt" xml:space="preserve"><value>Do you really want to clear the entire local activity log?</value></data>
+  <data name="ActivityLogDialog.ClearTitle" xml:space="preserve"><value>Clear activity log</value></data>
+  <data name="ActivityLogDialog.Copied" xml:space="preserve"><value>Activity log copied.</value></data>
+  <data name="ActivityLogDialog.NoActivity" xml:space="preserve"><value>No connections or actions have been logged yet.</value></data>
+  <data name="ActivityLogDialog.Status.Many" xml:space="preserve"><value>{0} entries · local only</value></data>
+  <data name="ActivityLogDialog.Status.None" xml:space="preserve"><value>No entries</value></data>
+  <data name="ActivityLogDialog.Status.One" xml:space="preserve"><value>1 entry · local only</value></data>
+  <data name="ActivityLogDialog.Title" xml:space="preserve"><value>Nexus Control activity log</value></data>
+  <data name="ActivityLogDialog.clearButton" xml:space="preserve"><value>Clear</value></data>
+  <data name="ActivityLogDialog.closeButton" xml:space="preserve"><value>Close</value></data>
+  <data name="ActivityLogDialog.copyButton" xml:space="preserve"><value>Copy</value></data>
+  <data name="ActivityLogDialog.privacyLabel" xml:space="preserve"><value>Shows connections and executed actions. Passwords, tokens, text input, filenames, and file contents are never stored.</value></data>
+  <data name="ActivityLogDialog.titleLabel" xml:space="preserve"><value>Local activity log</value></data>
+  <data name="AgentWindow.AutoStartChangeFailed" xml:space="preserve"><value>The Windows startup setting could not be changed.</value></data>
+  <data name="AgentWindow.Devices.Many" xml:space="preserve"><value>{0} devices  ›</value></data>
+  <data name="AgentWindow.Devices.One" xml:space="preserve"><value>1 device  ›</value></data>
+  <data name="AgentWindow.Firewall.Cancelled" xml:space="preserve"><value>The Windows administrator prompt was cancelled. Without the firewall rule, your smartphone might not be able to reach the Agent. Setup will be offered again the next time the Agent starts.</value></data>
+  <data name="AgentWindow.Firewall.Failed" xml:space="preserve"><value>Windows Firewall could not be configured.{0}{0}{1}</value></data>
+  <data name="AgentWindow.Firewall.Installing" xml:space="preserve"><value>Configuring Windows Firewall …</value></data>
+  <data name="AgentWindow.Firewall.Intro" xml:space="preserve"><value>To let your smartphone reach this PC on the local network, Nexus Control will now create a Windows Firewall rule once.{0}{0}Only TCP port {1} is opened for devices in your local subnet. The Windows administrator prompt will appear next.</value></data>
+  <data name="AgentWindow.Firewall.SetupTitle" xml:space="preserve"><value>Firewall setup</value></data>
+  <data name="AgentWindow.Firewall.Success" xml:space="preserve"><value>Windows Firewall was configured successfully.</value></data>
+  <data name="AgentWindow.Firewall.Title" xml:space="preserve"><value>Configure Windows Firewall</value></data>
+  <data name="AgentWindow.Header.Many" xml:space="preserve"><value>Online · {0} devices connected · {1}</value></data>
+  <data name="AgentWindow.Header.None" xml:space="preserve"><value>Online · no device connected · {0}</value></data>
+  <data name="AgentWindow.Header.One" xml:space="preserve"><value>Online · 1 device connected · {0}</value></data>
+  <data name="AgentWindow.Pairing.Expires" xml:space="preserve"><value>Valid for {0:00}:{1:00} more</value></data>
+  <data name="AgentWindow.Remote.LocalOnly" xml:space="preserve"><value>Local network only</value></data>
+  <data name="AgentWindow.Remote.TailscaleAvailable" xml:space="preserve"><value>Tailscale available</value></data>
+  <data name="AgentWindow.Status.Copied" xml:space="preserve"><value>Copied to the clipboard.</value></data>
+  <data name="AgentWindow.Status.Running" xml:space="preserve"><value>Agent running on port {0}  ·  {1:HH:mm:ss}</value></data>
+  <data name="AgentWindow.Title" xml:space="preserve"><value>Nexus Control Agent</value></data>
+  <data name="AgentWindow.ToolTip.ActivityLog" xml:space="preserve"><value>Show local connections and actions</value></data>
+  <data name="AgentWindow.ToolTip.Devices" xml:space="preserve"><value>Manage paired smartphones</value></data>
+  <data name="AgentWindow.ToolTip.Diagnostics" xml:space="preserve"><value>Open connection diagnostics</value></data>
+  <data name="AgentWindow.ToolTip.Endpoints" xml:space="preserve"><value>Double-click an address to copy it</value></data>
+  <data name="AgentWindow.ToolTip.Language" xml:space="preserve"><value>Select the application language</value></data>
+  <data name="AgentWindow.autoStartCheckBox" xml:space="preserve"><value>Start with Windows</value></data>
+  <data name="AgentWindow.behaviorGroupBox" xml:space="preserve"><value>Behavior</value></data>
+  <data name="AgentWindow.connectionGroupBox" xml:space="preserve"><value>Connection</value></data>
+  <data name="AgentWindow.copyPairingCodeButton" xml:space="preserve"><value>Copy code</value></data>
+  <data name="AgentWindow.endpointsCaptionLabel" xml:space="preserve"><value>Addresses — double-click to copy</value></data>
+  <data name="AgentWindow.hideButton" xml:space="preserve"><value>Hide</value></data>
+  <data name="AgentWindow.localAgentLabel" xml:space="preserve"><value>Local PC agent</value></data>
+  <data name="AgentWindow.onlineStatusLabel" xml:space="preserve"><value>Online · no device connected · LAN</value></data>
+  <data name="AgentWindow.pairingCodeCaptionLabel" xml:space="preserve"><value>Pairing code</value></data>
+  <data name="AgentWindow.pairingExpiryLabel" xml:space="preserve"><value>Valid for 00:00 more</value></data>
+  <data name="AgentWindow.pairingGroupBox" xml:space="preserve"><value>Pair a new device</value></data>
+  <data name="AgentWindow.primaryAddressCaptionLabel" xml:space="preserve"><value>Local address:</value></data>
+  <data name="AgentWindow.primaryAddressValueLabel" xml:space="preserve"><value>Detecting …</value></data>
+  <data name="AgentWindow.protocolButton" xml:space="preserve"><value>Activity log</value></data>
+  <data name="AgentWindow.refreshButton" xml:space="preserve"><value>Diagnostics</value></data>
+  <data name="AgentWindow.remoteAccessCaptionLabel" xml:space="preserve"><value>Remote:</value></data>
+  <data name="AgentWindow.remoteAccessValueLabel" xml:space="preserve"><value>Checking …</value></data>
+  <data name="AgentWindow.rotatePairingCodeButton" xml:space="preserve"><value>New code</value></data>
+  <data name="AgentWindow.serverPortCaptionLabel" xml:space="preserve"><value>Port:</value></data>
+  <data name="AgentWindow.statusLabel" xml:space="preserve"><value>Agent is starting …</value></data>
+  <data name="AgentWindow.trustedDevicesCaptionLabel" xml:space="preserve"><value>Devices:</value></data>
+  <data name="AgentWindow.trustedDevicesValueLabel" xml:space="preserve"><value>0 devices</value></data>
+  <data name="Common.Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Common.ClipboardUnavailable" xml:space="preserve"><value>Windows could not open the clipboard right now. Please try again.</value></data>
+  <data name="Common.Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Common.Confirm" xml:space="preserve"><value>Confirm</value></data>
+  <data name="Common.Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Common.UnknownError" xml:space="preserve"><value>Unknown error.</value></data>
+  <data name="Common.Version" xml:space="preserve"><value>Version {0}</value></data>
+  <data name="ConnectionDiagnosticsDialog.Checking" xml:space="preserve"><value>Checking the connection and Windows settings …</value></data>
+  <data name="ConnectionDiagnosticsDialog.Failed" xml:space="preserve"><value>Diagnostics failed: {0}</value></data>
+  <data name="ConnectionDiagnosticsDialog.ReportCopied" xml:space="preserve"><value>Diagnostic report copied.</value></data>
+  <data name="ConnectionDiagnosticsDialog.Running" xml:space="preserve"><value>Checks are running …</value></data>
+  <data name="ConnectionDiagnosticsDialog.Title" xml:space="preserve"><value>Connection diagnostics</value></data>
+  <data name="ConnectionDiagnosticsDialog._copyButton" xml:space="preserve"><value>Copy report</value></data>
+  <data name="ConnectionDiagnosticsDialog._runButton" xml:space="preserve"><value>Run again</value></data>
+  <data name="ConnectionDiagnosticsDialog._summaryLabel" xml:space="preserve"><value>Preparing checks …</value></data>
+  <data name="ConnectionDiagnosticsDialog.closeButton" xml:space="preserve"><value>Close</value></data>
+  <data name="ConnectionDiagnosticsDialog.resultsGroupBox" xml:space="preserve"><value>Status</value></data>
+  <data name="ConnectionDiagnosticsDialog.titleLabel" xml:space="preserve"><value>Nexus Control connection diagnostics</value></data>
+  <data name="DeviceManagementDialog.ChangesImmediate" xml:space="preserve"><value>Changes apply immediately to new commands.</value></data>
+  <data name="DeviceManagementDialog.EnterName" xml:space="preserve"><value>Please enter a device name.</value></data>
+  <data name="DeviceManagementDialog.Info" xml:space="preserve"><value>{0}  ·  {1}  ·  Last seen: {2}</value></data>
+  <data name="DeviceManagementDialog.LastSeen.Now" xml:space="preserve"><value>connected now</value></data>
+  <data name="DeviceManagementDialog.NoDevice" xml:space="preserve"><value>No smartphone has been paired yet.</value></data>
+  <data name="DeviceManagementDialog.NotFound" xml:space="preserve"><value>The device could not be found.</value></data>
+  <data name="DeviceManagementDialog.PairViaQr" xml:space="preserve"><value>Pair a device using the QR code.</value></data>
+  <data name="DeviceManagementDialog.RemotePaused" xml:space="preserve"><value>Remote access is paused for this device.</value></data>
+  <data name="DeviceManagementDialog.RemovePrompt" xml:space="preserve"><value>Do you really want to remove “{0}”? The smartphone must then be paired again using the QR code or pairing code.</value></data>
+  <data name="DeviceManagementDialog.RemoveTitle" xml:space="preserve"><value>Remove device access</value></data>
+  <data name="DeviceManagementDialog.Removed" xml:space="preserve"><value>Device access was removed.</value></data>
+  <data name="DeviceManagementDialog.Saved" xml:space="preserve"><value>The device and permissions were saved.</value></data>
+  <data name="DeviceManagementDialog.State.Offline" xml:space="preserve"><value>Offline</value></data>
+  <data name="DeviceManagementDialog.State.Online" xml:space="preserve"><value>Online</value></data>
+  <data name="DeviceManagementDialog.State.Paused" xml:space="preserve"><value>Paused</value></data>
+  <data name="DeviceManagementDialog.Title" xml:space="preserve"><value>Paired devices</value></data>
+  <data name="DeviceManagementDialog.Unsaved" xml:space="preserve"><value>Unsaved changes.</value></data>
+  <data name="DeviceManagementDialog._filesCheckBox" xml:space="preserve"><value>Files</value></data>
+  <data name="DeviceManagementDialog._mediaCheckBox" xml:space="preserve"><value>Media &amp;&amp; volume</value></data>
+  <data name="DeviceManagementDialog._powerCheckBox" xml:space="preserve"><value>Power commands</value></data>
+  <data name="DeviceManagementDialog._processesCheckBox" xml:space="preserve"><value>Processes</value></data>
+  <data name="DeviceManagementDialog._remoteAccessCheckBox" xml:space="preserve"><value>Allow remote access for this device</value></data>
+  <data name="DeviceManagementDialog._removeButton" xml:space="preserve"><value>Remove</value></data>
+  <data name="DeviceManagementDialog._saveButton" xml:space="preserve"><value>Save</value></data>
+  <data name="DeviceManagementDialog._screenCheckBox" xml:space="preserve"><value>Screen streaming</value></data>
+  <data name="DeviceManagementDialog._systemControlCheckBox" xml:space="preserve"><value>PC control</value></data>
+  <data name="DeviceManagementDialog._touchpadCheckBox" xml:space="preserve"><value>Touchpad &amp;&amp; keyboard</value></data>
+  <data name="DeviceManagementDialog.closeButton" xml:space="preserve"><value>Close</value></data>
+  <data name="DeviceManagementDialog.detailsGroupBox" xml:space="preserve"><value>Device and permissions</value></data>
+  <data name="DeviceManagementDialog.deviceNameLabel" xml:space="preserve"><value>Device name:</value></data>
+  <data name="DeviceManagementDialog.deviceSelectorLabel" xml:space="preserve"><value>Select device:</value></data>
+  <data name="DeviceManagementDialog.headingLabel" xml:space="preserve"><value>Manage paired smartphones</value></data>
+  <data name="DeviceManagementDialog.permissionsCaptionLabel" xml:space="preserve"><value>Allowed features</value></data>
+  <data name="Diagnostics.AgentServer" xml:space="preserve"><value>Agent server</value></data>
+  <data name="Diagnostics.Devices.Many" xml:space="preserve"><value>{0} devices paired, {1} currently online.</value></data>
+  <data name="Diagnostics.Devices.None" xml:space="preserve"><value>No smartphone has been paired yet.</value></data>
+  <data name="Diagnostics.Devices.One" xml:space="preserve"><value>1 device paired, {0} currently online.</value></data>
+  <data name="Diagnostics.FirewallMissing" xml:space="preserve"><value>The local firewall rule is missing or could not be checked.</value></data>
+  <data name="Diagnostics.FirewallReady" xml:space="preserve"><value>A rule for TCP port {0} is present.</value></data>
+  <data name="Diagnostics.LocalNetwork" xml:space="preserve"><value>Local network</value></data>
+  <data name="Diagnostics.LocalOnly" xml:space="preserve"><value>Local network only — this is normal without Tailscale.</value></data>
+  <data name="Diagnostics.NoPrivateAddress" xml:space="preserve"><value>No active private IPv4 address was found.</value></data>
+  <data name="Diagnostics.PairedDevices" xml:space="preserve"><value>Paired devices</value></data>
+  <data name="Diagnostics.PortReady" xml:space="preserve"><value>Port {0} responds locally.</value></data>
+  <data name="Diagnostics.PortUnavailable" xml:space="preserve"><value>Port {0} is not reachable locally.</value></data>
+  <data name="Diagnostics.RemoteConnection" xml:space="preserve"><value>Remote connection</value></data>
+  <data name="Diagnostics.Report.Agent" xml:space="preserve"><value>Agent: {0}</value></data>
+  <data name="Diagnostics.Report.Pc" xml:space="preserve"><value>PC: {0}</value></data>
+  <data name="Diagnostics.Report.Result" xml:space="preserve"><value>Result: {0}</value></data>
+  <data name="Diagnostics.Report.Time" xml:space="preserve"><value>Time: {0:yyyy-MM-dd HH:mm:ss zzz}</value></data>
+  <data name="Diagnostics.Report.Title" xml:space="preserve"><value>Nexus Control Agent — connection diagnostics</value></data>
+  <data name="Diagnostics.Report.Windows" xml:space="preserve"><value>Windows: {0}</value></data>
+  <data name="Diagnostics.StartupDisabled" xml:space="preserve"><value>Disabled — the Agent must be started manually.</value></data>
+  <data name="Diagnostics.StartupEnabled" xml:space="preserve"><value>Enabled — the Agent starts silently in the system tray.</value></data>
+  <data name="Diagnostics.State.Error" xml:space="preserve"><value>ERROR</value></data>
+  <data name="Diagnostics.State.Information" xml:space="preserve"><value>INFO</value></data>
+  <data name="Diagnostics.State.Success" xml:space="preserve"><value>OK</value></data>
+  <data name="Diagnostics.State.Warning" xml:space="preserve"><value>WARNING</value></data>
+  <data name="Diagnostics.Summary.Error" xml:space="preserve"><value>At least one important connection component is not ready.</value></data>
+  <data name="Diagnostics.Summary.Success" xml:space="preserve"><value>All important connection checks passed.</value></data>
+  <data name="Diagnostics.Summary.Warning" xml:space="preserve"><value>The Agent is running, but at least one setting should be checked.</value></data>
+  <data name="Diagnostics.WindowsFirewall" xml:space="preserve"><value>Windows Firewall</value></data>
+  <data name="Diagnostics.WindowsStartup" xml:space="preserve"><value>Windows startup</value></data>
+  <data name="Program.AlreadyRunning" xml:space="preserve"><value>Nexus Control Agent is already running. You can find it in the system tray under the hidden icons.</value></data>
+  <data name="Program.DesktopUnexpectedExit" xml:space="preserve"><value>The desktop interface closed unexpectedly.{0}{0}{1}</value></data>
+  <data name="Program.ServerStartFailed" xml:space="preserve"><value>The Nexus Control server could not be started.{0}{0}{1}</value></data>
+  <data name="Program.Validation.ClockSkew" xml:space="preserve"><value>Agent:AllowedClockSkewMinutes must be between 1 and 10.</value></data>
+  <data name="Program.Validation.CommandLimit" xml:space="preserve"><value>The command limit must be greater than 0.</value></data>
+  <data name="Program.Validation.MessageSize" xml:space="preserve"><value>Agent:MaximumMessageSizeBytes must be between 4096 and 1048576.</value></data>
+  <data name="Program.Validation.PairingAttempts" xml:space="preserve"><value>Agent:MaximumPairingAttempts must be between 1 and 20.</value></data>
+  <data name="Program.Validation.PairingLifetime" xml:space="preserve"><value>Agent:PairingCodeLifetimeMinutes must be between 1 and 60.</value></data>
+  <data name="Program.Validation.Port" xml:space="preserve"><value>Agent:Port must be between 1 and 65535.</value></data>
+  <data name="Program.Validation.PushInterval" xml:space="preserve"><value>Agent:PushMonitoringIntervalSeconds must be between 5 and 300.</value></data>
+  <data name="Program.Validation.TelemetryInterval" xml:space="preserve"><value>Agent:TelemetryIntervalMilliseconds must be between 250 and 60000.</value></data>
+  <data name="Program.Validation.Temperature" xml:space="preserve"><value>The push notification temperature limits are invalid.</value></data>
+  <data name="Tray.AutoStartChangeFailed" xml:space="preserve"><value>The Windows startup setting could not be changed.</value></data>
+  <data name="Tray.BalloonText" xml:space="preserve"><value>You can find the Agent in the system tray under the hidden icons.</value></data>
+  <data name="Tray.BalloonTitle" xml:space="preserve"><value>Nexus Control Agent keeps running</value></data>
+  <data name="Tray.Exit" xml:space="preserve"><value>Exit Agent</value></data>
+  <data name="Tray.NewPairingCode" xml:space="preserve"><value>Create new pairing code</value></data>
+  <data name="Tray.Open" xml:space="preserve"><value>Open Nexus Control</value></data>
+  <data name="Tray.Running" xml:space="preserve"><value>Nexus Control Agent – running</value></data>
+  <data name="Tray.StartWithWindows" xml:space="preserve"><value>Start with Windows</value></data>
+  <data name="Service.AutoStart.RemoveFailed" xml:space="preserve"><value>The Windows startup task could not be removed.</value></data>
+  <data name="Service.AutoStart.RequiresBuiltExe" xml:space="preserve"><value>Windows startup can only be enabled from the built NexusControlAgent.exe.</value></data>
+  <data name="Service.AutoStart.SetupFailed" xml:space="preserve"><value>Windows startup could not be configured.</value></data>
+  <data name="Service.AutoStart.SchedulerStartFailed" xml:space="preserve"><value>Windows Task Scheduler could not be started.</value></data>
+  <data name="Service.AutoStart.SchedulerTimeout" xml:space="preserve"><value>Windows Task Scheduler timed out.</value></data>
+  <data name="Service.Firewall.PortRange" xml:space="preserve"><value>The firewall port must be between 1 and 65535.</value></data>
+  <data name="Service.Firewall.ScriptMissing" xml:space="preserve"><value>The firewall script was not found: {0}</value></data>
+  <data name="Service.Firewall.ElevationFailed" xml:space="preserve"><value>The Windows administrator prompt could not be started.</value></data>
+  <data name="Service.Firewall.RuleFailed" xml:space="preserve"><value>Windows could not create the firewall rule (error code {0}).</value></data>
+  <data name="AgentWindow.settingsButton" xml:space="preserve"><value>Settings</value></data>
+  <data name="AgentWindow.ToolTip.Settings" xml:space="preserve"><value>Open Agent settings</value></data>
+  <data name="FirstRunDialog.Title" xml:space="preserve"><value>Welcome to Nexus Control</value></data>
+  <data name="FirstRunDialog.brandLabel" xml:space="preserve"><value>NEXUS CONTROL AGENT</value></data>
+  <data name="FirstRunDialog.welcomeLabel" xml:space="preserve"><value>Welcome to Nexus Control</value></data>
+  <data name="FirstRunDialog.descriptionLabel" xml:space="preserve"><value>Control and monitor your Windows PC securely from your smartphone.</value></data>
+  <data name="FirstRunDialog.languageGroupBox" xml:space="preserve"><value>Language</value></data>
+  <data name="FirstRunDialog.languageLabel" xml:space="preserve"><value>Choose your language:</value></data>
+  <data name="FirstRunDialog.languageHintLabel" xml:space="preserve"><value>You can change this later in Settings.</value></data>
+  <data name="FirstRunDialog.featurePairingLabel" xml:space="preserve"><value>• Pair your smartphone using a QR code</value></data>
+  <data name="FirstRunDialog.featureTrayLabel" xml:space="preserve"><value>• Runs quietly in the Windows system tray</value></data>
+  <data name="FirstRunDialog.privacyLabel" xml:space="preserve"><value>Local and secure · No Windows passwords or PINs are stored</value></data>
+  <data name="FirstRunDialog.continueButton" xml:space="preserve"><value>Get started</value></data>
+  <data name="FirstRunDialog.SaveFailed" xml:space="preserve"><value>Setup was completed, but the first-start status could not be saved. This screen may appear again next time.</value></data>
+  <data name="SettingsDialog.Title" xml:space="preserve"><value>Nexus Control settings</value></data>
+  <data name="SettingsDialog.titleLabel" xml:space="preserve"><value>Agent settings</value></data>
+  <data name="SettingsDialog.languageGroupBox" xml:space="preserve"><value>Language</value></data>
+  <data name="SettingsDialog.languageLabel" xml:space="preserve"><value>App language:</value></data>
+  <data name="SettingsDialog.languageHintLabel" xml:space="preserve"><value>Changes are applied immediately and saved automatically.</value></data>
+  <data name="SettingsDialog.closeButton" xml:space="preserve"><value>Done</value></data>
+</root>

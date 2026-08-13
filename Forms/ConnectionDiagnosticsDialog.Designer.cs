@@ -95,7 +95,7 @@ partial class ConnectionDiagnosticsDialog
         titleLabel.Name = "titleLabel";
         titleLabel.Size = new Size(454, 26);
         titleLabel.TabIndex = 0;
-        titleLabel.Text = "Nexus Control Verbindungsdiagnose";
+        titleLabel.Text = "Nexus Control connection diagnostics";
         titleLabel.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // _summaryLabel
@@ -106,7 +106,7 @@ partial class ConnectionDiagnosticsDialog
         _summaryLabel.Size = new Size(454, 26);
         _summaryLabel.TabIndex = 1;
         _summaryLabel.Tag = "muted";
-        _summaryLabel.Text = "Prüfung wird vorbereitet …";
+        _summaryLabel.Text = "Preparing checks …";
         _summaryLabel.TextAlign = ContentAlignment.MiddleLeft;
         // 
         // resultsGroupBox
@@ -145,11 +145,11 @@ partial class ConnectionDiagnosticsDialog
         // 
         footerLayout.ColumnCount = 6;
         footerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-        footerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 112F));
+        footerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120F));
         footerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 6F));
-        footerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 96F));
+        footerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120F));
         footerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 6F));
-        footerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 76F));
+        footerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 84F));
         footerLayout.Controls.Add(_copyButton, 1, 0);
         footerLayout.Controls.Add(_runButton, 3, 0);
         footerLayout.Controls.Add(closeButton, 5, 0);
@@ -171,7 +171,7 @@ partial class ConnectionDiagnosticsDialog
         _copyButton.Name = "_copyButton";
         _copyButton.Size = new Size(112, 36);
         _copyButton.TabIndex = 0;
-        _copyButton.Text = "Bericht kopieren";
+        _copyButton.Text = "Copy report";
         _copyButton.UseVisualStyleBackColor = true;
         _copyButton.Click += CopyButtonClicked;
         // 
@@ -184,7 +184,7 @@ partial class ConnectionDiagnosticsDialog
         _runButton.Size = new Size(96, 36);
         _runButton.TabIndex = 1;
         _runButton.Tag = "primary";
-        _runButton.Text = "Erneut prüfen";
+        _runButton.Text = "Run again";
         _runButton.UseVisualStyleBackColor = true;
         _runButton.Click += RunButtonClicked;
         // 
@@ -197,7 +197,7 @@ partial class ConnectionDiagnosticsDialog
         closeButton.Name = "closeButton";
         closeButton.Size = new Size(76, 36);
         closeButton.TabIndex = 2;
-        closeButton.Text = "Schließen";
+        closeButton.Text = "Close";
         closeButton.UseVisualStyleBackColor = true;
         // 
         // ConnectionDiagnosticsDialog
@@ -216,7 +216,7 @@ partial class ConnectionDiagnosticsDialog
         Name = "ConnectionDiagnosticsDialog";
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.CenterParent;
-        Text = "Verbindungsdiagnose";
+        Text = "Connection diagnostics";
         FormClosed += DialogFormClosed;
         Shown += DialogShown;
         rootLayout.ResumeLayout(false);

@@ -1,5 +1,6 @@
 using NexusControl.Agent.Configuration;
 using NexusControl.Agent.Forms;
+using NexusControl.Agent.Localization;
 using NexusControl.Agent.Pairing;
 using NexusControl.Agent.Services;
 using NexusControl.Agent.UI;
@@ -18,10 +19,15 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
     private readonly WinForms.NotifyIcon _trayIcon;
     private readonly Drawing.Icon _trayIconImage;
     private readonly AutoStartService _autoStart;
+    private readonly FirstRunService _firstRun;
+    private readonly WinForms.ToolStripMenuItem _openMenuItem;
+    private readonly WinForms.ToolStripMenuItem _rotateMenuItem;
     private readonly WinForms.ToolStripMenuItem _autoStartMenuItem;
+    private readonly WinForms.ToolStripMenuItem _exitMenuItem;
     private bool _exiting;
     private bool _minimizeHintShown;
     private bool _updatingAutoStart;
+    private bool _showingFirstRun;
     private Action? _balloonClickAction;
 
     public AgentApplicationContext(
@@ -32,6 +38,7 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
         bool startInTray)
     {
         _autoStart = new AutoStartService();
+        _firstRun = new FirstRunService();
         var firewall = new FirewallService(options.Port);
         _window = new AgentWindow(
             pairing,
@@ -47,8 +54,8 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
         _ = _window.Handle;
 
         var menu = CreateContextMenu();
-        var openMenuItem = new WinForms.ToolStripMenuItem(
-            "Nexus Control öffnen",
+        _openMenuItem = new WinForms.ToolStripMenuItem(
+            LocalizationService.Text("Tray.Open"),
             null,
             (_, _) => ShowWindow())
         {
@@ -57,8 +64,8 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
                 9F,
                 Drawing.FontStyle.Bold),
         };
-        var rotateMenuItem = new WinForms.ToolStripMenuItem(
-            "Neuen Pairing-Code erstellen",
+        _rotateMenuItem = new WinForms.ToolStripMenuItem(
+            LocalizationService.Text("Tray.NewPairingCode"),
             null,
             (_, _) =>
             {
@@ -66,7 +73,7 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
                 ShowWindow();
             });
         _autoStartMenuItem = new WinForms.ToolStripMenuItem(
-            "Mit Windows starten")
+            LocalizationService.Text("Tray.StartWithWindows"))
         {
             CheckOnClick = true,
         };
@@ -79,17 +86,17 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
             }
         };
 
-        var exitMenuItem = new WinForms.ToolStripMenuItem(
-            "Agent beenden",
+        _exitMenuItem = new WinForms.ToolStripMenuItem(
+            LocalizationService.Text("Tray.Exit"),
             null,
             (_, _) => ExitAgent());
 
-        menu.Items.Add(openMenuItem);
-        menu.Items.Add(rotateMenuItem);
+        menu.Items.Add(_openMenuItem);
+        menu.Items.Add(_rotateMenuItem);
         menu.Items.Add(new WinForms.ToolStripSeparator());
         menu.Items.Add(_autoStartMenuItem);
         menu.Items.Add(new WinForms.ToolStripSeparator());
-        menu.Items.Add(exitMenuItem);
+        menu.Items.Add(_exitMenuItem);
 
         foreach (WinForms.ToolStripItem item in menu.Items)
         {
@@ -100,7 +107,7 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
         _trayIcon = new WinForms.NotifyIcon
         {
             Icon = _trayIconImage,
-            Text = "Nexus Control Agent – läuft",
+            Text = NotifyIconText(LocalizationService.Text("Tray.Running")),
             ContextMenuStrip = menu,
             Visible = true,
         };
@@ -122,6 +129,7 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
             }
         };
         _window.FormClosing += WindowFormClosing;
+        LocalizationService.LanguageChanged += LanguageChanged;
 
         if (startInTray)
         {
@@ -159,6 +167,7 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
     {
         if (disposing)
         {
+            LocalizationService.LanguageChanged -= LanguageChanged;
             _trayIcon.Visible = false;
             _trayIcon.ContextMenuStrip?.Dispose();
             _trayIcon.Dispose();
@@ -179,6 +188,11 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
             return;
         }
 
+        if (!EnsureFirstRunCompleted())
+        {
+            return;
+        }
+
         _window.ShowInTaskbar = true;
         if (!_window.Visible)
         {
@@ -193,6 +207,44 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
         _window.RefreshAutoStartState();
         _window.Activate();
         _window.BringToFront();
+    }
+
+    private bool EnsureFirstRunCompleted()
+    {
+        if (_firstRun.IsCompleted())
+        {
+            return true;
+        }
+
+        if (_showingFirstRun)
+        {
+            return false;
+        }
+
+        _showingFirstRun = true;
+        try
+        {
+            using var dialog = new FirstRunDialog();
+            if (dialog.ShowDialog() != WinForms.DialogResult.OK)
+            {
+                return false;
+            }
+
+            if (!_firstRun.MarkCompleted())
+            {
+                NexusDialog.Show(
+                    _window,
+                    LocalizationService.Text("FirstRunDialog.SaveFailed"),
+                    LocalizationService.Text("FirstRunDialog.Title"),
+                    NexusDialogKind.Warning);
+            }
+
+            return true;
+        }
+        finally
+        {
+            _showingFirstRun = false;
+        }
     }
 
     private void HideWindow()
@@ -213,8 +265,8 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
         _balloonClickAction = ShowWindow;
         _trayIcon.ShowBalloonTip(
             3000,
-            "Nexus Control Agent läuft weiter",
-            "Du findest den Agent im Infobereich bei den ausgeblendeten Symbolen.",
+            LocalizationService.Text("Tray.BalloonTitle"),
+            LocalizationService.Text("Tray.BalloonText"),
             WinForms.ToolTipIcon.Info);
     }
 
@@ -257,7 +309,8 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
             NexusDialog.Show(
                 _window,
                 result.Error
-                    ?? "Der Autostart konnte nicht geändert werden.",
+                    ?? LocalizationService.Text(
+                        "Tray.AutoStartChangeFailed"),
                 "Nexus Control Agent",
                 NexusDialogKind.Warning);
         }
@@ -277,6 +330,32 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
         _window.Close();
         ExitThread();
     }
+
+    private void LanguageChanged(object? sender, EventArgs eventArgs)
+    {
+        if (_window.IsDisposed)
+        {
+            return;
+        }
+
+        if (_window.InvokeRequired)
+        {
+            _window.BeginInvoke(new Action(
+                () => LanguageChanged(sender, eventArgs)));
+            return;
+        }
+
+        _openMenuItem.Text = LocalizationService.Text("Tray.Open");
+        _rotateMenuItem.Text = LocalizationService.Text("Tray.NewPairingCode");
+        _autoStartMenuItem.Text = LocalizationService.Text(
+            "Tray.StartWithWindows");
+        _exitMenuItem.Text = LocalizationService.Text("Tray.Exit");
+        _trayIcon.Text = NotifyIconText(
+            LocalizationService.Text("Tray.Running"));
+    }
+
+    private static string NotifyIconText(string text) =>
+        text[..Math.Min(text.Length, 63)];
 
     private static Drawing.Icon LoadTrayIcon()
     {

@@ -1,10 +1,10 @@
-# MSI-Branding und deutsche Texte
+# MSI Branding and German Installer Text
 
-- `NexusControlInstaller.ico` – Installer- und Verknüpfungsicon
-- `banner.png` – oberes WiX-Banner im Format 493 × 58 Pixel
-- `dialog.png` – große WiX-Dialoggrafik im Format 493 × 312 Pixel
-- `license-de-DE.rtf` – deutsche Lizenz- und Nutzungsbedingungen
+- `NexusControlInstaller.ico` — installer and shortcut icon
+- `banner.png` — top WiX banner in 493 × 58 pixel format
+- `dialog.png` — large WiX dialog image in 493 × 312 pixel format
+- `license-de-DE.rtf` — German license and terms of use
 
-Der Installer wird mit `de-DE` gebaut. Dadurch verwendet die WiX-Oberfläche
-deutsche Dialog-, Fehler- und Fortschrittstexte. Das Standard-Lorem-ipsum der
-WiX-Lizenzseite wird durch `license-de-DE.rtf` ersetzt.
+The installer is built with the `de-DE` locale. The WiX interface therefore
+uses German dialog, error, and progress text. The default lorem ipsum on the
+WiX license page is replaced by `license-de-DE.rtf`.

@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Windows.Forms;
 using NexusControl.Agent.Models;
+using NexusControl.Agent.Localization;
 using NexusControl.Agent.Pairing;
 using NexusControl.Agent.Services;
 using NexusControl.Agent.UI;
@@ -29,6 +30,7 @@ internal sealed partial class DeviceManagementDialog : Form
         _devices = null!;
         _activityLog = null!;
         InitializeComponent();
+        LocalizationService.Apply(this, nameof(DeviceManagementDialog));
         WinFormsTheme.Apply(this);
     }
 
@@ -39,6 +41,7 @@ internal sealed partial class DeviceManagementDialog : Form
         _devices = devices;
         _activityLog = activityLog;
         InitializeComponent();
+        LocalizationService.Apply(this, nameof(DeviceManagementDialog));
         WinFormsTheme.Apply(this);
         LoadDevices();
         _refreshTimer.Start();
@@ -94,12 +97,14 @@ internal sealed partial class DeviceManagementDialog : Form
         if (choice is null)
         {
             _deviceNameTextBox.Text = "";
-            _deviceInfoLabel.Text = "Noch kein Smartphone gekoppelt.";
+            _deviceInfoLabel.Text = LocalizationService.Text(
+                "DeviceManagementDialog.NoDevice");
             _deviceInfoLabel.ForeColor = WinFormsTheme.TextMuted;
             _remoteAccessCheckBox.Checked = false;
             SetPermissionFlags(DevicePermission.None);
             SetPermissionControlsEnabled(false);
-            _statusLabel.Text = "Über den QR-Code kann ein Gerät gekoppelt werden.";
+            _statusLabel.Text = LocalizationService.Text(
+                "DeviceManagementDialog.PairViaQr");
             return;
         }
 
@@ -113,8 +118,10 @@ internal sealed partial class DeviceManagementDialog : Form
         SetPermissionFlags(device.Permissions.ToFlags());
         SetPermissionControlsEnabled(device.RemoteAccessEnabled);
         _statusLabel.Text = device.RemoteAccessEnabled
-            ? "Änderungen gelten sofort für neue Befehle."
-            : "Remote-Zugriff ist für dieses Gerät pausiert.";
+            ? LocalizationService.Text(
+                "DeviceManagementDialog.ChangesImmediate")
+            : LocalizationService.Text(
+                "DeviceManagementDialog.RemotePaused");
     }
 
     private void DeviceSelectionChanged(object? sender, EventArgs eventArgs)
@@ -143,7 +150,8 @@ internal sealed partial class DeviceManagementDialog : Form
         }
 
         SetPermissionControlsEnabled(_remoteAccessCheckBox.Checked);
-        _statusLabel.Text = "Nicht gespeicherte Änderungen.";
+        _statusLabel.Text = LocalizationService.Text(
+            "DeviceManagementDialog.Unsaved");
     }
 
     private void SaveButtonClicked(object? sender, EventArgs eventArgs)
@@ -156,7 +164,8 @@ internal sealed partial class DeviceManagementDialog : Form
 
         if (string.IsNullOrWhiteSpace(_deviceNameTextBox.Text))
         {
-            _statusLabel.Text = "Bitte einen Gerätenamen eingeben.";
+            _statusLabel.Text = LocalizationService.Text(
+                "DeviceManagementDialog.EnterName");
             _deviceNameTextBox.Focus();
             return;
         }
@@ -168,7 +177,8 @@ internal sealed partial class DeviceManagementDialog : Form
             GetPermissionFlags());
         if (!saved)
         {
-            _statusLabel.Text = "Das Gerät wurde nicht mehr gefunden.";
+            _statusLabel.Text = LocalizationService.Text(
+                "DeviceManagementDialog.NotFound");
             LoadDevices();
             return;
         }
@@ -178,9 +188,10 @@ internal sealed partial class DeviceManagementDialog : Form
         _activityLog.Record(
             identity.DeviceName,
             identity.Platform,
-            "Gerätefreigaben geändert",
+            "device.permissions.changed",
             ActivityLogResult.Success);
-        _statusLabel.Text = "Gerät und Berechtigungen wurden gespeichert.";
+        _statusLabel.Text = LocalizationService.Text(
+            "DeviceManagementDialog.Saved");
     }
 
     private void RemoveButtonClicked(object? sender, EventArgs eventArgs)
@@ -193,10 +204,13 @@ internal sealed partial class DeviceManagementDialog : Form
 
         var confirmation = NexusDialog.Confirm(
             this,
-            $"Soll „{choice.Device.DeviceName}“ wirklich entfernt werden? Das Smartphone muss danach erneut per QR- oder Pairing-Code gekoppelt werden.",
-            "Gerätefreigabe entfernen",
+            LocalizationService.Format(
+                "DeviceManagementDialog.RemovePrompt",
+                choice.Device.DeviceName),
+            LocalizationService.Text("DeviceManagementDialog.RemoveTitle"),
             NexusDialogKind.Warning,
-            "Entfernen");
+            LocalizationService.Text(
+                "DeviceManagementDialog._removeButton"));
         if (confirmation != DialogResult.OK)
         {
             return;
@@ -208,19 +222,21 @@ internal sealed partial class DeviceManagementDialog : Form
             _activityLog.Record(
                 identity.DeviceName,
                 identity.Platform,
-                "Gerätefreigabe entfernen",
+                "device.permission.remove",
                 ActivityLogResult.Failed);
             LoadDevices();
-            _statusLabel.Text = "Das Gerät wurde nicht mehr gefunden.";
+            _statusLabel.Text = LocalizationService.Text(
+                "DeviceManagementDialog.NotFound");
             return;
         }
         _activityLog.Record(
             identity.DeviceName,
             identity.Platform,
-            "Gerätefreigabe entfernt",
+            "device.permission.removed",
             ActivityLogResult.Success);
         LoadDevices();
-        _statusLabel.Text = "Gerätefreigabe wurde entfernt.";
+        _statusLabel.Text = LocalizationService.Text(
+            "DeviceManagementDialog.Removed");
     }
 
     private void RefreshTimerTick(object? sender, EventArgs eventArgs)
@@ -316,14 +332,24 @@ internal sealed partial class DeviceManagementDialog : Form
     private static string FormatDeviceInfo(TrustedDeviceInfo device)
     {
         var state = !device.RemoteAccessEnabled
-            ? "Pausiert"
+            ? LocalizationService.Text(
+                "DeviceManagementDialog.State.Paused")
             : device.IsOnline
-                ? "Online"
-                : "Offline";
+                ? LocalizationService.Text(
+                    "DeviceManagementDialog.State.Online")
+                : LocalizationService.Text(
+                    "DeviceManagementDialog.State.Offline");
         var lastSeen = device.IsOnline
-            ? "jetzt verbunden"
-            : device.LastSeenAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss");
-        return $"{device.Platform}  ·  {state}  ·  Zuletzt: {lastSeen}";
+            ? LocalizationService.Text(
+                "DeviceManagementDialog.LastSeen.Now")
+            : device.LastSeenAt.ToLocalTime().ToString(
+                "g",
+                LocalizationService.CurrentCulture);
+        return LocalizationService.Format(
+            "DeviceManagementDialog.Info",
+            device.Platform,
+            state,
+            lastSeen);
     }
 
     private sealed class DeviceChoice
@@ -339,10 +365,13 @@ internal sealed partial class DeviceManagementDialog : Form
         public override string ToString()
         {
             var state = !Device.RemoteAccessEnabled
-                ? "Pausiert"
+                ? LocalizationService.Text(
+                    "DeviceManagementDialog.State.Paused")
                 : Device.IsOnline
-                    ? "Online"
-                    : "Offline";
+                    ? LocalizationService.Text(
+                        "DeviceManagementDialog.State.Online")
+                    : LocalizationService.Text(
+                        "DeviceManagementDialog.State.Offline");
             return $"{Device.DeviceName} — {state}";
         }
     }

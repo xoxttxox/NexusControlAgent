@@ -6,6 +6,7 @@
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <RootNamespace>NexusControl.Agent</RootNamespace>
     <AssemblyName>NexusControlAgent</AssemblyName>
+    <NeutralLanguage>en</NeutralLanguage>
     <!-- Der ASP.NET-Agent behält seinen eigenen STA-Startpunkt für WinForms. -->
     <StartupObject>NexusControl.Agent.Program</StartupObject>
     <Version>0.11.4</Version>
@@ -90,6 +91,24 @@
     </Compile>
     <EmbeddedResource Update="Forms\ActivityLogDialog.resx">
       <DependentUpon>ActivityLogDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Forms\FirstRunDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\FirstRunDialog.Designer.cs">
+      <DependentUpon>FirstRunDialog.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="Forms\FirstRunDialog.resx">
+      <DependentUpon>FirstRunDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Forms\SettingsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\SettingsDialog.Designer.cs">
+      <DependentUpon>SettingsDialog.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="Forms\SettingsDialog.resx">
+      <DependentUpon>SettingsDialog.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
 

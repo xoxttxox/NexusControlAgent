@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using NexusControl.Agent.Localization;
 using NexusControl.Agent.Security;
 
 namespace NexusControl.Agent.Services;
@@ -35,9 +36,18 @@ internal sealed class ActivityLogService
     {
         var entry = new ActivityLogEntry(
             DateTimeOffset.UtcNow,
-            Sanitize(deviceName, 80, "Unbekanntes Gerät"),
-            Sanitize(platform, 40, "Unbekannt"),
-            Sanitize(action, 100, "Unbekannte Aktion"),
+            Sanitize(
+                deviceName,
+                80,
+                LocalizationService.Text("ActivityLog.UnknownDevice")),
+            Sanitize(
+                platform,
+                40,
+                LocalizationService.Text("ActivityLog.UnknownPlatform")),
+            Sanitize(
+                action,
+                100,
+                "activity.unknown"),
             result);
 
         lock (_gate)
@@ -106,22 +116,26 @@ internal sealed class ActivityLogService
     {
         var entries = ReadRecent(Math.Clamp(maximum, 1, MaximumEntries));
         var report = new StringBuilder();
-        report.AppendLine("Nexus Control Agent – lokales Protokoll");
-        report.AppendLine(
-            "Enthält keine Kennwörter, Tokens, Befehlsparameter, Dateinamen oder Dateiinhalte.");
+        report.AppendLine(LocalizationService.Text("ActivityLog.Report.Title"));
+        report.AppendLine(LocalizationService.Text(
+            "ActivityLog.Report.Privacy"));
         report.AppendLine();
 
         foreach (var entry in entries.Reverse())
         {
             report.AppendLine(
-                $"{entry.Timestamp.ToLocalTime():yyyy-MM-dd HH:mm:ss} | "
+                $"{entry.Timestamp.ToLocalTime().ToString(
+                    "G",
+                    LocalizationService.CurrentCulture)} | "
                 + $"{entry.DeviceName} ({entry.Platform}) | "
-                + $"{entry.Action} | {ResultText(entry.Result)}");
+                + $"{DisplayAction(entry.Action)} | "
+                + ResultText(entry.Result));
         }
 
         if (entries.Count == 0)
         {
-            report.AppendLine("Noch keine Aktivität protokolliert.");
+            report.AppendLine(LocalizationService.Text(
+                "ActivityLog.Report.Empty"));
         }
 
         return report.ToString().TrimEnd();
@@ -130,29 +144,29 @@ internal sealed class ActivityLogService
     public static string CommandAction(string command) =>
         command switch
         {
-            "system.wake" => "PC aufwecken",
-            "system.sleep" => "Standby",
-            "system.restart" => "PC neu starten",
-            "system.shutdown" => "PC herunterfahren",
-            "session.lock" => "PC sperren",
-            "media.playPause" => "Medien: Wiedergabe/Pause",
-            "media.next" => "Medien: nächster Titel",
-            "media.previous" => "Medien: vorheriger Titel",
+            "system.wake" => "command.system.wake",
+            "system.sleep" => "command.system.sleep",
+            "system.restart" => "command.system.restart",
+            "system.shutdown" => "command.system.shutdown",
+            "session.lock" => "command.session.lock",
+            "media.playPause" => "command.media.playPause",
+            "media.next" => "command.media.next",
+            "media.previous" => "command.media.previous",
             "media.session.playPause" =>
-                "Aktive Medien: Wiedergabe/Pause",
-            "media.session.next" => "Aktive Medien: nächster Titel",
-            "media.session.previous" => "Aktive Medien: vorheriger Titel",
-            "media.session.setVolume" => "Aktive Medien: Lautstärke",
+                "command.media.session.playPause",
+            "media.session.next" => "command.media.session.next",
+            "media.session.previous" => "command.media.session.previous",
+            "media.session.setVolume" => "command.media.session.setVolume",
             "media.session.toggleMute" =>
-                "Aktive Medien: Stummschaltung",
-            "audio.toggleMute" => "Windows-Audio: Stummschaltung",
-            "audio.setVolume" => "Windows-Audio: Lautstärke",
-            "input.pointerButton" => "Remote-Touchpad: Mausklick",
-            "input.keyboardText" => "Remote-Tastatur: Texteingabe",
-            "process.terminate" => "Prozess beenden",
-            "screen.start" => "Bildschirmübertragung starten",
-            "screen.stop" => "Bildschirmübertragung beenden",
-            _ => "Unbekannter Befehl",
+                "command.media.session.toggleMute",
+            "audio.toggleMute" => "command.audio.toggleMute",
+            "audio.setVolume" => "command.audio.setVolume",
+            "input.pointerButton" => "command.input.pointerButton",
+            "input.keyboardText" => "command.input.keyboardText",
+            "process.terminate" => "command.process.terminate",
+            "screen.start" => "command.screen.start",
+            "screen.stop" => "command.screen.stop",
+            _ => "command.unknown",
         };
 
     public static bool ShouldRecordCommand(string command) =>
@@ -163,11 +177,101 @@ internal sealed class ActivityLogService
     public static string ResultText(ActivityLogResult result) =>
         result switch
         {
-            ActivityLogResult.Success => "Erfolgreich",
-            ActivityLogResult.Rejected => "Abgelehnt",
-            ActivityLogResult.Failed => "Fehlgeschlagen",
-            _ => "Information",
+            ActivityLogResult.Success => LocalizationService.Text(
+                "ActivityLog.Result.Success"),
+            ActivityLogResult.Rejected => LocalizationService.Text(
+                "ActivityLog.Result.Rejected"),
+            ActivityLogResult.Failed => LocalizationService.Text(
+                "ActivityLog.Result.Failed"),
+            _ => LocalizationService.Text(
+                "ActivityLog.Result.Information"),
         };
+
+    /// <summary>
+    /// Converts stable action identifiers and entries written by older German
+    /// versions into the language currently selected by the user.
+    /// </summary>
+    public static string DisplayAction(string action) => action switch
+    {
+        "connection.attempt" or "Verbindung herstellen" =>
+            LocalizationService.Text("ActivityLog.Action.ConnectionAttempt"),
+        "connection.established" or "Verbindung hergestellt" =>
+            LocalizationService.Text(
+                "ActivityLog.Action.ConnectionEstablished"),
+        "connection.disconnected" or "Verbindung getrennt" =>
+            LocalizationService.Text(
+                "ActivityLog.Action.ConnectionDisconnected"),
+        "connection.revoked" or "Verbindung widerrufen" =>
+            LocalizationService.Text("ActivityLog.Action.ConnectionRevoked"),
+        "pairing.verify" or "Pairing-Code prüfen" =>
+            LocalizationService.Text("ActivityLog.Action.PairingVerify"),
+        "device.paired" or "Gerät gekoppelt" =>
+            LocalizationService.Text("ActivityLog.Action.DevicePaired"),
+        "device.permissions.changed" or "Gerätefreigaben geändert" =>
+            LocalizationService.Text(
+                "ActivityLog.Action.PermissionsChanged"),
+        "device.permission.remove" or "Gerätefreigabe entfernen" =>
+            LocalizationService.Text("ActivityLog.Action.PermissionRemove"),
+        "device.permission.removed" or "Gerätefreigabe entfernt" =>
+            LocalizationService.Text("ActivityLog.Action.PermissionRemoved"),
+        "file.upload" or "Datei hochladen" =>
+            LocalizationService.Text("ActivityLog.Action.FileUpload"),
+        "file.download" or "Datei herunterladen" =>
+            LocalizationService.Text("ActivityLog.Action.FileDownload"),
+        "command.system.wake" or "PC aufwecken" =>
+            LocalizationService.Text("ActivityLog.Action.SystemWake"),
+        "command.system.sleep" or "Standby" =>
+            LocalizationService.Text("ActivityLog.Action.SystemSleep"),
+        "command.system.restart" or "PC neu starten" =>
+            LocalizationService.Text("ActivityLog.Action.SystemRestart"),
+        "command.system.shutdown" or "PC herunterfahren" =>
+            LocalizationService.Text("ActivityLog.Action.SystemShutdown"),
+        "command.session.lock" or "PC sperren" =>
+            LocalizationService.Text("ActivityLog.Action.SessionLock"),
+        "command.media.playPause" or "Medien: Wiedergabe/Pause" =>
+            LocalizationService.Text("ActivityLog.Action.MediaPlayPause"),
+        "command.media.next" or "Medien: nächster Titel" =>
+            LocalizationService.Text("ActivityLog.Action.MediaNext"),
+        "command.media.previous" or "Medien: vorheriger Titel" =>
+            LocalizationService.Text("ActivityLog.Action.MediaPrevious"),
+        "command.media.session.playPause"
+            or "Aktive Medien: Wiedergabe/Pause" =>
+            LocalizationService.Text("ActivityLog.Action.SessionPlayPause"),
+        "command.media.session.next"
+            or "Aktive Medien: nächster Titel" =>
+            LocalizationService.Text("ActivityLog.Action.SessionNext"),
+        "command.media.session.previous"
+            or "Aktive Medien: vorheriger Titel" =>
+            LocalizationService.Text("ActivityLog.Action.SessionPrevious"),
+        "command.media.session.setVolume"
+            or "Aktive Medien: Lautstärke" =>
+            LocalizationService.Text("ActivityLog.Action.SessionVolume"),
+        "command.media.session.toggleMute"
+            or "Aktive Medien: Stummschaltung" =>
+            LocalizationService.Text("ActivityLog.Action.SessionMute"),
+        "command.audio.toggleMute"
+            or "Windows-Audio: Stummschaltung" =>
+            LocalizationService.Text("ActivityLog.Action.AudioMute"),
+        "command.audio.setVolume" or "Windows-Audio: Lautstärke" =>
+            LocalizationService.Text("ActivityLog.Action.AudioVolume"),
+        "command.input.pointerButton"
+            or "Remote-Touchpad: Mausklick" =>
+            LocalizationService.Text("ActivityLog.Action.PointerButton"),
+        "command.input.keyboardText"
+            or "Remote-Tastatur: Texteingabe" =>
+            LocalizationService.Text("ActivityLog.Action.KeyboardText"),
+        "command.process.terminate" or "Prozess beenden" =>
+            LocalizationService.Text("ActivityLog.Action.ProcessTerminate"),
+        "command.screen.start" or "Bildschirmübertragung starten" =>
+            LocalizationService.Text("ActivityLog.Action.ScreenStart"),
+        "command.screen.stop" or "Bildschirmübertragung beenden" =>
+            LocalizationService.Text("ActivityLog.Action.ScreenStop"),
+        "command.unknown" or "Unbekannter Befehl" =>
+            LocalizationService.Text("ActivityLog.Action.UnknownCommand"),
+        "activity.unknown" or "Unbekannte Aktion" =>
+            LocalizationService.Text("ActivityLog.UnknownAction"),
+        _ => action,
+    };
 
     private void CompactIfNeeded()
     {

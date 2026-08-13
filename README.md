@@ -35,6 +35,10 @@ credentials are stored.
 - automatic startup with Windows and silent operation in the system tray
 - local firewall configuration for the Agent port
 - optional push notifications for monitored events
+- one-time welcome screen with language selection on the first interactive
+  launch
+- built-in language selection with English as the default, English fallback,
+  and German, French, Spanish, Italian, and Polish translations
 
 ## Requirements
 
@@ -121,6 +125,25 @@ Default values are located under `Agent` in `appsettings.json`.
 certificates, and credentials must not be stored in `appsettings.json` or
 committed to Git.
 
+## Languages
+
+On the first interactive launch, the Agent displays a one-time welcome screen
+where the application language can be selected. A silent Windows tray startup
+does not open this screen; it appears when the Agent is opened by the user for
+the first time. After setup is completed, the welcome screen is not shown
+again.
+
+Use the **Settings** button in the Agent window header to switch later between
+**English**, **Deutsch**, **Français**, **Español**, **Italiano**, and
+**Polski**. English is used for first launch and as the fallback whenever a
+translation key is missing. The selected language and completed first-run
+state are stored per Windows user under `%LocalAppData%\NexusControl` and
+restored on the next launch.
+
+UI translations are stored in `Localization/Strings.resx` and the matching
+culture-specific `Strings.<language>.resx` files. New languages can be added
+without changing the application logic.
+
 ## Publishing
 
 Create a self-contained Windows x64 application:
@@ -152,6 +175,7 @@ code-signing certificate. See `Installer/README.md` for additional information.
 Application/         WinForms lifecycle and system tray
 Configuration/       Settings and validation
 Forms/               Main window, designer files, and resources
+Localization/        Language selection and translated resource catalogs
 Models/              API, telemetry, and message models
 Networking/          HTTP, WebSocket, and network validation
 Pairing/             Pairing and trusted devices

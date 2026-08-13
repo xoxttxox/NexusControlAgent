@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using NexusControl.Agent.Localization;
 using NexusControl.Agent.Networking;
 using NexusControl.Agent.Pairing;
 
@@ -67,57 +68,73 @@ internal sealed class ConnectionDiagnosticsService
         var items = new[]
         {
             new ConnectionDiagnosticItem(
-                "Agent-Server",
+                LocalizationService.Text("Diagnostics.AgentServer"),
                 serverReady
                     ? ConnectionDiagnosticState.Success
                     : ConnectionDiagnosticState.Error,
                 serverReady
-                    ? $"Port {_port} antwortet lokal."
-                    : $"Port {_port} ist lokal nicht erreichbar."),
+                    ? LocalizationService.Format(
+                        "Diagnostics.PortReady",
+                        _port)
+                    : LocalizationService.Format(
+                        "Diagnostics.PortUnavailable",
+                        _port)),
             new ConnectionDiagnosticItem(
-                "Lokales Netzwerk",
+                LocalizationService.Text("Diagnostics.LocalNetwork"),
                 hasLanAddress
                     ? ConnectionDiagnosticState.Success
                     : ConnectionDiagnosticState.Error,
                 hasLanAddress
                     ? string.Join(", ", localAddresses.Select(
                         address => $"{address}:{_port}"))
-                    : "Keine aktive private IPv4-Adresse gefunden."),
+                    : LocalizationService.Text(
+                        "Diagnostics.NoPrivateAddress")),
             new ConnectionDiagnosticItem(
-                "Windows-Firewall",
+                LocalizationService.Text("Diagnostics.WindowsFirewall"),
                 firewallReady
                     ? ConnectionDiagnosticState.Success
                     : ConnectionDiagnosticState.Warning,
                 firewallReady
-                    ? $"Freigabe für TCP-Port {_port} ist vorhanden."
-                    : "Die lokale Firewall-Freigabe fehlt oder konnte nicht geprüft werden."),
+                    ? LocalizationService.Format(
+                        "Diagnostics.FirewallReady",
+                        _port)
+                    : LocalizationService.Text(
+                        "Diagnostics.FirewallMissing")),
             new ConnectionDiagnosticItem(
-                "Gekoppelte Geräte",
+                LocalizationService.Text("Diagnostics.PairedDevices"),
                 activeDevices > 0
                     ? ConnectionDiagnosticState.Success
                     : ConnectionDiagnosticState.Information,
                 deviceList.Count switch
                 {
-                    0 => "Noch kein Smartphone gekoppelt.",
-                    1 => $"1 Gerät gekoppelt, {activeDevices} aktuell online.",
-                    _ => $"{deviceList.Count} Geräte gekoppelt, {activeDevices} aktuell online.",
+                    0 => LocalizationService.Text(
+                        "Diagnostics.Devices.None"),
+                    1 => LocalizationService.Format(
+                        "Diagnostics.Devices.One",
+                        activeDevices),
+                    _ => LocalizationService.Format(
+                        "Diagnostics.Devices.Many",
+                        deviceList.Count,
+                        activeDevices),
                 }),
             new ConnectionDiagnosticItem(
-                "Windows-Autostart",
+                LocalizationService.Text("Diagnostics.WindowsStartup"),
                 autoStartEnabled
                     ? ConnectionDiagnosticState.Success
                     : ConnectionDiagnosticState.Information,
                 autoStartEnabled
-                    ? "Aktiv – der Agent startet unsichtbar im Infobereich."
-                    : "Deaktiviert – der Agent muss manuell gestartet werden."),
+                    ? LocalizationService.Text(
+                        "Diagnostics.StartupEnabled")
+                    : LocalizationService.Text(
+                        "Diagnostics.StartupDisabled")),
             new ConnectionDiagnosticItem(
-                "Remote-Verbindung",
+                LocalizationService.Text("Diagnostics.RemoteConnection"),
                 tailscaleAddresses.Count > 0
                     ? ConnectionDiagnosticState.Success
                     : ConnectionDiagnosticState.Information,
                 tailscaleAddresses.Count > 0
                     ? $"Tailscale: {string.Join(", ", tailscaleAddresses)}"
-                    : "Nur lokales Netzwerk – das ist ohne Tailscale normal."),
+                    : LocalizationService.Text("Diagnostics.LocalOnly")),
         };
 
         var hasCriticalError = items.Any(item =>
@@ -125,10 +142,10 @@ internal sealed class ConnectionDiagnosticsService
         var hasWarning = items.Any(item =>
             item.State == ConnectionDiagnosticState.Warning);
         var summary = hasCriticalError
-            ? "Mindestens eine wichtige Verbindungskomponente ist nicht bereit."
+            ? LocalizationService.Text("Diagnostics.Summary.Error")
             : hasWarning
-                ? "Der Agent läuft, aber mindestens eine Einstellung sollte geprüft werden."
-                : "Alle wichtigen Verbindungstests waren erfolgreich.";
+                ? LocalizationService.Text("Diagnostics.Summary.Warning")
+                : LocalizationService.Text("Diagnostics.Summary.Success");
 
         return new ConnectionDiagnosticsSnapshot(
             capturedAt,
@@ -165,12 +182,22 @@ internal sealed class ConnectionDiagnosticsService
         IReadOnlyList<ConnectionDiagnosticItem> items)
     {
         var report = new StringBuilder();
-        report.AppendLine("Nexus Control Agent – Verbindungsdiagnose");
-        report.AppendLine($"Zeit: {capturedAt:yyyy-MM-dd HH:mm:ss zzz}");
-        report.AppendLine($"PC: {Environment.MachineName}");
-        report.AppendLine($"Agent: {TelemetryService.AgentVersion}");
-        report.AppendLine($"Windows: {Environment.OSVersion.VersionString}");
-        report.AppendLine($"Ergebnis: {summary}");
+        report.AppendLine(LocalizationService.Text("Diagnostics.Report.Title"));
+        report.AppendLine(LocalizationService.Format(
+            "Diagnostics.Report.Time",
+            capturedAt));
+        report.AppendLine(LocalizationService.Format(
+            "Diagnostics.Report.Pc",
+            Environment.MachineName));
+        report.AppendLine(LocalizationService.Format(
+            "Diagnostics.Report.Agent",
+            TelemetryService.AgentVersion));
+        report.AppendLine(LocalizationService.Format(
+            "Diagnostics.Report.Windows",
+            Environment.OSVersion.VersionString));
+        report.AppendLine(LocalizationService.Format(
+            "Diagnostics.Report.Result",
+            summary));
         report.AppendLine();
         foreach (var item in items)
         {
@@ -184,10 +211,14 @@ internal sealed class ConnectionDiagnosticsService
     private static string StateText(ConnectionDiagnosticState state) =>
         state switch
         {
-            ConnectionDiagnosticState.Success => "OK",
-            ConnectionDiagnosticState.Warning => "WARNUNG",
-            ConnectionDiagnosticState.Error => "FEHLER",
-            _ => "INFO",
+            ConnectionDiagnosticState.Success => LocalizationService.Text(
+                "Diagnostics.State.Success"),
+            ConnectionDiagnosticState.Warning => LocalizationService.Text(
+                "Diagnostics.State.Warning"),
+            ConnectionDiagnosticState.Error => LocalizationService.Text(
+                "Diagnostics.State.Error"),
+            _ => LocalizationService.Text(
+                "Diagnostics.State.Information"),
         };
 }
 
