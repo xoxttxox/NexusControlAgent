@@ -1,65 +1,65 @@
-# Nexus Control Agent – MSI-Installer 0.11.4
+# Nexus Control Agent – MSI Installer 0.11.4
 
-Der Installer basiert auf WiX Toolset 7 und installiert ausschließlich den
-interaktiven Nexus Control Agent für Windows x64.
+The installer is based on WiX Toolset 7 and installs only the interactive
+Nexus Control Agent for Windows x64.
 
-## MSI erstellen
+## Building the MSI
 
-1. Das .NET 10 SDK installieren.
-2. `Scripts\build-msi.bat` starten.
-3. Die WiX-v7-OSMF-EULA im Skript ausdrücklich bestätigen.
+1. Install the .NET 10 SDK.
+2. Run `Scripts\build-msi.bat`.
+3. Explicitly accept the WiX v7 OSMF EULA in the script.
 
-Die fertige Datei liegt hier:
+The generated installer is located at:
 
 ```text
 artifacts\installer\NexusControlAgent-Setup-v0.11.4-win-x64.msi
 ```
 
-## Installierte Bestandteile
+## Installed Components
 
-- Nexus Control Agent mit Port `5188`
-- Firewall-Regeln für privates LAN und Tailscale
-- Startmenüeintrag
-- optionaler stiller Tray-Autostart
-- optionale Desktop-Verknüpfung
+- Nexus Control Agent using port `5188`
+- firewall rules for private LAN and Tailscale
+- Start menu shortcut
+- optional silent tray startup
+- optional desktop shortcut
 
-Der Agent benötigt wegen der Windows-Steuerbefehle Administratorrechte. Es
-werden kein Windows-Kerndienst, kein Credential Provider, kein Port `5189` und
-keine Windows-Anmeldedaten installiert oder eingerichtet.
+The Agent requires administrator privileges because of the Windows control
+commands it provides. It does not install or configure a Windows kernel service,
+Credential Provider, port `5189`, or any Windows login credentials.
 
-## Upgrade von 0.7.1
+## Upgrade from 0.7.1
 
-Beim Upgrade entfernt Version 0.8.0 automatisch die Bestandteile der früheren
-Entsperrfunktion:
+When upgrading, version 0.8.0 automatically removes components from the previous
+Windows unlock feature:
 
-- Dienst `NexusControlCore`
-- Credential-Provider- und COM-Registrierung
-- lokal geschützte Kennwortdatei und Entsperrschlüssel
-- zugehörige Registry-Werte
+- `NexusControlCore` service
+- Credential Provider and COM registration
+- locally protected password file and unlock key
+- related registry values
 
-Die normalen Pairing-Daten unter `%ProgramData%\NexusControl` bleiben erhalten.
+Normal pairing data stored under `%ProgramData%\NexusControl` is preserved.
 
-## Prüfen
+## Validation
 
-`Scripts\build-msi.bat` führt vor dem Build
-`Scripts\validate-installer.ps1` aus. Nach einer Testinstallation kann
-`Scripts\verify-install.ps1` verwendet werden.
+Before building, `Scripts\build-msi.bat` runs
+`Scripts\validate-installer.ps1`. After a test installation,
+`Scripts\verify-install.ps1` can be used to validate the installation.
 
-## Signieren
+## Signing
 
-Für eine öffentliche Verteilung müssen EXE und MSI mit einem vertrauenswürdigen
-Code-Signing-Zertifikat signiert werden:
+For public distribution, the EXE and MSI must be signed with a trusted
+code-signing certificate:
 
 ```powershell
-.\Scripts\sign-release.ps1 -CertificateThumbprint DEIN_ZERTIFIKAT_THUMBPRINT
+.\Scripts\sign-release.ps1 -CertificateThumbprint YOUR_CERTIFICATE_THUMBPRINT
 ```
 
-Danach prüfen:
+Then verify the signature:
 
 ```powershell
 signtool verify /pa /v .\artifacts\installer\NexusControlAgent-Setup-v0.11.4-win-x64.msi
 ```
 
-Der Agent besitzt keinen integrierten Updater. Neue Versionen werden als MSI
-manuell heruntergeladen und installiert; WiX führt dabei ein normales Major
-Upgrade der bestehenden Installation aus.
+The Agent does not include a built-in updater. New versions are downloaded and
+installed manually as MSI packages; WiX performs a standard Major Upgrade of the
+existing installation.
