@@ -1,3 +1,5 @@
+#nullable enable
+
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -8,8 +10,8 @@ using NexusControl.Agent.UI;
 namespace NexusControl.Agent.Forms;
 
 /// <summary>
-/// Zeigt das begrenzte lokale Aktivitätsprotokoll in einem eigenen kleinen
-/// Fenster, ohne die kompakte Hauptansicht zu verändern.
+/// Shows the bounded local activity log in a separate compact window without
+/// changing the main Agent layout.
 /// </summary>
 [DesignerCategory("Form")]
 internal sealed partial class ActivityLogDialog : Form
@@ -18,7 +20,7 @@ internal sealed partial class ActivityLogDialog : Form
     private long _lastRevision = -1;
 
     /// <summary>
-    /// Konstruktor ausschließlich für den Visual-Studio-WinForms-Designer.
+    /// Constructor used exclusively by the Visual Studio WinForms designer.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
     public ActivityLogDialog()
@@ -67,9 +69,8 @@ internal sealed partial class ActivityLogDialog : Form
             _entriesListBox.Items.Clear();
             if (entries.Count == 0)
             {
-                _entriesListBox.Items.Add(
-                    LocalizationService.Text(
-                        "ActivityLogDialog.NoActivity"));
+                _entriesListBox.Items.Add(LocalizationService.Text(
+                    "ActivityLogDialog.NoActivity"));
             }
             else
             {
@@ -109,7 +110,7 @@ internal sealed partial class ActivityLogDialog : Form
         {
             NexusDialog.Show(
                 this,
-                LocalizationService.Text("Common.ClipboardUnavailable"),
+                LocalizationService.Text("ActivityLogDialog.CopyFailed"),
                 LocalizationService.Text("ActivityLogDialog.Title"),
                 NexusDialogKind.Information);
         }
@@ -122,7 +123,7 @@ internal sealed partial class ActivityLogDialog : Form
             LocalizationService.Text("ActivityLogDialog.ClearPrompt"),
             LocalizationService.Text("ActivityLogDialog.ClearTitle"),
             NexusDialogKind.Warning,
-            LocalizationService.Text("ActivityLogDialog.ClearButton"));
+            LocalizationService.Text("ActivityLogDialog.clearButton"));
         if (result != DialogResult.OK)
         {
             return;
@@ -145,13 +146,13 @@ internal sealed partial class ActivityLogDialog : Form
     {
         var deviceName = entry.DeviceName[
             ..Math.Min(entry.DeviceName.Length, 18)];
-        var localizedAction = ActivityLogService.DisplayAction(entry.Action);
-        var action = localizedAction[
-            ..Math.Min(localizedAction.Length, 36)];
-        return $"{entry.Timestamp.ToLocalTime().ToString(
-                "g",
-                LocalizationService.CurrentCulture)}  ·  "
-            + $"{deviceName}  ·  {action}  ·  "
+        var displayAction = ActivityLogService.DisplayAction(entry.Action);
+        var action = displayAction[
+            ..Math.Min(displayAction.Length, 36)];
+        var timestamp = entry.Timestamp
+            .ToLocalTime()
+            .ToString("g", LocalizationService.CurrentCulture);
+        return $"{timestamp}  ·  {deviceName}  ·  {action}  ·  "
             + ActivityLogService.ResultText(entry.Result);
     }
 }

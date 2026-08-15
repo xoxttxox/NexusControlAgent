@@ -1,4 +1,4 @@
-# Nexus Control Agent – Scripts 0.11.4
+# Nexus Control Agent – Scripts 0.11.5
 
 - `build-msi.bat`: publishes the Windows x64 Agent and builds the WiX MSI.
 - `publish-agent.bat`: creates only the self-contained desktop application.
@@ -14,5 +14,5 @@
 MSI output:
 
 ```text
-artifacts\installer\NexusControlAgent-Setup-v0.11.4-win-x64.msi
+artifacts\installer\NexusControlAgent-Setup-v0.11.5-win-x64.msi
 ```

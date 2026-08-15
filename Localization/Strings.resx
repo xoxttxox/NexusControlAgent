@@ -82,7 +82,7 @@
   <data name="ActivityLog.UnknownAction" xml:space="preserve"><value>Unknown action</value></data>
   <data name="ActivityLog.UnknownDevice" xml:space="preserve"><value>Unknown device</value></data>
   <data name="ActivityLog.UnknownPlatform" xml:space="preserve"><value>Unknown</value></data>
-  <data name="ActivityLogDialog.ClearButton" xml:space="preserve"><value>Clear</value></data>
+  <data name="ActivityLogDialog.CopyFailed" xml:space="preserve"><value>Windows could not access the clipboard. Please try again.</value></data>
   <data name="ActivityLogDialog.ClearFailed" xml:space="preserve"><value>The activity log could not be cleared.</value></data>
   <data name="ActivityLogDialog.ClearPrompt" xml:space="preserve"><value>Do you really want to clear the entire local activity log?</value></data>
   <data name="ActivityLogDialog.ClearTitle" xml:space="preserve"><value>Clear activity log</value></data>

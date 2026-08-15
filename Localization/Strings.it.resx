@@ -82,7 +82,7 @@
   <data name="ActivityLog.UnknownAction" xml:space="preserve"><value>Azione sconosciuta</value></data>
   <data name="ActivityLog.UnknownDevice" xml:space="preserve"><value>Dispositivo sconosciuto</value></data>
   <data name="ActivityLog.UnknownPlatform" xml:space="preserve"><value>Sconosciuto</value></data>
-  <data name="ActivityLogDialog.ClearButton" xml:space="preserve"><value>Svuota</value></data>
+  <data name="ActivityLogDialog.CopyFailed" xml:space="preserve"><value>Windows non ha potuto accedere agli appunti. Riprova.</value></data>
   <data name="ActivityLogDialog.ClearFailed" xml:space="preserve"><value>Impossibile svuotare il registro attività.</value></data>
   <data name="ActivityLogDialog.ClearPrompt" xml:space="preserve"><value>Svuotare completamente il registro attività locale?</value></data>
   <data name="ActivityLogDialog.ClearTitle" xml:space="preserve"><value>Svuota registro</value></data>

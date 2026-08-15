@@ -82,7 +82,7 @@
   <data name="ActivityLog.UnknownAction" xml:space="preserve"><value>Unbekannte Aktion</value></data>
   <data name="ActivityLog.UnknownDevice" xml:space="preserve"><value>Unbekanntes Gerät</value></data>
   <data name="ActivityLog.UnknownPlatform" xml:space="preserve"><value>Unbekannt</value></data>
-  <data name="ActivityLogDialog.ClearButton" xml:space="preserve"><value>Leeren</value></data>
+  <data name="ActivityLogDialog.CopyFailed" xml:space="preserve"><value>Windows konnte die Zwischenablage gerade nicht öffnen. Bitte versuche es erneut.</value></data>
   <data name="ActivityLogDialog.ClearFailed" xml:space="preserve"><value>Das Protokoll konnte nicht geleert werden.</value></data>
   <data name="ActivityLogDialog.ClearPrompt" xml:space="preserve"><value>Soll das lokale Aktivitätsprotokoll wirklich vollständig geleert werden?</value></data>
   <data name="ActivityLogDialog.ClearTitle" xml:space="preserve"><value>Protokoll leeren</value></data>

@@ -82,7 +82,7 @@
   <data name="ActivityLog.UnknownAction" xml:space="preserve"><value>Action inconnue</value></data>
   <data name="ActivityLog.UnknownDevice" xml:space="preserve"><value>Appareil inconnu</value></data>
   <data name="ActivityLog.UnknownPlatform" xml:space="preserve"><value>Inconnu</value></data>
-  <data name="ActivityLogDialog.ClearButton" xml:space="preserve"><value>Effacer</value></data>
+  <data name="ActivityLogDialog.CopyFailed" xml:space="preserve"><value>Windows n’a pas pu accéder au presse-papiers. Veuillez réessayer.</value></data>
   <data name="ActivityLogDialog.ClearFailed" xml:space="preserve"><value>Le journal d’activité n’a pas pu être effacé.</value></data>
   <data name="ActivityLogDialog.ClearPrompt" xml:space="preserve"><value>Voulez-vous vraiment effacer tout le journal d’activité local ?</value></data>
   <data name="ActivityLogDialog.ClearTitle" xml:space="preserve"><value>Effacer le journal</value></data>

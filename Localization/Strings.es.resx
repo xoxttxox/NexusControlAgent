@@ -82,7 +82,7 @@
   <data name="ActivityLog.UnknownAction" xml:space="preserve"><value>Acción desconocida</value></data>
   <data name="ActivityLog.UnknownDevice" xml:space="preserve"><value>Dispositivo desconocido</value></data>
   <data name="ActivityLog.UnknownPlatform" xml:space="preserve"><value>Desconocido</value></data>
-  <data name="ActivityLogDialog.ClearButton" xml:space="preserve"><value>Vaciar</value></data>
+  <data name="ActivityLogDialog.CopyFailed" xml:space="preserve"><value>Windows no pudo acceder al portapapeles. Inténtalo de nuevo.</value></data>
   <data name="ActivityLogDialog.ClearFailed" xml:space="preserve"><value>No se pudo vaciar el registro de actividad.</value></data>
   <data name="ActivityLogDialog.ClearPrompt" xml:space="preserve"><value>¿Quieres vaciar completamente el registro de actividad local?</value></data>
   <data name="ActivityLogDialog.ClearTitle" xml:space="preserve"><value>Vaciar registro</value></data>

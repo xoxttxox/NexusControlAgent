@@ -47,7 +47,13 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
             _autoStart,
             firewall,
             activityLog);
-        MainForm = _window;
+
+        // Do not register the Agent window as ApplicationContext.MainForm.
+        // WinForms automatically makes MainForm visible when Application.Run
+        // starts its message loop, which previously undid the hidden --tray
+        // state. The context itself owns the lifetime and exits explicitly via
+        // ExitThread(), so the Agent can run with no visible top-level window.
+        _window.ShowInTaskbar = !startInTray;
 
         // Der unsichtbare Handle macht InvokeRequired auch beim Tray-Start
         // zuverlässig, ohne das Hauptfenster kurz aufblitzen zu lassen.
@@ -136,9 +142,7 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
             // Beim Windows-Autostart darf das Hauptfenster weder sichtbar
             // werden noch kurz in der Taskleiste aufblitzen. Es wird erst über
             // das Tray-Menü oder einen Doppelklick auf das Symbol geöffnet.
-            _window.ShowInTaskbar = false;
             _window.WindowState = WinForms.FormWindowState.Normal;
-            _window.Hide();
             _minimizeHintShown = true;
         }
         else
@@ -254,8 +258,9 @@ internal sealed class AgentApplicationContext : WinForms.ApplicationContext
             return;
         }
 
-        _window.Hide();
         _window.WindowState = WinForms.FormWindowState.Normal;
+        _window.Hide();
+        _window.ShowInTaskbar = false;
         if (_minimizeHintShown)
         {
             return;

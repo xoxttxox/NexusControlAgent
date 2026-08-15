@@ -82,7 +82,7 @@
   <data name="ActivityLog.UnknownAction" xml:space="preserve"><value>Nieznane działanie</value></data>
   <data name="ActivityLog.UnknownDevice" xml:space="preserve"><value>Nieznane urządzenie</value></data>
   <data name="ActivityLog.UnknownPlatform" xml:space="preserve"><value>Nieznana</value></data>
-  <data name="ActivityLogDialog.ClearButton" xml:space="preserve"><value>Wyczyść</value></data>
+  <data name="ActivityLogDialog.CopyFailed" xml:space="preserve"><value>System Windows nie mógł uzyskać dostępu do schowka. Spróbuj ponownie.</value></data>
   <data name="ActivityLogDialog.ClearFailed" xml:space="preserve"><value>Nie udało się wyczyścić dziennika aktywności.</value></data>
   <data name="ActivityLogDialog.ClearPrompt" xml:space="preserve"><value>Czy na pewno całkowicie wyczyścić lokalny dziennik aktywności?</value></data>
   <data name="ActivityLogDialog.ClearTitle" xml:space="preserve"><value>Wyczyść dziennik</value></data>

@@ -172,7 +172,7 @@ internal static class Program
         {
             client.Timeout = TimeSpan.FromSeconds(12);
             client.DefaultRequestHeaders.UserAgent.ParseAdd(
-                "NexusControlAgent/0.11.4");
+                "NexusControlAgent/0.11.5");
         });
         builder.Services.AddSingleton<PushNotificationService>();
         builder.Services.AddHostedService<PushNotificationService>(serviceProvider =>

@@ -697,7 +697,7 @@ partial class AgentWindow
         // 
         versionStatusLabel.Name = "versionStatusLabel";
         versionStatusLabel.Size = new Size(65, 19);
-        versionStatusLabel.Text = "Version 0.11.4";
+        versionStatusLabel.Text = "Version 0.11.5";
         versionStatusLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // refreshTimer

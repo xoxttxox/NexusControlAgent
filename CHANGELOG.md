@@ -7,6 +7,8 @@ follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.11.5] – 2026-08-15
+
 ### Added
 
 - added an extensible WinForms localization system with English as the default
@@ -29,6 +31,15 @@ follows [Semantic Versioning](https://semver.org/).
   the user opens the Agent interactively
 - activity log entries now use stable action identifiers and are translated
   when displayed, including entries written by earlier German versions
+
+### Fixed
+
+- Windows autostart now keeps the Agent window fully hidden instead of allowing
+  the WinForms message loop to display it after initialization
+- the Agent no longer registers its window as the application context's main
+  form; the tray context now owns the process lifetime independently
+- opening the Agent manually or from the tray restores a normal taskbar entry,
+  while hiding it removes the taskbar entry and keeps the Agent running
 
 ## [0.11.4] – 2026-08-13
 

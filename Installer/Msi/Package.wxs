@@ -4,7 +4,7 @@
   <Package
       Name="Nexus Control Agent"
       Manufacturer="Nexus Control"
-      Version="0.11.4"
+      Version="0.11.5"
       Language="1031"
       UpgradeCode="B12E1F69-C89A-4CE4-B596-453E7B1A34C8"
       Scope="perMachine"

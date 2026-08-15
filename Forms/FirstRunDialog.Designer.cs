@@ -148,7 +148,7 @@ partial class FirstRunDialog
         versionLabel.Size = new Size(90, 58);
         versionLabel.TabIndex = 2;
         versionLabel.Tag = "muted";
-        versionLabel.Text = "Version 0.11.4";
+        versionLabel.Text = "Version 0.11.5";
         versionLabel.TextAlign = ContentAlignment.MiddleRight;
         // 
         // welcomeLabel

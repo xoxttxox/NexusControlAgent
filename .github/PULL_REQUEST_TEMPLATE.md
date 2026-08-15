@@ -1,19 +1,19 @@
-## Beschreibung
+## Description
 
-<!-- Was wurde geändert und warum? -->
+<!-- What was changed and why? -->
 
-## Art der Änderung
+## Type of Change
 
-- [ ] Fehlerbehebung
-- [ ] Neue Funktion
+- [ ] Bug fix
+- [ ] New feature
 - [ ] Refactoring
-- [ ] Dokumentation
-- [ ] Build oder Installer
+- [ ] Documentation
+- [ ] Build or installer
 
-## Prüfung
+## Verification
 
-- [ ] Das Projekt baut unter Windows mit .NET 10.
-- [ ] Die betroffenen Funktionen wurden manuell getestet.
-- [ ] Es wurden keine Tokens, Zugangsdaten oder privaten IP-Adressen hinzugefügt.
-- [ ] Dokumentation und Änderungsverlauf wurden bei Bedarf aktualisiert.
-- [ ] `bin`, `obj` und `artifacts` sind nicht Teil des Pull Requests.
+- [ ] The project builds on Windows with .NET 10.
+- [ ] The affected functionality was tested manually.
+- [ ] No tokens, credentials, or private IP addresses were added.
+- [ ] Documentation and the changelog were updated when required.
+- [ ] `bin`, `obj`, and `artifacts` are not part of the pull request.

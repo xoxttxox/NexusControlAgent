@@ -23,7 +23,7 @@ $installPath = (Get-ItemProperty -LiteralPath $agentKey).InstallPath
 $agentPath = Join-Path $installPath 'NexusControlAgent.exe'
 Assert-True (Test-Path -LiteralPath $agentPath -PathType Leaf) 'NexusControlAgent.exe wurde nicht gefunden.'
 $productVersion = (Get-Item -LiteralPath $agentPath).VersionInfo.ProductVersion
-Assert-True ($productVersion -like '0.11.4*') "Unerwartete Agent-Version: $productVersion"
+Assert-True ($productVersion -like '0.11.5*') "Unerwartete Agent-Version: $productVersion"
 
 $legacyService = Get-CimInstance Win32_Service -Filter "Name='NexusControlCore'"
 Assert-True ($null -eq $legacyService) 'Der entfernte NexusControlCore-Dienst ist noch installiert.'
@@ -73,4 +73,4 @@ foreach ($legacyFile in @(
     Assert-True (-not (Test-Path -LiteralPath (Join-Path $nexusData $legacyFile))) "Alte Entsperrdatei ist noch vorhanden: $legacyFile"
 }
 
-Write-Host 'Nexus Control Agent 0.11.4 ist korrekt ohne Windows-Entsperrfunktion installiert.' -ForegroundColor Green
+Write-Host 'Nexus Control Agent 0.11.5 ist korrekt ohne Windows-Entsperrfunktion installiert.' -ForegroundColor Green
